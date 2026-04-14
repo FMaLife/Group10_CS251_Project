@@ -130,9 +130,6 @@ body {
 /* ====== Cart section (left) ====== */
 .cart-section {
   background: #fff;
-  /* border-radius: 16px; */
-  /* padding: 28px 32px; */
-  /* border: 1px solid #ebebeb; */
 }
 
 .cart-section-header {
@@ -671,36 +668,35 @@ body {
 
 .complete-section {
   background: #fff;
-  border-radius: 16px;
-  padding: 32px 36px;
-  border: 1px solid #ebebeb;
 }
 
 .complete-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--neutral-50);
 }
 .complete-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #1e1e1e;
+  font-size: 20px;
+  font-weight: var(--font-regular);
+  color: var(--neutral-900);
 }
 .complete-status {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--font-regular);
 }
-.complete-status.paid   { color: #4a8c3a; }
-.complete-status.unpaid { color: #c8a030; }
+.complete-status.paid   { color: var(--main-button); }
+.complete-status.unpaid { color: var(--yellow); }
 .complete-status svg { width: 18px; height: 18px; }
 
 .complete-item {
   display: grid;
-  grid-template-columns: 52px 1fr auto auto;
+  grid-template-columns: 52px 1fr 1fr auto;
   align-items: center;
   gap: 16px;
   padding: 16px 0;
@@ -717,15 +713,18 @@ body {
 }
 .complete-item-name {
   font-size: 13.5px;
-  color: #555;
-  font-weight: 300;
+  color: var(--neutral-200);
+  font-weight: var(--font-regular);
 }
 .complete-item-qty {
-  font-size: 13px;
-  color: #aaa;
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: var(--font-light);
+  color: var(--neutral-200);
   white-space: nowrap;
 }
-.complete-item-qty strong { color: #1e1e1e; font-weight: 500; }
+.complete-item-qty span { color: var(--neutral-900); font-weight: var(--font-regular); }
 .complete-item-total {
   font-size: 14px;
   font-weight: 500;
@@ -740,30 +739,29 @@ body {
   align-items: center;
   padding: 20px 0 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: var(--font-regular);
 }
-.complete-total-row span:last-child { color: #e05252; }
+.complete-total-row span:last-child { color: var(--red); font-weight: var(--font-medium); }
 
 .complete-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0 40px;
   margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid #f0f0ee;
+  padding: 24px 0;
+  border-top: 1px solid var(--neutral-50);
+  border-bottom: 1px solid var(--neutral-50);
 }
 .complete-meta-row {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
   font-size: 13px;
-  border-bottom: 1px solid #f8f8f6;
+  border-bottom: 1px solid var(--neutral-50);
 }
-.complete-meta-label { color: #aaa; font-weight: 300; }
-.complete-meta-value { color: #1e1e1e; font-weight: 400; }
-.complete-meta-value.bold { font-weight: 700; }
-.complete-meta-value.red  { color: #e05252; font-weight: 700; }
-.complete-meta-value.free { font-weight: 700; }
+.complete-meta-label { color: var(--neutral-200); font-weight: var(--font-regular); }
+.complete-meta-value { color: var(--neutral-900); font-weight: var(--font-regular); }
+.complete-meta-value.red  { color:var(--red); font-weight: var(--font-medium); }
 
 .complete-footer {
   text-align: center;
@@ -771,23 +769,23 @@ body {
 }
 .complete-footer-hint {
   font-size: 13px;
-  color: #bbb;
-  font-weight: 300;
+  color: var(--neutral-200);
+  font-weight: var(--font-regular);
   margin-bottom: 16px;
 }
 .shop-now-btn {
   padding: 14px 48px;
-  background: #4a8c3a;
+  background: var(--main-button);
   color: #fff;
   border: none;
   border-radius: 999px;
   font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--font-medium);
   cursor: pointer;
   transition: background .2s, transform .15s;
 }
-.shop-now-btn:hover { background: #3a7a2a; transform: translateY(-1px); }
+.shop-now-btn:hover { background: var(--icon-support); transform: translateY(-1px); }
 
 /* ============================================================
    ORDERS PAGE
