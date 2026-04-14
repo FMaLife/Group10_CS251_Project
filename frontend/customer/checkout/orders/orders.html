@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orders — Smart Furniture Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/frontend/customer/components/navbar/navbar.css" />
+  <link rel="stylesheet" href="/frontend/customer/components/cart/cart.css" />
+  <link rel="stylesheet" href="/frontend/customer/components/footer/footer.css" />
+  <link rel="stylesheet" href="/frontend/customer/checkout/checkout.css" />
+</head>
+<body>
+
+  <div id="navbar-container"></div>
+  <script src="/frontend/customer/components/navbar/navbar.js"></script>
+  <script src="/frontend/customer/components/cart/cart.js"></script>
+  <script>
+    function loadNavbar() {
+      fetch("/frontend/customer/components/navbar/navbar.html")
+        .then((r) => r.text())
+        .then((html) => {
+          document.getElementById("navbar-container").innerHTML = html;
+          initNavbar().then(() => {
+            document.getElementById("nav-orders")?.classList.add("active");
+          });
+        });
+    }
+    loadNavbar();
+  </script>
+
+  <main class="orders-main">
+
+    <h1 class="orders-title">Orders</h1>
+    <div class="orders-divider"></div>
+
+    <!-- Order list — inject โดย orders.js -->
+    <div id="orders-list">
+      <div class="review-loading">Loading orders...</div>
+    </div>
+
+    <div class="orders-footer">
+      <p class="orders-footer-hint">New order, Click button bellow.</p>
+      <button class="shop-now-btn" onclick="window.location.href='/frontend/customer/home/home.html'">
+        Shop Now
+      </button>
+    </div>
+
+  </main>
+
+  <!-- footer ใส่ใน tag <body> ส่วนสุดท้าย -->
+  <div id="footer-container"></div>
+  <script src="/frontend/customer/components/footer/footer.js"></script>
+  <script>
+    fetch("/frontend/customer/components/footer/footer.html")
+      .then((r) => r.text())
+      .then((html) => {
+        document.getElementById("footer-container").innerHTML = html;
+        initFooter();
+      });
+  </script>
+
+  <script src="/frontend/customer/checkout/orders/orders.js"></script>
+
+</body>
+</html>
