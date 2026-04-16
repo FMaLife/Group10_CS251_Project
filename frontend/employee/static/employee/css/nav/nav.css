@@ -53,3 +53,16 @@ body {
     width: 150px;
     height: 100%;
 }
+
+.sidebar ul li:first-child {
+    border-bottom: 1px solid #E4E7EC;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.sidebar ul li:last-child{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
