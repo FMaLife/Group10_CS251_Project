@@ -154,3 +154,88 @@ body {
 .sidebar ul li.no-hover a:hover {
     color: #344054;
 }
+
+/*responsive*/
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .sidebar ul li .text {
+        font-size: 14px;
+    }
+
+    .sidebar ul li .icon {
+        min-width: 45px;
+        font-size: 22px;
+    }
+
+    .sidebar ul li .logo img {
+        width: 130px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+    }
+
+    .sidebar ul li .text,
+    .user {
+        display: none;
+    }
+
+    .profile .icon {
+        display: none !important;
+    }
+
+
+    .sidebar ul li .icon {
+        min-width: 100%;
+        justify-content: center;
+    }
+
+    .sidebar ul li .logo img {
+        width: 50px;
+    }
+
+
+    .profile-box {
+        justify-content: center;
+    }
+
+
+    .logout {
+        margin-left: 0;
+        transform: none;
+    }
+
+ 
+    .main-content {
+        margin-left: 80px;
+    }
+}
+@media (max-width: 480px) {
+    .sidebar {
+        width: 65px;
+    }
+
+    .sidebar ul li {
+        margin: 0 10px;
+    }
+
+    .sidebar ul li .icon {
+        font-size: 20px;
+        height: 36px;
+    }
+}
+
+.main-content {
+    margin-left: 280px;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 80px;
+    }
+}
