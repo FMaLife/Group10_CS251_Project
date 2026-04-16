@@ -66,3 +66,39 @@ body {
     left: 0;
     right: 0;
 }
+
+.sidebar ul li .icon{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 50px;
+    height: 40px;
+    font-size: 24px;
+}
+
+.sidebar ul li .text{
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.profile-box {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.profile {
+    border-top: 1px solid #E4E7EC;
+    padding-top: 12px;
+}
+
+.profile a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
