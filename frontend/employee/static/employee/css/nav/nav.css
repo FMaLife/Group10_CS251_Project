@@ -33,6 +33,15 @@ body {
     border-radius: 6px;
 }
 
+.sidebar ul li:hover {
+    background: #FEF6F5; 
+    transition: 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    color: #F297A0;;
+}
+
 .sidebar ul li a{
     position: relative;
     display: flex;
@@ -101,4 +110,47 @@ body {
     display: flex;
     align-items: center;
     width: 100%;
+}
+
+.user {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.user .name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.user .role {
+    font-size: 14px;
+    color: #667085;
+}
+
+.logout {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    cursor: pointer;
+    transform: translateX(8px);
+    text-decoration: none;
+}
+
+.logout ion-icon {
+    font-size: 28px;
+}
+
+/*no hover bottom*/
+.sidebar ul li.no-hover:hover {
+    background: transparent;
+}
+
+.sidebar ul li.no-hover a:hover {
+    color: #344054;
 }
