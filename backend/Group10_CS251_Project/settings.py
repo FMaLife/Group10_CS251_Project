@@ -42,10 +42,10 @@ INSTALLED_APPS = [
     "corsheaders",
 
     'accounts',
-    'stock',
-    'catalog',
-    'cart_delivery',
-    'order_payment',
+    #'stock',
+    #'catalog',
+    #'cart_delivery',
+    #'order_payment',
 ]
 
 MIDDLEWARE = [
