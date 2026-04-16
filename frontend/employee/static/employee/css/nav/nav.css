@@ -33,3 +33,23 @@ body {
     border-radius: 6px;
 }
 
+.sidebar ul li a{
+    position: relative;
+    display: flex;
+    white-space: nowrap;
+    text-decoration: none;
+    color: #344054;
+}
+
+
+.sidebar ul li .logo{
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.sidebar ul li .logo img {
+    width: 150px;
+    height: 100%;
+}
