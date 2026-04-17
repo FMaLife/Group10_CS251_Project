@@ -85,7 +85,7 @@ def customer_register(request):
             "email":      user.email,
             "phoneNumber": customer.PhoneNumber,
         },
-    }, status=201)
+    }, json_dumps_params={'ensure_ascii': False}, status=201)
 
 
 @require_http_methods(["POST"])
