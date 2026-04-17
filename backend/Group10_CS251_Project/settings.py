@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "corsheaders",
 
     'accounts',    # login / logout / register views
+    'customers',   # Customer, CustomerAddress 
     #'stock',
     #'catalog',
     #'cart_delivery',
