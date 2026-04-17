@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'accounts',    # login / logout / register views
     'customers',   # Customer, CustomerAddress 
+    'employees',   # Employee 
     #'stock',
     #'catalog',
     #'cart_delivery',
