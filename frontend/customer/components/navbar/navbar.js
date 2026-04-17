@@ -127,14 +127,23 @@ function isHomePage() {
 // ============================================================
 
 function updateProfile(user) {
-  const profile = document.getElementById("navbar-account-name");
-  if (!profile) return;
-  
+  const nameEl = document.getElementById("navbar-account-name");
+  const linkEl = document.getElementById("navbar-account-link");
+
+  if (!nameEl || !linkEl) return;
+
   if (!user) {
-    profile.textContent = "Your Account";
+    nameEl.textContent = "Log in";
+    linkEl.href = "/frontend/customer/auth/login/login.html";
     return;
   }
-  profile.textContent = `${user.first_name} ${user.last_name}`;
+
+  const fullName = [user.first_name, user.last_name]
+    .filter(Boolean)
+    .join(" ");
+
+  nameEl.textContent = fullName || "Your Account";
+  linkEl.href = "/frontend/customer/profile/profile.html";
 }
 
 function renderCategories(categories) {
