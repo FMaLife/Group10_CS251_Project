@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # เคยแก้ตรงนี้
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = config('DEBUG', cast=bool, default=False) # ควรตั้งเป็น False ตอน deploy จริง
 
 ALLOWED_HOSTS = []
 
@@ -41,12 +41,15 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
 
-    'accounts',
+    'accounts',    # login / logout / register views
     #'stock',
     #'catalog',
     #'cart_delivery',
     #'order_payment',
 ]
+
+# Django เรียกใช้ตอน authenticate()
+AUTHENTICATION_BACKENDS = ["accounts.utils.auth.EmailBackend"]
 
 MIDDLEWARE = [
 
@@ -138,10 +141,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Session settings
+SESSION_COOKIE_AGE = 86400          # 24 ชั่วโมง 
+SESSION_COOKIE_HTTPONLY = True      # JS เข้าถึง cookie ไม่ได้
+SESSION_COOKIE_SAMESITE = "Lax"     # ป้องกัน CSRF
+SESSION_COOKIE_SECURE = True        # ควรตั้งเป็น True ตอน deploy จริง (ต้องใช้ HTTPS)
+
 # เพิ่ม CORS Configuration
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -150,6 +160,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
 ]
 
 # เพิ่ม REST Framework Configuration
