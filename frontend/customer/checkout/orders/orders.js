@@ -12,7 +12,7 @@ const ORDERS_API_BASE = "http://127.0.0.1:8000";
 const ORDERS_MOCK = [
   {
     order_id: 10025,
-    status: "Pending",   // waiting_payment | paid | shipping | delivered
+    status: "Pending",   // Pending | Received | In_transit | Complete | Cancelled
     delivery_date: null,
     address: "Carnaby Street, London, W1F 9PB",
     total: "9040.00",
@@ -63,6 +63,17 @@ async function apiCancelOrder(orderId) {
   });
 }
 
+async function apiMarkPaid(orderId) {
+  if (ORDERS_USE_MOCK) {
+    return new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  await fetch(`${ORDERS_API_BASE}/api/orders/${orderId}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ payment_status: "paid" }),
+  });
+}
+
 // ============================================================
 //  Helpers
 // ============================================================
@@ -76,8 +87,9 @@ function getItemImage(item) {
   return `https://placehold.co/80x100/f0ece4/888070?text=${encodeURIComponent(item.product_name[0])}`;
 }
 
+// status from response: Pending | Received | In_transit | Complete | Cancelled
 const STATUS_MAP = {
-  Pending:    { label: "Waiting for payment", cls: "in-process" },
+  Pending:    { label: "Waiting for payment", cls: "pending" },
   Received:   { label: "Received order",      cls: "in-process" },
   In_transit: { label: "In transit",          cls: "in-process" },
   Complete:   { label: "Complete",            cls: "complete"   },
@@ -122,7 +134,7 @@ function renderOrderProducts(items) {
 function renderOrderCard(order) {
   const status = getStatusInfo(order.status);
   const canCancel = ["Pending"].includes(order.status);
-
+ 
   return `
     <div class="order-card" id="order-card-${order.order_id}">
       <div class="order-card-header">
@@ -134,7 +146,16 @@ function renderOrderCard(order) {
       <div class="order-meta">
         <div class="order-meta-row">
           <span class="order-meta-label">Status:</span>
-          <span class="order-meta-value ${status.cls}">${status.label}</span>
+          ${order.status === "Pending"
+            /* Pending → แสดงเป็นปุ่มกดได้ เพื่อเปิด QR overlay */
+            ? `<button
+                class="order-meta-value order-status-value ${status.cls}"
+                style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;text-decoration:underline;text-underline-offset:3px;padding:0;"
+                onclick="openOrdersQr(${order.order_id}, '${order.total}')"
+               >${status.label}</button>`
+            /* status อื่น → แสดงเป็น span ธรรมดา */
+            : `<span class="order-meta-value order-status-value ${status.cls}">${status.label}</span>`
+          }
         </div>
         <div class="order-meta-row">
           <span class="order-meta-label">Date of delivery:</span>
@@ -145,7 +166,7 @@ function renderOrderCard(order) {
           <span class="order-meta-value">${order.address}</span>
         </div>
         <div class="order-meta-row">
-          <span class="order-meta-label bold">Total:</span>
+          <span class="order-meta-label">Total:</span>
           <span class="order-meta-value bold">${formatPrice(order.total)}</span>
         </div>
       </div>
@@ -169,6 +190,60 @@ function renderOrders(orders) {
 // ============================================================
 //  Actions
 // ============================================================
+
+// เก็บ order_id ที่กำลังรอชำระไว้ เพื่อใช้ตอนกด Complete
+let pendingPaymentOrderId = null;
+ 
+function openOrdersQr(orderId, total) {
+  pendingPaymentOrderId = orderId;
+  document.getElementById("orders-qr-amount").textContent = formatPrice(total);
+  document.getElementById("qr-backdrop")?.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function handleOrdersQrClose() {
+  // กด "Not ready" — ปิด overlay โดยไม่เปลี่ยน status
+  document.getElementById("qr-backdrop")?.classList.remove("open");
+  document.body.style.overflow = "";
+  pendingPaymentOrderId = null;
+}
+
+async function handleOrdersQrComplete() {
+  // กด "Complete" — mark paid แล้วอัปเดต UI
+  const orderId = pendingPaymentOrderId;
+  document.getElementById("qr-backdrop")?.classList.remove("open");
+  document.body.style.overflow = "";
+  pendingPaymentOrderId = null;
+ 
+  if (!orderId) return;
+ 
+  try {
+    await apiMarkPaid(orderId);
+    updateOrderStatusUI(orderId, "Received");
+  } catch (err) {
+    console.error("Mark paid failed:", err);
+  }
+}
+
+// อัปเดต status badge ใน card โดยไม่ต้อง re-render ทั้งหน้า
+function updateOrderStatusUI(orderId, newStatus) {
+  const card = document.getElementById(`order-card-${orderId}`);
+  if (!card) return;
+ 
+  const statusInfo = getStatusInfo(newStatus);
+  const statusEl   = card.querySelector(".order-status-value");
+  if (statusEl) {
+    // เปลี่ยนจาก <button> กลับเป็น <span> ธรรมดาเพราะชำระแล้ว
+    const span = document.createElement("span");
+    span.className   = `order-meta-value ${statusInfo.cls}`;
+    span.textContent = statusInfo.label;
+    statusEl.replaceWith(span);
+  }
+ 
+  if (newStatus !== "Pending") {
+    card.querySelector(".cancel-order-btn")?.remove();
+  }
+}
 
 async function handleCancelOrder(orderId) {
   if (!confirm(`Cancel order #${orderId}?`)) return;
