@@ -2,17 +2,19 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
+from customers.models import Customer
+from accounts.utils.auth import hash_password, verify_password
 from accounts.utils.permissions import customer_required
 from accounts.utils.validators import validate_phone, validate_password, collect_errors
 
 
-def _serialize(customer) -> dict:
+def _serialize(c: Customer) -> dict:
     return {
-        "customerID":  customer.CustomerID,
-        "firstName":   customer.FirstName,
-        "lastName":    customer.LastName,
-        "email":       customer.Email,
-        "phoneNumber": customer.PhoneNumber,
+        "customerID":  c.CustomerID,
+        "firstName":   c.FirstName,
+        "lastName":    c.LastName,
+        "email":       c.Email,
+        "phoneNumber": c.PhoneNumber,
     }
 
 
@@ -81,28 +83,20 @@ def change_password(request):
             {"error": "New password must differ from current password"}, status=400
         )
 
-    # ใช้ Django check_password แทน bcrypt เอง
-    if not request.user.check_password(old_pass):
+    if not verify_password(old_pass, request.customer.Password):
         return JsonResponse({"error": "Current password is incorrect"}, status=400)
 
-    request.user.set_password(new_pass)
-    request.user.save()
-
-    # login ใหม่เพื่อ refresh session หลังเปลี่ยน password
-    from django.contrib.auth import update_session_auth_hash
-    update_session_auth_hash(request, request.user)
-
+    request.customer.Password = hash_password(new_pass)
+    request.customer.save()
     return JsonResponse({"message": "Password changed successfully"})
 
 
 @require_http_methods(["DELETE"])
 @customer_required
 def deactivate(request):
-    # deactivate ผ่าน Django User
-    request.user.is_active = False
-    request.user.save()
-    from django.contrib.auth import logout
-    logout(request)
+    request.customer.is_active = False
+    request.customer.save()
+    request.session.flush()
     return JsonResponse({"message": "Account deactivated"})
 
 

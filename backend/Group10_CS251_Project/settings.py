@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # เคยแก้ตรงนี้
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', cast=bool, default=False) # ควรตั้งเป็น False ตอน deploy จริง
+DEBUG = config('DEBUG', cast=bool, default=True) # ควรตั้งเป็น False ตอน deploy จริง
 
 ALLOWED_HOSTS = []
 
@@ -50,8 +50,6 @@ INSTALLED_APPS = [
     #'order_payment',
 ]
 
-# Django เรียกใช้ตอน authenticate()
-AUTHENTICATION_BACKENDS = ["accounts.utils.auth.EmailBackend"]
 
 MIDDLEWARE = [
 
@@ -60,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware', # API ใช้ session auth แต่ไม่ใช้ CSRF token
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -126,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
@@ -147,7 +145,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SESSION_COOKIE_AGE = 86400          # 24 ชั่วโมง 
 SESSION_COOKIE_HTTPONLY = True      # JS เข้าถึง cookie ไม่ได้
 SESSION_COOKIE_SAMESITE = "Lax"     # ป้องกัน CSRF
-SESSION_COOKIE_SECURE = True        # ควรตั้งเป็น True ตอน deploy จริง (ต้องใช้ HTTPS)
+SESSION_COOKIE_SECURE = False       # ควรตั้งเป็น True ตอน deploy จริง (ต้องใช้ HTTPS)
 
 # เพิ่ม CORS Configuration
 CORS_ALLOWED_ORIGINS = [

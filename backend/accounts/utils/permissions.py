@@ -1,60 +1,65 @@
 """
-permissions.py — decorators ใช้ Django auth
-ไม่เขียน session เอง ใช้ request.user จาก Django แทน
+permissions.py — session decorators
+import models จาก customers และ employees app
 """
 from functools import wraps
 from django.http import JsonResponse
 
 
-def _err(msg, status):
+def _error(msg: str, status: int) -> JsonResponse:
     return JsonResponse({"error": msg}, status=status)
 
 
 def customer_required(view_func):
-    """
-    ต้อง login และต้องเป็น Customer
-    ใส่ request.customer ให้อัตโนมัติ
-    """
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return _err("Authentication required", 401)
-        if not hasattr(request.user, "customer"):
-            return _err("Customer account required", 403)
-        request.customer = request.user.customer
+        customer_id = request.session.get("customer_id")
+        if not customer_id:
+            return _error("Authentication required", 401)
+        from customers.models import Customer
+        try:
+            request.customer = Customer.objects.get(
+                CustomerID=customer_id, is_active=True
+            )
+        except Customer.DoesNotExist:
+            request.session.flush()
+            return _error("Customer not found or account deactivated", 401)
         return view_func(request, *args, **kwargs)
     return wrapper
 
 
 def employee_required(view_func):
-    """
-    ต้อง login และต้องเป็น Employee (Admin หรือ Staff)
-    ใส่ request.employee ให้อัตโนมัติ
-    """
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return _err("Authentication required", 401)
-        if not hasattr(request.user, "employee"):
-            return _err("Employee account required", 403)
-        request.employee = request.user.employee
+        employee_id = request.session.get("employee_id")
+        if not employee_id:
+            return _error("Authentication required", 401)
+        from employees.models import Employee
+        try:
+            request.employee = Employee.objects.get(
+                EmployeeID=employee_id, is_active=True
+            )
+        except Employee.DoesNotExist:
+            request.session.flush()
+            return _error("Employee not found or account deactivated", 401)
         return view_func(request, *args, **kwargs)
     return wrapper
 
 
 def admin_required(view_func):
-    """
-    ต้อง login และต้องเป็น Employee ที่มี role=Admin
-    ใส่ request.employee ให้อัตโนมัติ
-    """
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return _err("Authentication required", 401)
-        if not hasattr(request.user, "employee"):
-            return _err("Employee account required", 403)
-        if request.user.employee.role != "Admin":
-            return _err("Admin access required", 403)
-        request.employee = request.user.employee
+        employee_id = request.session.get("employee_id")
+        if not employee_id:
+            return _error("Authentication required", 401)
+        from employees.models import Employee
+        try:
+            emp = Employee.objects.get(EmployeeID=employee_id, is_active=True)
+        except Employee.DoesNotExist:
+            request.session.flush()
+            return _error("Employee not found or account deactivated", 401)
+        if emp.role != "Admin":
+            return _error("Admin access required", 403)
+        request.employee = emp
         return view_func(request, *args, **kwargs)
     return wrapper

@@ -1,9 +1,10 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.db import transaction
+from django.db import IntegrityError
 
 from employees.models import Employee
+from accounts.utils.auth import hash_password
 from accounts.utils.permissions import employee_required, admin_required
 from accounts.utils.validators import validate_email, validate_password, collect_errors
 
@@ -36,15 +37,15 @@ def get_profile(request):
 @require_http_methods(["GET"])
 @admin_required
 def list_employees(request):
-    qs     = Employee.objects.select_related("user").all()
+    qs     = Employee.objects.all()
     role   = request.GET.get("role", "").strip()
     active = request.GET.get("active", "").strip().lower()
     if role in ("Admin", "Staff"):
         qs = qs.filter(role=role)
     if active == "true":
-        qs = qs.filter(user__is_active=True)
+        qs = qs.filter(is_active=True)
     elif active == "false":
-        qs = qs.filter(user__is_active=False)
+        qs = qs.filter(is_active=False)
     return JsonResponse({"employees": [_serialize(e) for e in qs.order_by("EmployeeID")]})
 
 
@@ -57,7 +58,7 @@ def get_employee(request, employee_id):
             {"error": "Admin access required to view other employees"}, status=403
         )
     try:
-        emp = Employee.objects.select_related("user").get(EmployeeID=employee_id)
+        emp = Employee.objects.get(EmployeeID=employee_id)
     except Employee.DoesNotExist:
         return JsonResponse({"error": "Employee not found"}, status=404)
     return JsonResponse({"employee": _serialize(emp)})
@@ -69,9 +70,6 @@ def create_employee(request):
     body, err = _parse(request)
     if err:
         return err
-
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
 
     first_name = body.get("firstName", "").strip()
     last_name  = body.get("lastName",  "").strip()
@@ -94,22 +92,14 @@ def create_employee(request):
     if errors:
         return JsonResponse({"errors": errors}, status=400)
 
-    if User.objects.filter(email=email).exists():
-        return JsonResponse({"error": "Email already registered"}, status=409)
-
-    with transaction.atomic():
-        user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=password,
-        )
+    try:
         emp = Employee.objects.create(
-            user=user,
-            EFirstName=first_name,
-            ELastName=last_name,
-            EPhone=phone,
-            role=role,
+            EFirstName=first_name, ELastName=last_name,
+            EEmail=email, EPassword=hash_password(password),
+            EPhone=phone, role=role,
         )
+    except IntegrityError:
+        return JsonResponse({"error": "Email already registered"}, status=409)
 
     return JsonResponse(
         {"message": "Employee created", "employee": _serialize(emp)}, status=201
@@ -128,7 +118,7 @@ def update_role(request, employee_id):
         return JsonResponse({"error": "role must be Admin or Staff"}, status=400)
 
     try:
-        emp = Employee.objects.get(EmployeeID=employee_id, user__is_active=True)
+        emp = Employee.objects.get(EmployeeID=employee_id, is_active=True)
     except Employee.DoesNotExist:
         return JsonResponse({"error": "Employee not found"}, status=404)
 

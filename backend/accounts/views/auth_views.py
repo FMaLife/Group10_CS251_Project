@@ -1,20 +1,13 @@
-"""
-accounts/views/auth_views.py
-register / login / logout — ทั้ง Customer และ Employee
-ใช้ Django authenticate() + login() + logout()
-"""
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.db import transaction
+from django.db import IntegrityError
 
+from accounts.utils.auth import hash_password, verify_password
+from accounts.utils.permissions import customer_required, employee_required
 from accounts.utils.validators import (
     validate_email, validate_phone, validate_password, collect_errors,
 )
-from accounts.utils.permissions import customer_required, employee_required
-
-User = get_user_model()
 
 
 def _parse(request):
@@ -57,35 +50,26 @@ def customer_register(request):
     if errors:
         return JsonResponse({"errors": errors}, status=400)
 
-    if User.objects.filter(email=email).exists():
-        return JsonResponse({"error": "Email already registered"}, status=409)
-
-    # สร้าง User + Customer ใน transaction เดียว
-    with transaction.atomic():
-        user = User.objects.create_user(
-            username=email,  # ใช้ email เป็น username
-            email=email,
-            password=password,
-        )
+    try:
         customer = Customer.objects.create(
-            user=user,
-            FirstName=first_name,
-            LastName=last_name,
+            FirstName=first_name, LastName=last_name,
+            Email=email, Password=hash_password(password),
             PhoneNumber=phones,
         )
+    except IntegrityError:
+        return JsonResponse({"error": "Email already registered"}, status=409)
 
-    login(request, user)
+    request.session.cycle_key()
+    request.session["customer_id"] = customer.CustomerID
+    request.session["user_type"]   = "customer"
 
     return JsonResponse({
         "message": "Registered successfully",
         "customer": {
-            "customerID": customer.CustomerID,
-            "firstName":  customer.FirstName,
-            "lastName":   customer.LastName,
-            "email":      user.email,
-            "phoneNumber": customer.PhoneNumber,
+            "customerID": customer.CustomerID, "firstName": customer.FirstName,
+            "lastName": customer.LastName, "email": customer.Email,
         },
-    }, json_dumps_params={'ensure_ascii': False}, status=201)
+    }, status=201)
 
 
 @require_http_methods(["POST"])
@@ -94,33 +78,33 @@ def customer_login(request):
     if err:
         return err
 
+    from customers.models import Customer
+
     email    = body.get("email",    "").strip().lower()
     password = body.get("password", "")
 
     if not email or not password:
         return JsonResponse({"error": "Email and password are required"}, status=400)
 
-    user = authenticate(request, email=email, password=password)
-    if user is None:
+    try:
+        customer = Customer.objects.get(Email=email)
+    except Customer.DoesNotExist:
         return JsonResponse({"error": "Invalid email or password"}, status=401)
 
-    if not user.is_active:
+    if not customer.is_active:
         return JsonResponse({"error": "Account is deactivated"}, status=401)
+    if not verify_password(password, customer.Password):
+        return JsonResponse({"error": "Invalid email or password"}, status=401)
 
-    if not hasattr(user, "customer"):
-        return JsonResponse({"error": "Not a customer account"}, status=403)
-
-    login(request, user)
-    customer = user.customer
+    request.session.cycle_key()
+    request.session["customer_id"] = customer.CustomerID
+    request.session["user_type"]   = "customer"
 
     return JsonResponse({
         "message": "Login successful",
         "customer": {
-            "customerID":  customer.CustomerID,
-            "firstName":   customer.FirstName,
-            "lastName":    customer.LastName,
-            "email":       user.email,
-            "phoneNumber": customer.PhoneNumber,
+            "customerID": customer.CustomerID, "firstName": customer.FirstName,
+            "lastName": customer.LastName, "email": customer.Email,
         },
     })
 
@@ -128,11 +112,11 @@ def customer_login(request):
 @require_http_methods(["POST"])
 @customer_required
 def customer_logout(request):
-    logout(request)
+    request.session.flush()
     return JsonResponse({"message": "Logged out successfully"})
 
 
-# Employee login / logout
+# Employee
 
 @require_http_methods(["POST"])
 def employee_login(request):
@@ -140,33 +124,34 @@ def employee_login(request):
     if err:
         return err
 
+    from employees.models import Employee
+
     email    = body.get("email",    "").strip().lower()
     password = body.get("password", "")
 
     if not email or not password:
         return JsonResponse({"error": "Email and password are required"}, status=400)
 
-    user = authenticate(request, email=email, password=password)
-    if user is None:
+    try:
+        emp = Employee.objects.get(EEmail=email)
+    except Employee.DoesNotExist:
         return JsonResponse({"error": "Invalid email or password"}, status=401)
 
-    if not user.is_active:
+    if not emp.is_active:
         return JsonResponse({"error": "Account is deactivated"}, status=401)
+    if not verify_password(password, emp.EPassword):
+        return JsonResponse({"error": "Invalid email or password"}, status=401)
 
-    if not hasattr(user, "employee"):
-        return JsonResponse({"error": "Not an employee account"}, status=403)
-
-    login(request, user)
-    emp = user.employee
+    request.session.cycle_key()
+    request.session["employee_id"] = emp.EmployeeID
+    request.session["user_type"]   = "employee"
+    request.session["role"]        = emp.role
 
     return JsonResponse({
         "message": "Login successful",
         "employee": {
-            "employeeID": emp.EmployeeID,
-            "firstName":  emp.EFirstName,
-            "lastName":   emp.ELastName,
-            "role":       emp.role,
-            "email":      user.email,
+            "employeeID": emp.EmployeeID, "firstName": emp.EFirstName,
+            "lastName": emp.ELastName, "role": emp.role, "email": emp.EEmail,
         },
     })
 
@@ -174,5 +159,5 @@ def employee_login(request):
 @require_http_methods(["POST"])
 @employee_required
 def employee_logout(request):
-    logout(request)
+    request.session.flush()
     return JsonResponse({"message": "Logged out successfully"})

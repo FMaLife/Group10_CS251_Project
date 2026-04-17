@@ -39,9 +39,9 @@ def _parse(request):
         return None, JsonResponse({"error": "Invalid JSON"}, status=400)
 
 
-def _validate_owner(address_id: int, customer) -> bool:
+def _validate_owner(address_id: int, customer_id: int) -> bool:
     return CustomerAddress.objects.filter(
-        AddressID=address_id, CustomerID=customer
+        AddressID=address_id, CustomerID=customer_id
     ).exists()
 
 
@@ -57,7 +57,7 @@ def list_addresses(request):
 @require_http_methods(["GET"])
 @customer_required
 def get_address(request, address_id):
-    if not _validate_owner(address_id, request.customer):
+    if not _validate_owner(address_id, request.customer.CustomerID):
         return JsonResponse({"error": "Address not found"}, status=404)
     addr = CustomerAddress.objects.get(AddressID=address_id)
     return JsonResponse(_serialize(addr))
@@ -93,7 +93,7 @@ def add_address(request):
 @require_http_methods(["PUT"])
 @customer_required
 def update_address(request, address_id):
-    if not _validate_owner(address_id, request.customer):
+    if not _validate_owner(address_id, request.customer.CustomerID):
         return JsonResponse({"error": "Address not found"}, status=404)
 
     body, err = _parse(request)
@@ -110,13 +110,14 @@ def update_address(request, address_id):
         if json_key in body and body[json_key].strip():
             setattr(addr, model_field, body[json_key].strip())
     addr.save()
+
     return JsonResponse({"message": "Address updated", "address": _serialize(addr)})
 
 
 @require_http_methods(["DELETE"])
 @customer_required
 def delete_address(request, address_id):
-    if not _validate_owner(address_id, request.customer):
+    if not _validate_owner(address_id, request.customer.CustomerID):
         return JsonResponse({"error": "Address not found"}, status=404)
 
     try:
@@ -137,7 +138,7 @@ def delete_address(request, address_id):
 @require_http_methods(["PUT"])
 @customer_required
 def set_default_address(request, address_id):
-    if not _validate_owner(address_id, request.customer):
+    if not _validate_owner(address_id, request.customer.CustomerID):
         return JsonResponse({"error": "Address not found"}, status=404)
 
     with transaction.atomic():

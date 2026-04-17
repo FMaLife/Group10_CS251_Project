@@ -1,21 +1,14 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 
 
 class Customer(models.Model):
-    # ผูกกับ Django User เพื่อใช้ auth
-    # ข้อมูลจริงเก็บที่นี่
-    user        = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="customer",
-    )
     CustomerID  = models.AutoField(primary_key=True)
     FirstName   = models.CharField(max_length=50)
     LastName    = models.CharField(max_length=50)
+    Email       = models.CharField(max_length=150, unique=True)
+    Password    = models.CharField(max_length=255)
     PhoneNumber = models.JSONField(default=list)
+    is_active   = models.BooleanField(default=True)
 
     class Meta:
         db_table = "Customer"
@@ -23,17 +16,10 @@ class Customer(models.Model):
     def __str__(self):
         return f"{self.FirstName} {self.LastName}"
 
-    @property
-    def Email(self):
-        return self.user.email
-
-    @property
-    def is_active(self):
-        return self.user.is_active
-
 
 class CustomerAddress(models.Model):
     AddressID   = models.AutoField(primary_key=True)
+    # FK ข้าม app ใช้ string "customers.Customer"
     CustomerID  = models.ForeignKey(
         "customers.Customer",
         on_delete=models.CASCADE,
