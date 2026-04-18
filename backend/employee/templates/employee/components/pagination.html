@@ -1,0 +1,48 @@
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'employee/css/pagination.css' %}">
+{% endblock %}
+<div class="table-footer">
+    <div class="prev-button {% if not page_obj.has_previous %}disabled-btn{% endif %}">
+    {% if page_obj.has_previous %}
+        <i class="lni lni-arrow-left"></i>
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+    </div>
+
+    <div class="page-num">
+    {% for num in page_obj.paginator.page_range %}
+
+        {% if num == 1 %}
+            <a href="?page={{ num }}" class="{% if page_obj.number == num %}active{% endif %}">
+                {{ num }}
+            </a>
+
+        {% elif num == page_obj.number|add:-3 and num > 1 %}
+            <span>...</span>
+
+        {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+            <a href="?page={{ num }}" class="{% if page_obj.number == num %}active{% endif %}">
+                {{ num }}
+            </a>
+
+        {% elif num == page_obj.number|add:3 and num < page_obj.paginator.num_pages %}
+            <span>...</span>
+
+        {% elif num == page_obj.paginator.num_pages %}
+            <a href="?page={{ num }}" class="{% if page_obj.number == num %}active{% endif %}">
+                {{ num }}
+            </a>
+
+        {% endif %}
+
+    {% endfor %}
+    </div>
+
+    <div class="next-button {% if not page_obj.has_next %}disabled-btn{% endif %}">
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            <i class="lni lni-arrow-right"></i>
+        {% endif %}
+    </div>
+</div>
