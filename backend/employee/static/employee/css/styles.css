@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    min-height: 100vh;
+}
+
+.main-content{
+    margin-left: 280px;
+    padding: 40px;
+}
+
+h1{
+    font-size: 30px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 80px;
+    }
+}
