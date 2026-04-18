@@ -157,3 +157,8 @@ def delete_item(request, model, id):
 
 def detail_item(request, model, id):
     return HttpResponse("Detail not implemented yet")
+
+def paginate(request, data, per_page=10):
+    paginator = Paginator(data, per_page)
+    page_number = request.GET.get('page')
+    return paginator.get_page(page_number)

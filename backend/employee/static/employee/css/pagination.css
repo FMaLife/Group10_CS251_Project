@@ -1,0 +1,85 @@
+.table-footer{
+    padding: 25px;
+    border: 1px solid #EAECF0;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    height: 70px;
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+}
+
+.prev-button, .next-button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 35px;
+    border: none;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    padding: 10px;
+    color: #344054;
+    background-color: white;
+    font-size: 14px;
+}
+
+.prev-button a, .next-button a{
+    text-decoration: none;  
+    color: #344054;
+    font-size: 14px;
+}
+
+.prev-button i,
+.next-button i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+ั
+.page-num{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0px;
+    gap: 2px;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+}
+
+.page-num a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px;
+    border-radius: 8px;
+    min-width: 40px;
+    min-height: 40px;
+    text-decoration: none;
+    color: #667085;
+    transition: 0.2s;
+}
+
+.page-num span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-num a:hover{
+    background-color: #FEF6F5;
+    color: #F297A0;
+}
+
+.page-num a.active {
+    background-color: #FEF6F5;
+    color: #F297A0;
+}
+
+.disabled-btn {
+    border: none;
+    pointer-events: none;
+}
