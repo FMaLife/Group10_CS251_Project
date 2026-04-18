@@ -1,14 +1,3 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Inter", sans-serif;
-}
-
-body {
-    min-height: 100vh;
-}
-
 .sidebar {
     position: fixed;
     top: 0;
@@ -210,10 +199,6 @@ body {
         transform: none;
     }
 
- 
-    .main-content {
-        margin-left: 80px;
-    }
 }
 @media (max-width: 480px) {
     .sidebar {
@@ -227,15 +212,5 @@ body {
     .sidebar ul li .icon {
         font-size: 20px;
         height: 36px;
-    }
-}
-
-.main-content {
-    margin-left: 280px;
-}
-
-@media (max-width: 768px) {
-    .main-content {
-        margin-left: 80px;
     }
 }
