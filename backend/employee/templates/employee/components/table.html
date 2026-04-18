@@ -1,0 +1,82 @@
+{% load static %}
+{% load custom_tags %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'employee/css/table.css' %}">
+{% endblock %}
+<div class="table-container {% if not page_obj.object_list %}empty{% endif %}">
+
+    <div class="table-header">
+        <div class="table-search">
+            <i class="lni lni-search-1"></i>
+            <input type="text" placeholder="Search">
+        </div>  
+
+        {% if show_add %}
+        <button class="table-button" onclick="openModal('add')">    
+            <ion-icon name="add"></ion-icon>
+            <span>Add New {{ title }}</span>
+        </button>
+        {% endif %}
+    </div>
+
+    {% if page_obj.object_list %}
+        <div class="table-wrapper">
+            <table class="table">
+                <tr>
+                    {% for header in headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+
+                    {% if show_actions %}
+                        <th>Actions</th>
+                    {% endif %}
+                </tr>
+
+                {% for row in page_obj %}
+                <tr>
+                    {% for col in columns %}
+                        <td>{{ row|attr:col }}</td>
+                    {% endfor %}
+
+                    {% if show_actions %}
+                    <td>
+                        <div class="action-buttons">
+
+                            {% if actions.edit %}
+                            <button class="edit-button"
+                                onclick="location.href='{% url 'edit_item' title|lower row.id %}'">
+                                <i class="lni lni-pencil-1"></i>
+                            </button>
+                            {% endif %}
+
+                            {% if actions.delete %}
+                            <form method="post" action="{% url delete_url title|lower row.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-button">
+                                    <i class="lni lni-trash-3"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if actions.detail %}
+                            <button class="detail-button"
+                                onclick="location.href='{% url 'detail_item' title|lower row.id %}'">
+                                Details
+                            </button>
+                            {% endif %}
+
+                        </div>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    {% else %}
+        <div class="no-data">
+            <p>No {{ title }} found...</p>
+        </div>
+    {% endif %}
+
+</div>
