@@ -36,16 +36,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # เพิ่ม API Framework และ CORS Headers
-    "rest_framework",
-    "corsheaders",
-
-    'accounts',
-    'stock',
-    'catalog',
-    'cart_delivery',
-    'order_payment',
+    'rest_framework',
+    'corsheaders',
+     'accounts',
+     'stock',
+     'catalog',
+     'cart_delivery',
+     'order_payment',
 ]
 
 MIDDLEWARE = [
