@@ -1,21 +1,21 @@
 """
 Views for Cart & Delivery domain.
 
-Endpoints implement the Functional Components from CS251 Project Topic:
+Endpoints follow the team API spreadsheet (mounted under /api/cart/):
 
 Customer
-  - GET    /api/cart/?customer_id=...        Get/auto-create the customer's cart
-  - POST   /api/cart/items/                  Add a product into the cart
-  - PATCH  /api/cart/items/<id>/             Update quantity / total
-  - DELETE /api/cart/items/<id>/             Remove a product from the cart
-  - DELETE /api/cart/<cart_id>/clear/        Empty the cart
-  - GET    /api/deliveries/by-order/<id>/    Customer tracks a delivery
+  - GET    /api/cart/?customer=<id>             Get/auto-create the customer's cart
+  - POST   /api/cart/items/                     Add a product into the cart
+  - PATCH  /api/cart/items/<id>/                Update quantity / total
+  - DELETE /api/cart/items/<id>/                Remove a product from the cart
+  - DELETE /api/cart/<cart_id>/clear/           Empty the cart
+  - GET    /api/cart/deliveries/by-order/<id>/  Customer tracks a delivery
 
 Employee
-  - GET    /api/deliveries/                  List deliveries
-  - POST   /api/deliveries/                  Create a delivery for an order
-  - GET    /api/deliveries/<id>/             Detail
-  - PATCH  /api/deliveries/<id>/status/      Update delivery status
+  - GET    /api/cart/deliveries/                List deliveries
+  - POST   /api/cart/deliveries/                Create a delivery for an order
+  - GET    /api/cart/deliveries/<id>/           Detail
+  - PATCH  /api/cart/deliveries/<id>/status/    Update delivery status
 """
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -38,23 +38,26 @@ from .serializers import (
 
 
 class CartView(APIView):
-    """GET /api/cart/?customer_id=<id>  →  ดึงตะกร้าของลูกค้า (สร้างให้ถ้ายังไม่มี)."""
+    """GET /api/cart/?customer=<id>  →  ดึงตะกร้าของลูกค้า (สร้างให้ถ้ายังไม่มี)."""
 
     def get(self, request):
-        customer_id = request.query_params.get("customer_id")
-        if not customer_id:
+        # accept both `customer` (team convention) and `customer_id` (legacy)
+        customer = request.query_params.get("customer") or request.query_params.get(
+            "customer_id"
+        )
+        if not customer:
             return Response(
-                {"detail": "customer_id is required"},
+                {"detail": "customer is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         try:
-            customer_id_int = int(customer_id)
+            customer_int = int(customer)
         except (TypeError, ValueError):
             return Response(
-                {"detail": "customer_id must be an integer"},
+                {"detail": "customer must be an integer"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        cart, _ = Cart.objects.get_or_create(customer_id=customer_id_int)
+        cart, _ = Cart.objects.get_or_create(customer=customer_int)
         return Response(CartSerializer(cart).data)
 
 
@@ -72,7 +75,7 @@ class CartClearView(APIView):
 
 class CartItemViewSet(viewsets.ModelViewSet):
     """
-    POST   /api/cart/items/             body: {cart, product_id, quantity, cart_item_total}
+    POST   /api/cart/items/             body: {cart, product, quantity, cartitem_total}
     GET    /api/cart/items/?cart=<id>
     PATCH  /api/cart/items/<id>/
     DELETE /api/cart/items/<id>/
@@ -103,20 +106,20 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
         write_serializer = CartItemWriteSerializer(data=request.data)
         write_serializer.is_valid(raise_exception=True)
-        product_id = write_serializer.validated_data["product_id"]
+        product = write_serializer.validated_data["product"]
         quantity = write_serializer.validated_data.get("quantity", 1)
-        cart_item_total = write_serializer.validated_data.get("cart_item_total", 0)
+        cartitem_total = write_serializer.validated_data.get("cartitem_total", 0)
 
         # ถ้ามีอยู่แล้ว เพิ่มจำนวนแทนการสร้างซ้ำ (ตามข้อกำหนด unique cart+product)
         item, created = CartItem.objects.get_or_create(
             cart=cart,
-            product_id=product_id,
-            defaults={"quantity": quantity, "cart_item_total": cart_item_total},
+            product=product,
+            defaults={"quantity": quantity, "cartitem_total": cartitem_total},
         )
         if not created:
             item.quantity += int(quantity)
-            if cart_item_total:
-                item.cart_item_total = cart_item_total
+            if cartitem_total:
+                item.cartitem_total = cartitem_total
             item.save()
 
         # Update cart timestamp
@@ -142,11 +145,11 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
 class DeliveryViewSet(viewsets.ModelViewSet):
     """
-    GET    /api/deliveries/                  list (filter ?status=, ?order_id=)
-    POST   /api/deliveries/                  create
-    GET    /api/deliveries/<id>/             detail
-    PATCH  /api/deliveries/<id>/status/      update status (employee)
-    GET    /api/deliveries/by-order/<id>/    track by order id (customer)
+    GET    /api/cart/deliveries/                list (filter ?status=, ?order=)
+    POST   /api/cart/deliveries/                create
+    GET    /api/cart/deliveries/<id>/           detail
+    PATCH  /api/cart/deliveries/<id>/status/    update status (employee)
+    GET    /api/cart/deliveries/by-order/<id>/  track by order id (customer)
     """
 
     queryset = Delivery.objects.all()
@@ -157,8 +160,10 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         params = self.request.query_params
         if "status" in params:
             qs = qs.filter(status=params["status"])
-        if "order_id" in params:
-            qs = qs.filter(order_id=params["order_id"])
+        if "order" in params:
+            qs = qs.filter(order=params["order"])
+        elif "order_id" in params:  # legacy alias
+            qs = qs.filter(order=params["order_id"])
         return qs
 
     @action(detail=True, methods=["patch"], url_path="status")
@@ -181,5 +186,5 @@ class DeliveryViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path=r"by-order/(?P<order_id>[^/.]+)")
     def by_order(self, request, order_id=None):
         """ลูกค้าตรวจสอบการจัดส่งจาก OrderID."""
-        delivery = get_object_or_404(Delivery, order_id=order_id)
+        delivery = get_object_or_404(Delivery, order=order_id)
         return Response(DeliverySerializer(delivery).data)

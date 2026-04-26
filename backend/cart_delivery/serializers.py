@@ -1,30 +1,60 @@
+"""
+Serializers for cart_delivery — JSON shapes follow the team's API spreadsheet.
+
+Cart Item response shape:
+    {item_id, cart, product, product_name, product_price,
+     quantity, added_date, cartitem_total}
+
+Cart response shape:
+    {cart_id, customer, create_date, last_updated, items:[...]}
+
+Delivery response shape:
+    {delivery_id, order, address, tracking_number, delivery_name, delivery_date}
+
+product_name / product_price are placeholders until the catalog app is merged
+in (they will resolve from Product FK at that point).
+"""
 from rest_framework import serializers
 
 from .models import Cart, CartItem, Delivery
 
 
 class CartItemSerializer(serializers.ModelSerializer):
+    # Stubs — will be filled from FK once `catalog.Product` is merged.
+    product_name = serializers.SerializerMethodField()
+    product_price = serializers.SerializerMethodField()
+
     class Meta:
         model = CartItem
         fields = [
-            "id",
+            "item_id",
             "cart",
-            "product_id",
+            "product",
+            "product_name",
+            "product_price",
             "quantity",
-            "cart_item_total",
             "added_date",
+            "cartitem_total",
         ]
-        read_only_fields = ["id", "cart_item_total", "added_date"]
+        read_only_fields = ["item_id", "added_date"]
+
+    def get_product_name(self, obj: CartItem):
+        # TODO: return obj.product.product_name once Product FK is in place.
+        return None
+
+    def get_product_price(self, obj: CartItem):
+        # TODO: return obj.product.price once Product FK is in place.
+        return None
 
 
 class CartItemWriteSerializer(serializers.ModelSerializer):
-    """Used when adding a product into a cart (cart is taken from URL)."""
+    """Used when adding a product into a cart."""
 
     class Meta:
         model = CartItem
-        fields = ["product_id", "quantity", "cart_item_total"]
+        fields = ["cart", "product", "quantity", "cartitem_total"]
         extra_kwargs = {
-            "cart_item_total": {"required": False},
+            "cartitem_total": {"required": False},
             "quantity": {"required": False, "default": 1},
         }
 
@@ -38,7 +68,7 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = [
             "cart_id",
-            "customer_id",
+            "customer",
             "create_date",
             "last_updated",
             "items",
@@ -48,7 +78,7 @@ class CartSerializer(serializers.ModelSerializer):
         read_only_fields = ["cart_id", "create_date", "last_updated"]
 
     def get_total_amount(self, obj: Cart):
-        return sum((item.cart_item_total for item in obj.items.all()), start=0)
+        return sum((item.cartitem_total for item in obj.items.all()), start=0)
 
     def get_item_count(self, obj: Cart) -> int:
         return obj.items.count()
@@ -56,20 +86,20 @@ class CartSerializer(serializers.ModelSerializer):
 
 class DeliverySerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
-    courier_display = serializers.CharField(
-        source="get_courier_name_display", read_only=True
+    delivery_name_display = serializers.CharField(
+        source="get_delivery_name_display", read_only=True
     )
 
     class Meta:
         model = Delivery
         fields = [
             "delivery_id",
-            "order_id",
-            "address_id",
+            "order",
+            "address",
             "status",
             "status_display",
-            "courier_name",
-            "courier_display",
+            "delivery_name",
+            "delivery_name_display",
             "tracking_number",
             "delivery_date",
             "created_at",
@@ -82,7 +112,7 @@ class DeliveryStatusUpdateSerializer(serializers.Serializer):
     """Used by employees to update delivery status."""
 
     status = serializers.ChoiceField(choices=Delivery.Status.choices)
-    courier_name = serializers.ChoiceField(
+    delivery_name = serializers.ChoiceField(
         choices=Delivery.Courier.choices, required=False, allow_blank=True
     )
     tracking_number = serializers.CharField(required=False, allow_blank=True)

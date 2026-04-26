@@ -17,7 +17,7 @@ class Cart(models.Model):
 
     cart_id = models.AutoField(primary_key=True, db_column="CartID")
     # FK -> Customer.CustomerID (owned by accounts app). One-to-one in spec.
-    customer_id = models.IntegerField(unique=True, db_column="CustomerID")
+    customer = models.IntegerField(unique=True, db_column="CustomerID")
     create_date = models.DateTimeField(auto_now_add=True, db_column="CreateDate")
     last_updated = models.DateTimeField(auto_now=True, db_column="LastUpdated")
 
@@ -27,13 +27,13 @@ class Cart(models.Model):
         verbose_name_plural = "Carts"
 
     def __str__(self) -> str:
-        return f"Cart#{self.cart_id} (customer={self.customer_id})"
+        return f"Cart#{self.cart_id} (customer={self.customer})"
 
 
 class CartItem(models.Model):
     """รายการสินค้าในตะกร้า — ตะกร้า 1 ใบมีหลายรายการได้."""
 
-    id = models.AutoField(primary_key=True, db_column="CartItemID")
+    item_id = models.AutoField(primary_key=True, db_column="CartItemID")
     cart = models.ForeignKey(
         Cart,
         on_delete=models.CASCADE,
@@ -41,9 +41,9 @@ class CartItem(models.Model):
         db_column="CartID",
     )
     # FK -> Product.ProductID (owned by catalog app)
-    product_id = models.IntegerField(db_column="ProductID")
+    product = models.IntegerField(db_column="ProductID")
     quantity = models.PositiveIntegerField(default=1, db_column="Quantity")
-    cart_item_total = models.DecimalField(
+    cartitem_total = models.DecimalField(
         max_digits=12, decimal_places=2, default=0, db_column="CartItem_Total"
     )
     added_date = models.DateTimeField(auto_now_add=True, db_column="AddedDate")
@@ -54,7 +54,7 @@ class CartItem(models.Model):
         verbose_name_plural = "Cart Items"
         constraints = [
             models.UniqueConstraint(
-                fields=["cart", "product_id"], name="uq_cart_product"
+                fields=["cart", "product"], name="uq_cart_product"
             ),
             models.CheckConstraint(
                 check=models.Q(quantity__gt=0), name="ck_cartitem_qty_positive"
@@ -62,7 +62,7 @@ class CartItem(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"CartItem#{self.id} cart={self.cart_id} product={self.product_id} x{self.quantity}"
+        return f"CartItem#{self.item_id} cart={self.cart_id} product={self.product} x{self.quantity}"
 
 
 class Delivery(models.Model):
@@ -86,16 +86,17 @@ class Delivery(models.Model):
 
     delivery_id = models.AutoField(primary_key=True, db_column="DeliveryID")
     # FK -> Sale_Order.OrderID (owned by order_payment app). One delivery per order.
-    order_id = models.IntegerField(unique=True, db_column="OrderID")
+    order = models.IntegerField(unique=True, db_column="OrderID")
     # FK -> Customer_Address.AddressID (owned by accounts app)
-    address_id = models.IntegerField(db_column="AddressID")
+    address = models.IntegerField(db_column="AddressID")
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.PENDING,
         db_column="Status",
     )
-    courier_name = models.CharField(
+    # ชื่อบริษัทขนส่ง (data dict: CourierName) — exposed as `delivery_name` in API per team
+    delivery_name = models.CharField(
         max_length=30,
         choices=Courier.choices,
         blank=True,
@@ -115,4 +116,4 @@ class Delivery(models.Model):
         verbose_name_plural = "Deliveries"
 
     def __str__(self) -> str:
-        return f"Delivery#{self.delivery_id} order={self.order_id} status={self.status}"
+        return f"Delivery#{self.delivery_id} order={self.order} status={self.status}"
