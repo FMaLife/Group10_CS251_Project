@@ -100,25 +100,3 @@ def deactivate(request):
     return JsonResponse({"message": "Account deactivated"})
 
 
-@require_http_methods(["GET"])
-@customer_required
-def get_orders(request):
-    try:
-        from django.apps import apps
-        SaleOrder = apps.get_model("order_payment", "SaleOrder")
-    except LookupError:
-        return JsonResponse({"error": "Order module not available yet"}, status=503)
-
-    orders = SaleOrder.objects.filter(
-        CustomerID=request.customer.CustomerID
-    ).order_by("-OrderDate")
-
-    return JsonResponse({"orders": [
-        {
-            "orderID":     o.OrderID,
-            "orderDate":   o.OrderDate.isoformat(),
-            "orderStatus": o.OrderStatus,
-            "totalAmount": str(o.TotalAmount),
-        }
-        for o in orders
-    ]})

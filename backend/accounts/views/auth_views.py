@@ -116,7 +116,7 @@ def customer_logout(request):
     return JsonResponse({"message": "Logged out successfully"})
 
 
-# Employee
+# Employee login / logout
 
 @require_http_methods(["POST"])
 def employee_login(request):

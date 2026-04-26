@@ -1,6 +1,6 @@
 from django.urls import path
 from .views.customer_views import (
-    get_profile, update_profile, change_password, deactivate, get_orders,
+    get_profile, update_profile, change_password, deactivate,
 )
 from .views.address_views import (
     list_addresses, get_address, add_address,
@@ -12,7 +12,6 @@ urlpatterns = [
     path("profile/update",                     update_profile,      name="customer-update-profile"),
     path("change-password",                    change_password,     name="customer-change-password"),
     path("deactivate",                         deactivate,          name="customer-deactivate"),
-    path("orders",                             get_orders,          name="customer-orders"),
     path("addresses",                          list_addresses,      name="address-list"),
     path("addresses/add",                      add_address,         name="address-add"),
     path("addresses/<int:address_id>",         get_address,         name="address-detail"),
