@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from .models import Product, Supplier, Category, Warehouse,Location, PurchaseOrder, SalesOrder, Employee, Payment
+from django.http import JsonResponse
 
 MODEL_MAP = {
     "product": Product,
@@ -156,7 +157,18 @@ def delete_item(request, model, id):
     return redirect(model)
 
 def detail_item(request, model, id):
-    return HttpResponse("Detail not implemented yet")
+    model_class = MODEL_MAP.get(model)
+
+    if not model_class:
+        return JsonResponse({"error": "Invalid model"}, status=400)
+
+    obj = get_object_or_404(model_class, id=id)
+
+    data = {}
+    for field in obj._meta.fields:
+        data[field.name] = str(getattr(obj, field.name))
+
+    return JsonResponse(data)
 
 def paginate(request, data, per_page=10):
     paginator = Paginator(data, per_page)
