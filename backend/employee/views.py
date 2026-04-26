@@ -160,11 +160,12 @@ def detail_item(request, model, id):
     model_class = MODEL_MAP.get(model)
 
     if not model_class:
-        return JsonResponse({"error": "Invalid model"}, status=400)
+        return JsonResponse({"error": "invalid model"}, status=400)
 
     obj = get_object_or_404(model_class, id=id)
 
     data = {}
+
     for field in obj._meta.fields:
         data[field.name] = str(getattr(obj, field.name))
 

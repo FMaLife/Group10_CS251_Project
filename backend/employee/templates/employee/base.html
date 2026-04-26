@@ -2,30 +2,39 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}| Smart Furniture</title>
     <link rel="stylesheet" href="{% static '/employee/css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'employee/css/nav.css' %}">
+    <link rel="stylesheet" href="{% static 'employee/css/modal.css' %}">
     {% block extra_css %}{% endblock %}
 
-    <link href="https://cdn.lineicons.com/5.1/line/lineicons.css" rel="stylesheet"/>
+    <link href="https://cdn.lineicons.com/5.1/line/lineicons.css" rel="stylesheet" />
+
 </head>
 
 <body>
 
     {% include "employee/components/nav.html" %}
-    
+
     <div class="main-content">
         {% block content %}{% endblock %}
-        
+
         {% block table %}
-            <div class="table-container">
-                {% include "employee/components/table.html" %}
-            </div> 
+        <div class="table-container">
+            {% include "employee/components/table.html" %}
+        </div>
         {% endblock %}
     </div>
 
+    {% include "employee/components/modal/base_modal.html" %}
+
+    <script src="{% static 'employee/js/modal.js' %}"></script>
+
+
 </body>
+
 </html>

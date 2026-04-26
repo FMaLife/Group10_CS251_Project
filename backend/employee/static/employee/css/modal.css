@@ -1,0 +1,159 @@
+.modal {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+
+.hidden {
+    display: none;
+}
+
+.modal-box {
+    background: white;
+    width: 600px;
+    max-width: 95%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #E9E9E9;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.product-detail {
+    padding: 10px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 15px;
+}
+
+.image-box img {
+    width: 100%;
+    border-radius: 10px;
+    background: #f3f3f3;
+}
+
+.info-box div {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.detail-item {
+    margin-bottom: 10px;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #667085;
+    margin-bottom: 2px;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #000;
+    font-weight: 500;
+}
+
+#modal-content {
+    padding: 20px;
+}
+
+.detail-wrapper {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+
+.detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.detail-item {
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #888;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #000;
+    font-weight: 500;
+}
+
+.product-detail {
+    padding: 20px;
+}
+
+/* รูปอยู่บน */
+.image-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.image-box img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+/* แต่ละ field */
+.item {
+    padding: 8px;
+}
+
+/* หัวข้อ */
+.label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+/* ข้อมูล */
+.value {
+    font-size: 14px;
+    color: #000;
+    font-weight: 500;
+}
