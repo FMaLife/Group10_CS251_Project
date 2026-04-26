@@ -41,11 +41,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
 
-    'accounts',
-    'stock',
-    'catalog',
+    # NOTE: apps อื่นๆ ของเพื่อนใน team จะ uncomment ตอน merge
+    # 'accounts',
+    # 'stock',
+    # 'catalog',
     'cart_delivery',
-    'order_payment',
+    # 'order_payment',
 ]
 
 MIDDLEWARE = [
