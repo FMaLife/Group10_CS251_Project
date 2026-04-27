@@ -44,6 +44,7 @@
     cursor: pointer;
 }
 
+
 .product-detail {
     padding: 10px;
 }
@@ -102,11 +103,6 @@
     border-radius: 8px;
 }
 
-.detail-label {
-    font-size: 12px;
-    color: #888;
-}
-
 .detail-value {
     font-size: 14px;
     color: #000;
@@ -131,6 +127,7 @@
 /* แต่ละ field */
 .item {
     padding: 8px;
+    min-width: 0;
 }
 
 /* หัวข้อ */
@@ -138,6 +135,7 @@
     font-size: 12px;
     color: #888;
     margin-bottom: 4px;
+    white-space: nowrap;
 }
 
 /* ข้อมูล */
@@ -145,4 +143,31 @@
     font-size: 14px;
     color: #000;
     font-weight: 500;
+    white-space: nowrap;
 }
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.detail-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* sales order details: หัวข้อย่อย */
+.detail-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #344054;
+    width: fit-content; 
+    border-bottom: 2px solid #344054;
+    padding-bottom: 2px;
+}
+
+
+

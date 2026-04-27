@@ -132,7 +132,7 @@ def purchase_order(request):
         "employee/purchase_order.html",
         "Purchase Order",
         ["ordered_date", "purchase_order_id", "supplier", "status"],
-        ["Ordered Date", "PO ID", "Supplier", "Status"],
+        ["Ordered Date", "Purchase Order ID", "Supplier", "Status"],
         {"edit": False, "delete": False, "detail": True}
     )
 
@@ -144,7 +144,7 @@ def sales_order(request):
         "employee/sales_order.html",
         "Sales Order",
         ["ordered_date", "sales_order_id", "customer", "status"],
-        ["Ordered Date", "SO ID", "Customer", "Status"],
+        ["Ordered Date", "Sales Order ID", "Customer", "Status"],
         {"edit": True, "delete": False, "detail": True},
         show_add=False
     )
