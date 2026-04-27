@@ -1,20 +1,67 @@
-<form method="POST" class="form-box">
+<form method="POST" class="product-form-layout" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <div class="form-group">
-        <label>Name</label>
-        <input name="product_name">
+    <div class="form-grid">
+
+        <!-- LEFT: IMAGE -->
+        <div class="form-image">
+            <label>Image</label>
+            <input type="file" name="image">
+        </div>
+        <!-- RIGHT SIDE -->
+
+        <div class="form-field">
+            <label>Product Name</label>
+            <input name="product_name">
+        </div>
+
+        <!-- Dimension (W x L x H) -->
+        <div class="form-field">
+            <label>Dimension (W x L x H)</label>
+            <div class="dimension-grid">
+                <input name="width" placeholder="W">
+                <input name="length" placeholder="L">
+                <input name="height" placeholder="H">
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Category</label>
+            <select name="category">
+                <option>Select category</option>
+            </select>
+        </div>
+
+        <div class="form-field">
+            <label>Color</label>
+            <input name="color">
+        </div>
+
+        <div class="form-field">
+            <label>Warehouse</label>
+            <select name="warehouse">
+                <option>Select warehouse</option>
+            </select>
+        </div>
+
+        <div class="form-field">
+            <label>Price</label>
+            <input name="price">
+        </div>
+
+        <div class="form-field">
+            <label>Supplier</label>
+            <select name="supplier">
+                <option>Select supplier</option>
+            </select>
+        </div>
+
+        <div class="form-field">
+            <label>Product Quantity</label>
+            <input name="quantity">
+        </div>
+
     </div>
 
-    <div class="form-group">
-        <label>Price</label>
-        <input name="price">
-    </div>
-
-    <div class="form-group">
-        <label>Quantity</label>
-        <input name="quantity">
-    </div>
-
-    <button type="submit">Add New Product</button>
+    <button type="submit" class="save-btn">Add New Product</button>
 </form>
