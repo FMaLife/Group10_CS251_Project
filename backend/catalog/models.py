@@ -12,7 +12,6 @@ class Category(models.Model):
     def __str__(self):
         return self.CategoryName
 
-    # --- Business Logic ---
     @classmethod
     def create(cls, categoryName):
         category = cls(CategoryName=categoryName)
@@ -31,7 +30,6 @@ class Category(models.Model):
             raise ValidationError("ไม่สามารถลบ Category ที่มี Product ใช้อยู่ได้")
         super().delete(*args, **kwargs)
 
-    # --- Query ---
     @classmethod
     def getAll(cls):
         return cls.objects.all()
@@ -66,13 +64,12 @@ class Product(models.Model):
         related_name='products'
     )
     location = models.ForeignKey(
-    'stock.WarehouseLocation',
-    on_delete=models.SET_NULL,
-    null=True,
-    blank=True,
-    db_column='location_id',
-    related_name='products'
-)
+        'stock.WarehouseLocation',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products'
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -81,7 +78,6 @@ class Product(models.Model):
     def __str__(self):
         return self.ProductName
 
-    # --- Business Logic ---
     @classmethod
     def create(cls, productData):
         product = cls(**productData)
@@ -117,20 +113,18 @@ class Product(models.Model):
     def uploadImage(self, imageURL, isPrimary=False):
         return ProductImage.upload(productID=self.ProductID, imageURL=imageURL, isPrimary=isPrimary)
 
-    # --- State Management ---
     def setActiveStatus(self, is_active):
         self.is_active = is_active
         self.save(update_fields=['is_active'])
 
     def updateLocation(self, locationID):
-        self.LocationID_id = locationID
-        self.save(update_fields=['LocationID'])
+        self.location_id = locationID
+        self.save(update_fields=['location_id'])
 
     def updateCategory(self, categoryID):
         self.CategoryID_id = categoryID
         self.save(update_fields=['CategoryID'])
 
-    # --- Query ---
     @classmethod
     def getAll(cls, page=None, pageSize=10):
         from django.core.paginator import Paginator
@@ -158,8 +152,8 @@ class Product(models.Model):
 
     @classmethod
     def getLocation(cls, productID):
-        product = cls.objects.select_related('LocationID').get(pk=productID)
-        return product.LocationID
+        product = cls.objects.select_related('location').get(pk=productID)
+        return product.location
 
 
 class ProductImage(models.Model):
@@ -179,7 +173,6 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"Image {self.ImageID} for Product {self.ProductID_id}"
 
-    # --- Business Logic ---
     @classmethod
     def upload(cls, productID, imageURL, isPrimary=False):
         if isPrimary:
@@ -192,7 +185,6 @@ class ProductImage(models.Model):
         image.save()
         return image
 
-    # --- State Management ---
     def setPrimary(self):
         ProductImage.clearPrimary(self.ProductID_id)
         self.Is_Primary = 1
@@ -202,7 +194,6 @@ class ProductImage(models.Model):
     def clearPrimary(cls, productID):
         cls.objects.filter(ProductID=productID, Is_Primary=1).update(Is_Primary=0)
 
-    # --- Query ---
     @classmethod
     def getByProduct(cls, productID):
         return cls.objects.filter(ProductID=productID)
