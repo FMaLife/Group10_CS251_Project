@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-from django.shortcuts import render
-
-# Create your views here.
-=======
 from rest_framework import viewsets, filters
 
 from .models import (
@@ -87,4 +82,3 @@ class RestockDetailViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["product__product_name", "restock__restock_status"]
     ordering_fields = ["restock_detail_id", "restock", "product", "quantity"]
->>>>>>> backend/stock

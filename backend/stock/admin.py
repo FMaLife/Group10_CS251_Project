@@ -1,7 +1,4 @@
 from django.contrib import admin
-
-# Register your models here.
-=======
 from .models import Supplier, Warehouse, WarehouseLocation, RestockOrder, RestockDetail
 
 
@@ -29,4 +26,3 @@ class RestockOrderAdmin(admin.ModelAdmin):
 class RestockDetailAdmin(admin.ModelAdmin):
     list_display = ("restock_detail_id", "restock", "product", "quantity")
     raw_id_fields = ("restock", "product")
->>>>>>> backend/stock

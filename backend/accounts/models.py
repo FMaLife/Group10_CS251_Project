@@ -1,3 +1,4 @@
-from django.db import models
-
-# Create your models here.
+# accounts app ไม่มี model ของตัวเอง
+# models อยู่ที่
+#   customers.models  
+#   employees.models  

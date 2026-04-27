@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-﻿urlpatterns = []
-=======
 from rest_framework.routers import DefaultRouter
 from .views import (
     SupplierViewSet,
@@ -18,4 +15,3 @@ router.register(r"restocks", RestockOrderViewSet, basename="restock")
 router.register(r"restock-details", RestockDetailViewSet, basename="restock-detail")
 
 urlpatterns = router.urls
->>>>>>> backend/stock

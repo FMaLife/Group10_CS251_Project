@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-from django.db import models
-
-# Create your models here.
-=======
 from django.db import models, transaction
 from django.db.models import F
 
@@ -132,4 +127,3 @@ class RestockDetail(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} x {self.quantity}"
->>>>>>> backend/stock
