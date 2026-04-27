@@ -1,3 +1,4 @@
+//---------- DETAILS --------------
 function openModal() {
     document.getElementById("modal").classList.remove("hidden");
 }
@@ -46,4 +47,16 @@ document.addEventListener("click", function (e) {
 function formatTitle(model) {
     return model.replaceAll("_", " ")
                 .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+//---------- ADD --------------
+function openAddModal(title) {
+    document.getElementById("add-modal-title").innerText =
+        "Add New " + title;
+
+    document.getElementById("add-modal").classList.remove("hidden");
+}
+
+function closeAddModal() {
+    document.getElementById("add-modal").classList.add("hidden");
 }
