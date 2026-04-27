@@ -31,6 +31,14 @@
     color: #F297A0;;
 }
 
+.sidebar ul li.active {
+    background: #FEF6F5;
+}
+
+.sidebar ul li.active a {
+    color: #F297A0;
+}
+
 .sidebar ul li a{
     position: relative;
     display: flex;
