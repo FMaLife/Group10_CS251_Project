@@ -7,6 +7,12 @@ from .models import (
     PurchaseOrder, SalesOrder, Employee, Payment
 )
 
+from .forms import (
+    ProductForm, SupplierForm, CategoryForm,
+    WarehouseForm, LocationForm, PurchaseOrderForm,
+    EmployeeForm
+)
+
 # =========================
 # MAPS
 # =========================
@@ -35,6 +41,16 @@ NAME_TO_MODEL = {
     "sales_order": SalesOrder,
     "employee": Employee,
     "payment": Payment,
+}
+
+FORM_MAP = {
+    "product": ProductForm,
+    "supplier": SupplierForm,
+    "category": CategoryForm,
+    "warehouse": WarehouseForm,
+    "location": LocationForm,
+    "purchase_order": PurchaseOrderForm,
+    "employee": EmployeeForm,
 }
 
 # =========================
@@ -209,6 +225,24 @@ def detail_item(request, model, id):
 
     return render(request, f"employee/components/details/{model}_details.html", {
         "object": obj
+    })
+
+def add_item(request, model):
+    form_class = FORM_MAP.get(model)
+
+    if not form_class:
+        return HttpResponse("Form not found")
+
+    if request.method == "POST":
+        form = form_class(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(model)
+    else:
+        form = form_class()
+
+    return render(request, f"employee/components/forms/{model}_form.html", {
+        "form": form
     })
 
 

@@ -50,11 +50,21 @@ function formatTitle(model) {
 }
 
 //---------- ADD --------------
-function openAddModal(title) {
-    document.getElementById("add-modal-title").innerText =
-        "Add New " + title;
+function openAdd(model) {
+    const modal = document.getElementById("add-modal");
+    const content = document.getElementById("add-modal-content");
 
-    document.getElementById("add-modal").classList.remove("hidden");
+    modal.classList.remove("hidden");
+    content.innerHTML = "Loading...";
+
+    document.getElementById("add-modal-title").innerText =
+        "Add New " + formatTitle(model);
+
+    fetch(`/add/${model}/`)
+        .then(res => res.text())
+        .then(html => {
+            content.innerHTML = html;
+        });
 }
 
 function closeAddModal() {

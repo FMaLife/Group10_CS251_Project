@@ -169,5 +169,49 @@
     padding-bottom: 2px;
 }
 
+/* FORMS */
+.form-box {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+}
 
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
+.form-group label {
+    font-size: 13px;
+    color: #667085;
+    font-weight: 500;
+}
+
+.form-group input {
+    padding: 10px 12px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #F297A0;
+    box-shadow: 0 0 0 3px rgba(242,151,160,0.2);
+}
+
+/*save button */
+.form-box button {
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #F297A0;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
