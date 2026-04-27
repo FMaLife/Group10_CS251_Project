@@ -8,6 +8,7 @@ from .models import SaleOrder, OrderDetail, Payment
 from .serializers import SaleOrderSerializer, OrderDetailSerializer, PaymentSerializer
 from cart_delivery.models import Cart, Delivery
 from customers.models import CustomerAddress
+from employees.models import Employee
 
 class SaleOrderViewSet(viewsets.ModelViewSet):
     serializer_class = SaleOrderSerializer
@@ -94,7 +95,15 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
         """ 4. Override partial_update() — สำหรับกดปุ่ม Complete หรือ Cancel """
         instance = self.get_object()
         payment_status_input = request.data.get("payment_status")
-        order_status_input = request.data.get("status")
+        order_status_input   = request.data.get("order_status")
+        employee_id          = request.data.get("employee_id")
+
+        # ถ้าส่ง employee_id มา → set owner
+        if employee_id:
+            try:
+                instance.owner = Employee.objects.get(pk=employee_id)
+            except Employee.DoesNotExist:
+                return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # กรณีอัปเดตสถานะการจ่ายเงิน (ปุ่ม Complete)
         if payment_status_input == "paid":

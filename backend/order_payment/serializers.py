@@ -4,7 +4,7 @@ from .models import SaleOrder, OrderDetail, Payment
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     # เปลี่ยนชื่อ field ให้ตรง frontend
-    item_id       = serializers.IntegerField(source="line_number", read_only=True)
+    line_number   = serializers.IntegerField(source="line_number", read_only=True)
     product_name  = serializers.CharField(source="product.product_name", read_only=True)
     product_price = serializers.DecimalField(source="product.price", max_digits=12, decimal_places=2, read_only=True)
     color         = serializers.CharField(source="product.color", read_only=True)
@@ -16,7 +16,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderDetail
         fields = [
-            "item_id",        # ← frontend ใช้ item_id (เดิมคือ line_number)
+            "line_number",
             "order",
             "product",
             "product_name",
@@ -29,7 +29,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "image",
             "subtotal",
         ]
-        read_only_fields = ["item_id", "subtotal", "product_name", "product_price",
+        read_only_fields = ["line_number", "subtotal", "product_name", "product_price",
                             "color", "width", "length", "height", "image"]
 
     def get_image(self, obj):
@@ -55,9 +55,9 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class SaleOrderSerializer(serializers.ModelSerializer):
     # เปลี่ยนชื่อ field ให้ตรง frontend
-    status  = serializers.CharField(source="order_status")           # order_status → status
-    total   = serializers.DecimalField(source="total_amount", max_digits=12, decimal_places=2, read_only=True)  # total_amount → total
-    items   = OrderDetailSerializer(source="details", many=True, read_only=True)  # details → items
+    order_status = serializers.CharField(source="order_status")
+    total        = serializers.DecimalField(source="total_amount", max_digits=12, decimal_places=2, read_only=True)
+    details      = OrderDetailSerializer(source="details", many=True, read_only=True)
     payment = PaymentSerializer(read_only=True)
 
     owner_name       = serializers.SerializerMethodField()
@@ -77,12 +77,12 @@ class SaleOrderSerializer(serializers.ModelSerializer):
             "owner",
             "owner_name",
             "order_date",
-            "status",
+            "order_status",
             "total",
             "delivery_date",
             "tracking_number",
             "address",
-            "items",
+            "details",
             "payment",
         ]
         read_only_fields = ["order_id", "order_date", "total"]
@@ -127,13 +127,13 @@ class SaleOrderSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """แปลง 'In transit' → 'In_transit' ตอนส่งให้ frontend"""
         data = super().to_representation(instance)
-        if data.get("status") == "In transit":
-            data["status"] = "In_transit"
+        if data.get("order_status") == "In transit":
+            data["order_status"] = "In_transit"
         return data
 
     def to_internal_value(self, data):
         """แปลง 'In_transit' → 'In transit' ตอนรับจาก frontend"""
-        if data.get("status") == "In_transit":
+        if data.get("order_status") == "In_transit":
             data = data.copy()
-            data["status"] = "In transit"
+            data["order_status"] = "In transit"
         return super().to_internal_value(data)
