@@ -1,0 +1,166 @@
+/* ============================================================
+   SMART FURNITURE WAREHOUSE — LOGIN PAGE
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lexend', sans-serif; background: #f8f7f4; color: #1e1e1e; }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --pink-light:   #fce4ec;
+  --pink-mid:     #f8bbd0;
+  --pink-main:    #e87d96;
+  --pink-deep:    #d45f7a;
+  --pink-btn:     #e08898;
+  --olive:        #b5a882;
+  --text-dark:    #3a2d2d;
+  --text-muted:   #9e8989;
+  --white:        #ffffff;
+  --input-border: #e8d5da;
+  --input-focus:  #e87d96;
+  --error:        #d64a4a;
+  --radius-sm:    10px;
+  --radius-md:    18px;
+  --radius-lg:    28px;
+  --transition:   0.25s ease;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Lexend', sans-serif;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  background: var(--white);
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   LEFT PANEL
+   ============================================================ */
+
+.left-panel {
+  position: relative;
+  width: 52%;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #fce4ec 0%, #f8c8d4 40%, #fad4c0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+/* Animated blobs */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  animation: float 8s ease-in-out infinite;
+}
+.blob-1 {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle, #ffffff, #ffffff, #F297A0);
+  top: -80px; left: -60px;
+  animation-delay: 0s;
+}
+.blob-2 {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle, #ffffff, #ffffff, #F297A0);
+  bottom: -60px; right: -40px;
+  animation-delay: 3s;
+}
+.blob-3 {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle, #ffffff, #ffffff, #ff9a9e);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 1.5s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-20px) scale(1.05); }
+}
+
+.blob-3 {
+  animation: float3 8s ease-in-out infinite;
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%       { transform: translate(-50%, -55%) scale(1.05); }
+}
+
+/* Brand logo */
+.brand {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 2rem 3rem;
+}
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 2.5rem;
+  line-height: 1;
+}
+
+.word {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 900;
+  display: block;
+  letter-spacing: -0.5px;
+}
+
+
+
+.brand-desc {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: #6a4848;
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 860px) {
+  body { flex-direction: column; }
+
+  .left-panel {
+    width: 100%;
+    min-height: 320px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    padding: 2rem 1rem;
+  }
+
+  .word.smart    { font-size: 2rem; }
+  .word.furniture { font-size: 3rem; }
+  .word.warehouse { font-size: 2.6rem; }
+
+  .brand-desc { display: none; }
+
+  .right-panel {
+    padding: 2.5rem 1.5rem;
+  }
+}
