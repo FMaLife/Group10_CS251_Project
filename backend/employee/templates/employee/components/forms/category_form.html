@@ -1,0 +1,15 @@
+<form method="POST" class="form-box">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label>Catagory Name</label>
+        <input name="name">
+    </div>
+
+    <div class="form-group">
+        <label>Catagory ID</label>
+        <input name="id">
+    </div>
+
+    <button type="submit">Add New Catagory</button>
+</form>
