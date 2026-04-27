@@ -1,0 +1,25 @@
+<form method="POST" class="form-box">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label>Contact Name</label>
+        <input name="contact_name">
+    </div>
+
+    <div class="form-group">
+        <label>Phone Number</label>
+        <input name="phone">
+    </div>
+
+    <div class="form-group">
+        <label>Company Name</label>
+        <input name="company">
+    </div>
+
+    <div class="form-group">
+        <label>Address</label>
+        <input name="address">
+    </div>
+
+    <button type="submit">Add New Supplier</button>
+</form>

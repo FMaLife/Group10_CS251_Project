@@ -29,17 +29,7 @@
             <button class="close-btn" onclick="closeAddModal()">✕</button>
         </div>
 
-        <div class="modal-content">
-            <form method="POST">
-                {% csrf_token %}
-
-                <input type="text" name="name" placeholder="Name">
-
-                <input type="text" name="code" placeholder="Code">
-
-                <button type="submit">Save</button>
-            </form>
-        </div>
+        <div id="add-modal-content"></div>
 
     </div>
 

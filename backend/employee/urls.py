@@ -17,5 +17,6 @@ urlpatterns = [
 
     path("delete/<str:model>/<int:id>/", views.delete_item, name="delete_item"),
     path("edit/<str:model>/<int:id>/", views.edit_item, name="edit_item"),
-    path("detail/<str:model>/<int:id>/", views.detail_item, name="detail_item")
+    path("detail/<str:model>/<int:id>/", views.detail_item, name="detail_item"),
+    path("add/<str:model>/", views.add_item, name="add_item"),
     ]
