@@ -169,7 +169,7 @@ def payment(request):
         "employee/payment.html",
         "Payment",
         ["payment_date", "reference_number", "sales_order", "status"],
-        ["Payment Date", "Reference Number", "Sales Order", "Status"],
+        ["Payment Date", "Reference Number", "Sales Order ID", "Status"],
         {"edit": False, "delete": False, "detail": True},
         show_add=False
     )
