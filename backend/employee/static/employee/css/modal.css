@@ -55,7 +55,9 @@
 }
 
 .image-box img {
-    width: 100%;
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
     border-radius: 10px;
     background: #f3f3f3;
 }
@@ -63,10 +65,6 @@
 .info-box div {
     margin-bottom: 8px;
     font-size: 14px;
-}
-
-.detail-item {
-    margin-bottom: 10px;
 }
 
 .detail-label {
@@ -99,6 +97,7 @@
 }
 
 .detail-item {
+    margin-bottom: 10px;
     padding: 8px;
     border-radius: 8px;
 }
@@ -114,22 +113,12 @@
     font-weight: 500;
 }
 
-.product-detail {
-    padding: 20px;
-}
 
 /* รูปอยู่บน */
 .image-box {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
-}
-
-.image-box img {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 10px;
 }
 
 /* grid */

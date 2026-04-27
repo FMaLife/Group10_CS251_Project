@@ -1,10 +1,31 @@
-from django.shortcuts import render,redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import HttpResponse
-from .models import Product, Supplier, Category, Warehouse,Location, PurchaseOrder, SalesOrder, Employee, Payment
-from django.http import JsonResponse
 
-MODEL_MAP = {
+from .models import (
+    Product, Supplier, Category, Warehouse, Location,
+    PurchaseOrder, SalesOrder, Employee, Payment
+)
+
+# =========================
+# MAPS
+# =========================
+
+# class → string (ส่งไป frontend)
+MODEL_TO_NAME = {
+    Product: "product",
+    Supplier: "supplier",
+    Category: "category",
+    Warehouse: "warehouse",
+    Location: "location",
+    PurchaseOrder: "purchase_order",
+    SalesOrder: "sales_order",
+    Employee: "employee",
+    Payment: "payment",
+}
+
+# string → class (รับจาก URL)
+NAME_TO_MODEL = {
     "product": Product,
     "supplier": Supplier,
     "category": Category,
@@ -16,15 +37,20 @@ MODEL_MAP = {
     "payment": Payment,
 }
 
+# =========================
+# TABLE VIEW (REUSABLE)
+# =========================
+
 def table_view(request, model, template, title, columns, headers, actions, show_add=True):
     data = model.objects.all()
 
     paginator = Paginator(data, 10)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
     return render(request, template, {
         "title": title,
+        "model_name": MODEL_TO_NAME[model],
         "page_obj": page_obj,
         "columns": columns,
         "headers": headers,
@@ -34,6 +60,10 @@ def table_view(request, model, template, title, columns, headers, actions, show_
         "actions": actions,
         "display_field": columns[0],
     })
+
+# =========================
+# MODULE PAGES
+# =========================
 
 def product(request):
     return table_view(
@@ -46,6 +76,7 @@ def product(request):
         {"edit": True, "delete": True, "detail": True}
     )
 
+
 def supplier(request):
     return table_view(
         request,
@@ -56,7 +87,8 @@ def supplier(request):
         ["Contact Name", "Supplier ID", "Company Name", "Address", "Phone Number"],
         {"edit": True, "delete": True, "detail": False}
     )
-    
+
+
 def category(request):
     return table_view(
         request,
@@ -67,6 +99,7 @@ def category(request):
         ["Category Name", "Category ID"],
         {"edit": True, "delete": True, "detail": False}
     )
+
 
 def warehouse(request):
     return table_view(
@@ -80,7 +113,6 @@ def warehouse(request):
     )
 
 
-
 def location(request):
     return table_view(
         request,
@@ -91,6 +123,7 @@ def location(request):
         ["Location ID", "Warehouse", "Zone", "Aisle", "Bin"],
         {"edit": True, "delete": True, "detail": False}
     )
+
 
 def purchase_order(request):
     return table_view(
@@ -116,6 +149,7 @@ def sales_order(request):
         show_add=False
     )
 
+
 def employee(request):
     return table_view(
         request,
@@ -126,6 +160,7 @@ def employee(request):
         ["Employee Name", "Employee ID", "Role", "Phone Number"],
         {"edit": True, "delete": True, "detail": True}
     )
+
 
 def payment(request):
     return table_view(
@@ -139,39 +174,45 @@ def payment(request):
         show_add=False
     )
 
+# =========================
+# ACTIONS
+# =========================
+
 def edit_item(request, model, id):
     return HttpResponse("Edit not implemented yet")
 
 
 def delete_item(request, model, id):
-    model_class = MODEL_MAP.get(model)
+    model_class = NAME_TO_MODEL.get(model)
 
     if not model_class:
         return redirect("product")
 
-    obj = get_object_or_404(model_class, id=id)
+    obj = get_object_or_404(model_class, pk=id)
 
     if request.method == "POST":
         obj.delete()
 
     return redirect(model)
 
+
 def detail_item(request, model, id):
-    model_class = MODEL_MAP.get(model)
+    model_class = NAME_TO_MODEL.get(model)
 
     if not model_class:
-        return JsonResponse({"error": "invalid model"}, status=400)
+        return HttpResponse("Model not found")
 
-    obj = get_object_or_404(model_class, id=id)
+    obj = get_object_or_404(model_class, pk=id)
 
-    data = {}
+    print("MODEL:", model)
+    print("ID:", id)
 
-    for field in obj._meta.fields:
-        data[field.name] = str(getattr(obj, field.name))
+    return render(request, f"employee/details/{model}_details.html", {
+        "object": obj
+    })
 
-    return JsonResponse(data)
 
 def paginate(request, data, per_page=10):
     paginator = Paginator(data, per_page)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     return paginator.get_page(page_number)

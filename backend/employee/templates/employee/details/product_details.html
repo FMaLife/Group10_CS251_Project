@@ -1,4 +1,59 @@
-<h2>{{ object.product_name }}</h2>
-<p>ID: {{ object.product_id }}</p>
-<p>Company: {{ object.company }}</p>
-<p>Category: {{ object.category }}</p>
+{% load static %}
+
+<div class="{{ model_name }}-detail">
+
+    <!-- รูป -->
+    <div class="image-box">
+        <img src="{{ object.image.url|default:'/static/employee/img/default.png' }}">
+    </div>
+
+    <!-- ข้อมูล -->
+    <div class="info-grid">
+
+        <div class="item">
+            <div class="label">Product ID</div>
+            <div class="value">{{ object.product_id }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Supplier ID</div>
+            <div class="value">{{ object.supplier_id }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Dimension</div>
+            <div class="value">{{ object.dimension }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Product Name</div>
+            <div class="value">{{ object.product_name }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Warehouse</div>
+            <div class="value">{{ object.warehouse }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Color</div>
+            <div class="value">{{ object.color }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Category</div>
+            <div class="value">{{ object.category }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Price</div>
+            <div class="value">{{ object.price }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Quantity</div>
+            <div class="value">{{ object.quantity }}</div>
+        </div>
+
+    </div>
+</div>
