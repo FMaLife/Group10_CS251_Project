@@ -207,7 +207,7 @@ def detail_item(request, model, id):
     print("MODEL:", model)
     print("ID:", id)
 
-    return render(request, f"employee/details/{model}_details.html", {
+    return render(request, f"employee/components/details/{model}_details.html", {
         "object": obj
     })
 
