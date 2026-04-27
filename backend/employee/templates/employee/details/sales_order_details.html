@@ -1,0 +1,95 @@
+<div class="detail">
+
+    <div class="detail-layout">
+
+        <!-- LEFT -->
+        <div class="detail-col">
+
+            <div class="detail-section-title">
+                Customer Details
+            </div>
+
+            <div class="info-grid">
+                <div class="item">
+                    <div class="label">Customer ID</div>
+                    <div class="value">{{ object.customer }}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="item">
+                    <div class="label">Full Name</div>
+                    <div class="value">{{ object.customer_name }}</div>
+                </div>
+                <div class="item">
+                    <div class="label">Phone Number</div>
+                    <div class="value">{{ object.phone_number }}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="item">
+                    <div class="label">Address</div>
+                    <div class="value">{{ object.address }}</div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="detail-col">
+
+            <div class="detail-section-title">
+                Order Details
+            </div>
+
+            <div class="info-grid">
+                <div class="item">
+                    <div class="label">Ordered Date</div>
+                    <div class="value">{{ object.ordered_date }}</div>
+                </div>
+                <div class="item">
+                    <div class="label">Order ID</div>
+                    <div class="value">{{ object.sales_order_id }}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="item">
+                    <div class="label">Product ID</div>
+                    <div class="value">{{ object.product_id }}</div>
+                </div>
+                <div class="item">
+                    <div class="label">Product Name</div>
+                    <div class="value">{{ object.product_name }}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="item">
+                    <div class="label">Quantity</div>
+                    <div class="value">{{ object.quantity }}</div>
+                </div>
+                <div class="item">
+                    <div class="label">Total Price</div>
+                    <div class="value">{{ object.total_prices }}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="item">
+                    <div class="label">Status</div>
+                    <div class="value">{{ object.status }}</div>
+                </div>
+                <div class="item">
+                    <div class="label">Tracking Number</div>
+                    <div class="value">{{ object.track_number }}</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
