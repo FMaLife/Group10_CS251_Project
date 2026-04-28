@@ -156,31 +156,41 @@
 
       <!-- ======= FILTER ======= -->
 
-      <section id="product-section">
-        <div class="filter-bar" id="filter-bar">
-          <span class="filter-label">Filter by Interest</span>
-          <div class="filter-divider"></div>
-          <button class="show-all-btn" onclick="filterByCategory(null)">Show All Products</button>
-        </div>
-        <div class="filter-separator"></div>
-        <div class="product-grid" id="product-grid"></div>
-        <div class="section-footer">
-          <button class="section-show-all" onclick="filterByCategory(null)">Show All Products</button>
-        </div>
-      </section>
-
-      <!-- Footer components -->
-      <div id="footer-container"></div>
-      <script src="/frontend/customer/components/footer/footer.js"></script>
-      <script>
-        fetch("/frontend/customer/components/footer/footer.html")
-          .then((r) => r.text())
-          .then((html) => {
-            document.getElementById("footer-container").innerHTML = html;
-            initFooter(); // เรียกหลัง HTML inject เสร็จ
-          });
-      </script>
-
+      <main>
+ 
+        <!-- Search Result Section (injected dynamically by home.js) -->
+        <section id="search-result-section" style="display:none;"></section>
+ 
+        <!-- Product Section -->
+        <section id="product-section">
+          <div class="filter-bar" id="filter-bar">
+            <span class="filter-label">Filter by Interest</span>
+            <div class="filter-divider"></div>
+            <button class="show-all-btn" onclick="filterByCategory(null)">Show All Products</button>
+          </div>
+        </section>
+ 
+      </main>
+      <!-- /main -->
+ 
+    </div>
+  </section>
+ 
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
+ 
+  <!-- Footer components -->
+  <div id="footer-container"></div>
+  <script src="/frontend/customer/components/footer/footer.js"></script>
+  <script>
+    fetch("/frontend/customer/components/footer/footer.html")
+      .then((r) => r.text())
+      .then((html) => {
+        document.getElementById("footer-container").innerHTML = html;
+        initFooter();
+      });
+  </script>
+  
 </body>
 
 </html>
