@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Furniture Warehouse</title>
+  <title>Home — Smart Furniture Warehouse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lexend:wght@200;300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
-
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="/frontend/customer/home/home.css" />
   <link rel="stylesheet" href="/frontend/customer/components/navbar/navbar.css" />
   <link rel="stylesheet" href="/frontend/customer/components/cart/cart.css" />
   <link rel="stylesheet" href="/frontend/customer/components/footer/footer.css" />
 </head>
+
 <body>
+  <script src="/frontend/customer/home/home.js"></script>
 
   <!-- ======= NAVBAR (navbar.html) ======= -->
   <nav id="smart-navbar" role="navigation" aria-label="Main navigation">
@@ -27,20 +29,12 @@
       </a>
 
       <div class="navbar-search" role="search" id="navbar-search-wrap">
-        <input
-          id="navbar-search-input"
-          type="search"
-          placeholder="Search furniture..."
-          aria-label="Search"
-          autocomplete="off"
-          aria-autocomplete="list"
-          aria-controls="search-suggestions"
-          aria-activedescendant=""
-        />
+        <input id="navbar-search-input" type="search" placeholder="Search furniture..." aria-label="Search"
+          autocomplete="off" aria-autocomplete="list" aria-controls="search-suggestions" aria-activedescendant="" />
         <button id="navbar-search-btn" class="navbar-search-btn" aria-label="Submit search">
           <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"/>
-            <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+            <circle cx="11" cy="11" r="7" />
+            <line x1="16.5" y1="16.5" x2="22" y2="22" />
           </svg>
         </button>
         <ul id="search-suggestions" class="search-suggestions" role="listbox" aria-label="Search suggestions"></ul>
@@ -49,17 +43,17 @@
       <div class="navbar-actions">
         <a href="/frontend/customer/profile/profile.html" class="navbar-account" aria-label="Your Account">
           <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
           </svg>
           Your Account
         </a>
         <div class="navbar-divider" aria-hidden="true"></div>
         <button id="cart-icon-btn" class="navbar-cart-btn" aria-label="Shopping cart">
           <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
           </svg>
           <span id="cart-badge" class="cart-badge" aria-live="polite">0</span>
         </button>
@@ -70,10 +64,12 @@
     <div class="navbar-bottom">
       <a href="/frontend/customer/home/home.html" class="nav-link active" id="nav-home">Home</a>
       <div class="nav-dropdown-wrap">
-        <button id="category-btn" class="nav-link" aria-haspopup="listbox" aria-expanded="false" aria-controls="category-dropdown">
+        <button id="category-btn" class="nav-link" aria-haspopup="listbox" aria-expanded="false"
+          aria-controls="category-dropdown">
           Category
-          <svg class="chevron-icon" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
+          <svg class="chevron-icon" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
         <ul id="category-dropdown" class="dropdown-panel" role="listbox" aria-label="Product categories"></ul>
@@ -84,10 +80,107 @@
 
   </nav>
 
-  
+  <!-- Hero -->
 
-  <script src="navbar.js"></script>
-  <script src="footer.js"></script>
-  <script src="home.js"></script>
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-tagline">A BETTER HOME STARTS HERE</p>
+      <p class="hero-title" style="color: #0E2447" ;>Design Your Space,<br>Define Your Style.</p>
+      <p class="hero-sub">Your comfort, our priority</p>
+
+      <div class="hero-badges">
+        <span class="badge" style="color: #0E2447" ;>Best Price</span>
+        <span class="divider" style="color: #9D9EA2" ;>|</span>
+        <span class="badge" style="color: #0E2447" ;>Best Experience</span>
+      </div>
+
+      <a href="#" class="btn-primary">Shop Now</a>
+    </div>
+    <div class="hero-image">
+      <img src="/frontend/customer/assets/products/green armchair banner.svg" alt="Green Armchair" />
+    </div>
+  </section>
+
+  <!-- ======= FEATURES ======= -->
+  <section class="features">
+    <div class="features-inner">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.8">
+            <rect x="1" y="3" width="15" height="13" rx="2" />
+            <path d="M16 8h4l3 5v3h-7V8z" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+        </div>
+        <div>
+          <h3>Reliable Shipping</h3>
+          <p>We partner with trusted third-party couriers to deliver your furniture safely and on time. Every order is
+            carefully packed to protect your furniture during transit.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.8">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+        </div>
+        <div>
+          <h3>Best Quality &amp; Pricing</h3>
+          <p>We use high-quality materials to ensure durability and long-lasting use. Our pricing reflects true value
+            without unnecessary markups. Get the perfect balance of quality, design, and affordability.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.8">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </div>
+        <div>
+          <h3>Solace Experience</h3>
+          <p>Designed to bring comfort and simplicity into your everyday living. Create a space that reflects your
+            personality and lifestyle. Make every moment at home feel more relaxing and inspiring.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= WEBSITE QUOTE ======= -->
+
+  <section class="products" id="products">
+    <div class="products-inner">
+      <h2 class="section-title">BEST <span class="highlight">FURNISHINGS</span> TO<br>BUY FOR YOUR HOME</h2>
+
+      <!-- ======= FILTER ======= -->
+
+      <section id="product-section">
+        <div class="filter-bar" id="filter-bar">
+          <span class="filter-label">Filter by Interest</span>
+          <div class="filter-divider"></div>
+          <button class="show-all-btn" onclick="filterByCategory(null)">Show All Products</button>
+        </div>
+        <div class="filter-separator"></div>
+        <div class="product-grid" id="product-grid"></div>
+        <div class="section-footer">
+          <button class="section-show-all" onclick="filterByCategory(null)">Show All Products</button>
+        </div>
+      </section>
+
+      <!-- Footer components -->
+      <div id="footer-container"></div>
+      <script src="/frontend/customer/components/footer/footer.js"></script>
+      <script>
+        fetch("/frontend/customer/components/footer/footer.html")
+          .then((r) => r.text())
+          .then((html) => {
+            document.getElementById("footer-container").innerHTML = html;
+            initFooter(); // เรียกหลัง HTML inject เสร็จ
+          });
+      </script>
+
 </body>
+
 </html>
