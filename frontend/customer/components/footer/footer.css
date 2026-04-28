@@ -1,0 +1,176 @@
+/* ============================================================
+   footer.css — Smart Furniture Warehouse
+   ============================================================ */
+
+/* ---------- Design Tokens ---------- */
+:root {
+  /* from figma */
+  --font-body:      'Lexend', sans-serif;
+  --icon-support:   #458B36;
+  --main-button:    #53A143;
+  --matcha:         #A7BB79;
+  --neutral-900:    #060709;
+  --neutral-400:    #46494F;
+  --neutral-300:    #717378;
+  --neutral-200:    #9D9EA2;
+  --neutral-100:    #C8C9CB;
+  --neutral-50:     #F4F4F4;    /* สำหรับเส้นขีดแบ่ง */
+  --red:            #EB2606;
+  --overlay-bg:     rgba(1, 16, 11, 0.4);
+
+  --clr-brand:      #c8a96e;   /* warm gold */
+  --clr-bg:         #ffffff;
+  --clr-border:     #e8e8e8;
+  --clr-dropdown-bg:#ffffff;
+  --clr-hover-bg:   #f7f4ef;
+  --shadow-nav:     0 2px 16px rgba(0,0,0,.07);
+  --shadow-drop:    0 8px 28px rgba(0,0,0,.10);
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-full:    999px;
+  --transition:     .2s ease;
+}
+
+#smart-footer {
+  background: linear-gradient(#344054 0%, #0E2447 100%);
+  font-family: 'Lexend', sans-serif;
+  color: #c8d0dc;
+  padding: 72px 80px 0;
+  margin-top: 80px;
+}
+
+/* ====== Main content ====== */
+.footer-main {
+  display: grid;
+  grid-template-columns: 370px 1fr 2fr;
+  gap: 60px;
+  padding-bottom: 60px;
+  border-bottom: 1px solid var(--neutral-400);
+}
+
+@media (max-width: 1024px) {
+  #smart-footer { padding: 56px 40px 0; }
+  .footer-main  { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .footer-brand { grid-column: 1 / -1;}
+}
+
+@media (max-width: 600px) {
+  #smart-footer { padding: 48px 24px 0; }
+  .footer-main  { grid-template-columns: 1fr; }
+}
+
+/* ====== Brand ====== */
+.footer-logo-link {
+  display: inline-block;
+  text-decoration: none;
+  margin-bottom: 24px;
+}
+
+/* Text logo placeholder — เปลี่ยนเป็น <img> ได้เลย */
+.footer-logo-placeholder {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.logo-smart     { font-size: 11px; font-weight: 300; color: #c8d0dc; letter-spacing: .08em; }
+.logo-furniture { font-size: 36px; font-weight: 700; color: #e88a9a; letter-spacing: -.5px; }
+.logo-warehouse { font-size: 24px; font-weight: 600; color: #7ab648; letter-spacing: -.2px; }
+
+/* ถ้าใช้ <img> แทน */
+.footer-logo-link img {
+  height: 90px;
+  width: auto;
+  object-fit: contain;
+}
+
+.footer-tagline {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.85;
+  color: var(--neutral-200);
+  max-width: 320px;
+}
+
+/* ====== Columns ====== */
+.footer-col { display: flex; flex-direction: column; }
+
+.footer-col-title {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+/* ====== Links ====== */
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-link {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--neutral-200);
+  text-decoration: none;
+  transition: color .2s ease;
+  display: inline-block;
+}
+.footer-link:hover { color: #ffffff; }
+
+.footer-email { word-break: break-all; }
+
+/* ====== Categories grid (2 คอลัมน์) ====== */
+.footer-categories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 24px;
+}
+
+.footer-cat-link {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--neutral-200);
+  text-decoration: none;
+  transition: color .2s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'Lexend', sans-serif;
+  text-align: left;
+}
+.footer-cat-link:hover { color: #ffffff; }
+
+/* ====== Bottom bar ====== */
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-copyright {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--neutral-300);
+}
+
+.footer-legal {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-legal-link {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--neutral-200);
+  text-decoration: none;
+  transition: color .2s;
+  cursor: pointer;
+}
+.footer-legal-link:hover { color: #c8d0dc; }
