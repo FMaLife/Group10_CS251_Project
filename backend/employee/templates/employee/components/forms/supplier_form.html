@@ -1,25 +1,45 @@
-<form method="POST" class="form-box">
+<form method="POST" class="form-box"
+    {% if is_edit %}
+        action="{% url 'edit_item' model_name object.id %}"
+    {% else %}
+        action="{% url 'add_item' model_name %}"
+    {% endif %}
+>
     {% csrf_token %}
 
     <div class="form-group">
-        <label>Contact Name</label>
-        <input name="contact_name">
+        {{ form.contact_name.label_tag }}
+        {{ form.contact_name }}
+        {{ form.contact_name.errors }}
     </div>
 
     <div class="form-group">
-        <label>Phone Number</label>
-        <input name="phone">
+        {{ form.phone.label_tag }}
+        {{ form.phone }}
+        {% if form.phone.errors %}
+            <div class="error-text">
+                {{ form.phone.errors.0 }}
+            </div>
+        {% endif %}
     </div>
 
     <div class="form-group">
-        <label>Company Name</label>
-        <input name="company">
+        {{ form.company.label_tag }}
+        {{ form.company }}
+        {{ form.company.errors }}
     </div>
 
     <div class="form-group">
-        <label>Address</label>
-        <input name="address">
+        {{ form.address.label_tag }}
+        {{ form.address }}
+        {{ form.address.errors }}
     </div>
 
-    <button type="submit">Add New Supplier</button>
+    <button type="submit" class="save-btn">
+        {% if is_edit %}
+            Save Changes
+        {% else %}
+            Add New Supplier
+        {% endif %}
+    </button>
 </form>

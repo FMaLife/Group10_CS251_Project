@@ -43,7 +43,7 @@
                     <div class="action-buttons">
 
                         {% if actions.edit %}
-                        <button class="edit-button" onclick="location.href='{% url 'edit_item' title|lower row.id %}'">
+                        <button class="edit-button btn-edit" data-model="{{ model_name }}" data-id="{{ row.id }}">
                             <i class="lni lni-pencil-1"></i>
                         </button>
                         {% endif %}

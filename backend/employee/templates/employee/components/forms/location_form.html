@@ -1,0 +1,44 @@
+<form method="POST" class="form-box form-layout"
+    {% if is_edit %}
+        action="{% url 'edit_item' model_name object.id %}"
+    {% else %}
+        action="{% url 'add_item' model_name %}"
+    {% endif %}
+>
+    {% csrf_token %}
+
+    <div class="form-grid">
+    
+        <div class="form-group warehouse-feild">
+            {{ form.warehouse.label_tag }}
+            {{ form.warehouse }}
+            {{ form.warehouse.errors }}
+        </div>
+
+        <div class="form-group">
+            {{ form.zone.label_tag }}
+            {{ form.zone }}
+            {{ form.zone.errors }}
+        </div>
+
+        <div class="form-group">
+            {{ form.aisle.label_tag }}
+            {{ form.aisle }}
+            {{ form.aisle.errors }}
+        </div>
+
+        <div class="form-group">
+            {{ form.bin.label_tag }}
+            {{ form.bin }}
+            {{ form.bin.errors }}
+        </div>
+
+    </div>
+        <button type="submit" class="save-btn">
+            {% if is_edit %}
+                Save Changes
+            {% else %}
+                Add New Location
+            {% endif %}
+        </button>
+</form>
