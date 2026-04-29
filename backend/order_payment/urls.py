@@ -7,3 +7,4 @@ router.register(r"details", OrderDetailViewSet, basename="order-detail")
 router.register(r"payments", PaymentViewSet, basename="payment")
 
 urlpatterns = router.urls
+

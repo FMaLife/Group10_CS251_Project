@@ -1,17 +1,18 @@
 from rest_framework import serializers
 from .models import SaleOrder, OrderDetail, Payment
+from cart_delivery.models import Delivery
+from customers.models import CustomerAddress
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
-    # เปลี่ยนชื่อ field ให้ตรง frontend
-    line_number   = serializers.IntegerField(source="line_number", read_only=True)
-    product_name  = serializers.CharField(source="product.product_name", read_only=True)
-    product_price = serializers.DecimalField(source="product.price", max_digits=12, decimal_places=2, read_only=True)
-    color         = serializers.CharField(source="product.color", read_only=True)
-    width         = serializers.IntegerField(source="product.width", read_only=True)
-    length        = serializers.IntegerField(source="product.length", read_only=True)
-    height        = serializers.IntegerField(source="product.height", read_only=True)
-    image         = serializers.SerializerMethodField()
+    line_number = serializers.IntegerField(read_only=True)
+    product_name = serializers.CharField(source="product.ProductName", read_only=True)
+    product_price = serializers.DecimalField(source="product.Price", max_digits=12, decimal_places=2, read_only=True)
+    color = serializers.CharField(source="product.Color", read_only=True)
+    width = serializers.IntegerField(source="product.Width", read_only=True)
+    length = serializers.IntegerField(source="product.Length", read_only=True)
+    height = serializers.IntegerField(source="product.Height", read_only=True)
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderDetail
@@ -20,7 +21,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "order",
             "product",
             "product_name",
-            "product_price",  # ← ราคาต่อหน่วย
+            "product_price",
             "quantity",
             "color",
             "width",
@@ -29,16 +30,24 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "image",
             "subtotal",
         ]
-        read_only_fields = ["line_number", "subtotal", "product_name", "product_price",
-                            "color", "width", "length", "height", "image"]
+        read_only_fields = [
+            "line_number",
+            "subtotal",
+            "product_name",
+            "product_price",
+            "color",
+            "width",
+            "length",
+            "height",
+            "image",
+        ]
 
     def get_image(self, obj):
-        # ดึงรูป primary ก่อน ถ้าไม่มีเอารูปแรก
-        primary = obj.product.images.filter(is_primary=True).first()
+        primary = obj.product.images.filter(Is_Primary=True).first()
         if primary:
-            return primary.image_url
+            return primary.Image_URL
         first = obj.product.images.first()
-        return first.image_url if first else None
+        return first.Image_URL if first else None
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -54,18 +63,17 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class SaleOrderSerializer(serializers.ModelSerializer):
-    # เปลี่ยนชื่อ field ให้ตรง frontend
-    order_status = serializers.CharField(source="order_status")
-    total        = serializers.DecimalField(source="total_amount", max_digits=12, decimal_places=2, read_only=True)
-    details      = OrderDetailSerializer(source="details", many=True, read_only=True)
+    order_status = serializers.CharField()
+    total_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    details = OrderDetailSerializer(many=True, read_only=True)
     payment = PaymentSerializer(read_only=True)
 
-    owner_name       = serializers.SerializerMethodField()
-    delivery_date    = serializers.SerializerMethodField()
-    address          = serializers.SerializerMethodField()
-    customer_name    = serializers.SerializerMethodField()
-    customer_phone   = serializers.SerializerMethodField()
-    tracking_number  = serializers.SerializerMethodField()
+    owner_name = serializers.SerializerMethodField()
+    delivery_date = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
+    customer_name = serializers.SerializerMethodField()
+    customer_phone = serializers.SerializerMethodField()
+    tracking_number = serializers.SerializerMethodField()
 
     class Meta:
         model = SaleOrder
@@ -78,14 +86,26 @@ class SaleOrderSerializer(serializers.ModelSerializer):
             "owner_name",
             "order_date",
             "order_status",
-            "total",
+            "total_amount",
             "delivery_date",
             "tracking_number",
             "address",
             "details",
             "payment",
         ]
-        read_only_fields = ["order_id", "order_date", "total"]
+        read_only_fields = [
+            "order_id",
+            "order_date",
+            "total_amount",
+            "customer_name",
+            "customer_phone",
+            "owner_name",
+            "delivery_date",
+            "tracking_number",
+            "address",
+            "details",
+            "payment",
+        ]
 
     def get_customer_name(self, obj):
         if not obj.customer:
@@ -98,7 +118,7 @@ class SaleOrderSerializer(serializers.ModelSerializer):
         return obj.customer.PhoneNumber
 
     def get_tracking_number(self, obj):
-        delivery = getattr(obj, "delivery", None)
+        delivery = Delivery.objects.filter(order=obj.order_id).first()
         if delivery:
             return delivery.tracking_number
         return None
@@ -109,30 +129,37 @@ class SaleOrderSerializer(serializers.ModelSerializer):
         return f"{obj.owner.EFirstName} {obj.owner.ELastName}"
 
     def get_delivery_date(self, obj):
-        delivery = getattr(obj, "delivery", None)
+        delivery = Delivery.objects.filter(order=obj.order_id).first()
         if delivery and delivery.delivery_date:
             return str(delivery.delivery_date)
         return None
 
     def get_address(self, obj):
-        delivery = getattr(obj, "delivery", None)
-        if not delivery or not delivery.address:
+        delivery = Delivery.objects.filter(order=obj.order_id).first()
+        if not delivery:
             return None
-        addr = delivery.address
-        # รวม field ที่อยู่เป็น string เดียว
-        parts = [addr.HouseNo, addr.Street, addr.SubDistrict,
-                 addr.District, addr.Province, addr.ZipCode]
-        return ", ".join(p for p in parts if p)
+
+        addr = CustomerAddress.objects.filter(AddressID=delivery.address).first()
+        if not addr:
+            return None
+
+        parts = [
+            addr.HouseNo,
+            addr.Street,
+            addr.SubDistrict,
+            addr.District,
+            addr.Province,
+            addr.ZipCode,
+        ]
+        return ", ".join(str(part) for part in parts if part)
 
     def to_representation(self, instance):
-        """แปลง 'In transit' → 'In_transit' ตอนส่งให้ frontend"""
         data = super().to_representation(instance)
         if data.get("order_status") == "In transit":
             data["order_status"] = "In_transit"
         return data
 
     def to_internal_value(self, data):
-        """แปลง 'In_transit' → 'In transit' ตอนรับจาก frontend"""
         if data.get("order_status") == "In_transit":
             data = data.copy()
             data["order_status"] = "In transit"

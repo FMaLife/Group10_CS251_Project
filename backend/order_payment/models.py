@@ -1,8 +1,4 @@
 from django.db import models
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
-from django.db.models import Sum
-
 
 
 class SaleOrder(models.Model):
@@ -10,7 +6,6 @@ class SaleOrder(models.Model):
         PENDING = "Pending", "Pending"
         RECEIVED = "Received", "Received"
         IN_TRANSIT = "In transit", "In transit"
-        COMPLETE = "Complete", "Complete"
         CANCELLED = "Cancelled", "Cancelled"
 
     order_id = models.AutoField(primary_key=True)
@@ -61,30 +56,30 @@ class OrderDetail(models.Model):
         unique_together = ("order", "product")
 
     def __str__(self):
-        return f"Order {self.order_id} - {self.product.product_name}"
+        return f"Order {self.order.order_id} - {self.product.ProductName}"
 
     def save(self, *args, **kwargs):
-        self.subtotal = self.product.price * self.quantity
+        self.subtotal = self.product.Price * self.quantity
         super().save(*args, **kwargs)
 
         order = self.order
-        all_details = order.details.all()
-        total = sum(detail.subtotal for detail in all_details)
+        total = sum(detail.subtotal for detail in order.details.all())
         order.total_amount = total
         order.save()
-    
+
     def delete(self, *args, **kwargs):
-        order = self.order         
+        order = self.order
         super().delete(*args, **kwargs)
-        total = sum(d.subtotal for d in order.details.all())
+
+        total = sum(detail.subtotal for detail in order.details.all())
         order.total_amount = total
         order.save()
 
 
 class Payment(models.Model):
     class PaymentStatusChoices(models.TextChoices):
-        PENDING = "Pending", "Pending"
-        COMPLETED = "Completed", "Completed"
+        WAITING = "Waiting", "Waiting"
+        COMPLETED = "Complete", "Complete"
         CANCELLED = "Cancelled", "Cancelled"
 
     ref_number = models.CharField(max_length=50, primary_key=True)
@@ -97,7 +92,7 @@ class Payment(models.Model):
     payment_status = models.CharField(
         max_length=20,
         choices=PaymentStatusChoices.choices,
-        default=PaymentStatusChoices.PENDING,
+        default=PaymentStatusChoices.WAITING,
     )
     payment_timestamp = models.DateTimeField(blank=True, null=True)
 
@@ -106,4 +101,3 @@ class Payment(models.Model):
 
     def __str__(self):
         return self.ref_number
-    
