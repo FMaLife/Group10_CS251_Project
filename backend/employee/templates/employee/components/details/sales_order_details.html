@@ -21,6 +21,9 @@
                     <div class="label">Full Name</div>
                     <div class="value">{{ object.customer_name }}</div>
                 </div>
+            </div>
+            
+            <div class="info-grid">
                 <div class="item">
                     <div class="label">Phone Number</div>
                     <div class="value">{{ object.phone_number }}</div>
@@ -80,7 +83,7 @@
             <div class="info-grid">
                 <div class="item">
                     <div class="label">Status</div>
-                    <div class="value">{{ object.status }}</div>
+                    <div class="value">{{ object.get_status_display }}</div>
                 </div>
                 <div class="item">
                     <div class="label">Tracking Number</div>
