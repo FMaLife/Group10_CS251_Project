@@ -1,16 +1,17 @@
+from datetime import date
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 
 from .models import (
     Product, Supplier, Category, Warehouse, Location,
-    PurchaseOrder, SalesOrder, Employee, Payment
+    PurchaseOrder, SalesOrder, Employee, Payment, PurchaseOrderItem
 )
 
 from .forms import (
     ProductForm, SupplierForm, CategoryForm,
-    WarehouseForm, LocationForm, PurchaseOrderForm,
-    EmployeeForm
+    WarehouseForm, LocationForm, PurchaseOrderForm, SalesOrderForm, EmployeeForm
 )
 
 # =========================
@@ -50,6 +51,7 @@ FORM_MAP = {
     "warehouse": WarehouseForm,
     "location": LocationForm,
     "purchase_order": PurchaseOrderForm,
+    "sales_order": SalesOrderForm,
     "employee": EmployeeForm,
 }
 
@@ -57,7 +59,7 @@ FORM_MAP = {
 # TABLE VIEW (REUSABLE)
 # =========================
 
-def table_view(request, model, template, title, columns, headers, actions, show_add=True):
+def table_view(request, model, template, title, columns, headers, actions, show_add=True, show_actions=True):
     data = model.objects.all()
 
     paginator = Paginator(data, 10)
@@ -71,7 +73,7 @@ def table_view(request, model, template, title, columns, headers, actions, show_
         "columns": columns,
         "headers": headers,
         "show_add": show_add,
-        "show_actions": True,
+        "show_actions": show_actions,
         "delete_url": "delete_item",
         "actions": actions,
         "display_field": columns[0],
@@ -174,7 +176,7 @@ def employee(request):
         "Employee",
         ["name", "employee_id", "role", "phone"],
         ["Employee Name", "Employee ID", "Role", "Phone Number"],
-        {"edit": True, "delete": True, "detail": True}
+        {"edit": True, "delete": True, "detail": False},
     )
 
 
@@ -186,8 +188,9 @@ def payment(request):
         "Payment",
         ["payment_date", "reference_number", "sales_order", "status"],
         ["Payment Date", "Reference Number", "Sales Order ID", "Status"],
-        {"edit": False, "delete": False, "detail": True},
-        show_add=False
+        {"edit": False, "delete": False, "detail": False},
+        show_add=False,
+        show_actions=False
     )
 
 # =========================
@@ -195,7 +198,41 @@ def payment(request):
 # =========================
 
 def edit_item(request, model, id):
-    return HttpResponse("Edit not implemented yet")
+    model_class = NAME_TO_MODEL.get(model)
+    form_class = FORM_MAP.get(model)
+
+    if not model_class or not form_class:
+        return HttpResponse("Not found")
+
+    obj = get_object_or_404(model_class, pk=id)
+
+    if request.method == "POST":
+        form = form_class(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            return redirect(model)
+    else:
+        form = form_class(instance=obj)
+
+    context = {
+        "form": form,
+        "model_name": model,
+        "is_edit": True,
+        "object": obj
+    }
+
+    if model == "product":
+        context.update({
+            "categories": Category.objects.all(),
+            "warehouses": Warehouse.objects.all(),
+            "suppliers": Supplier.objects.all(),
+        })
+
+    return render(
+        request,
+        f"employee/components/forms/{model}_form.html",
+        context
+    )
 
 
 def delete_item(request, model, id):
@@ -234,17 +271,45 @@ def add_item(request, model):
         return HttpResponse("Form not found")
 
     if request.method == "POST":
-        form = form_class(request.POST)
+        form = form_class(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+            obj.ordered_date = date.today()
+            obj.status = "pending"
+            obj.save()
+
+            if model == "purchase_order":
+                products = request.POST.getlist("product[]")
+                quantities = request.POST.getlist("quantity[]")
+
+                for p, q in zip(products, quantities):
+                    if p and q:
+                        PurchaseOrderItem.objects.create(
+                            purchase_order=obj,
+                            product_id=p,
+                            quantity=q
+                        )
+
             return redirect(model)
+
     else:
         form = form_class()
 
-    return render(request, f"employee/components/forms/{model}_form.html", {
-        "form": form
-    })
+    context = {
+        "form": form,
+        "model_name": model,
+        "is_edit": False
+    }
 
+    if model == "purchase_order":
+        context["products"] = Product.objects.all()
+
+    return render(
+        request,
+        f"employee/components/forms/{model}_form.html",
+        context
+    )
 
 def paginate(request, data, per_page=10):
     paginator = Paginator(data, per_page)

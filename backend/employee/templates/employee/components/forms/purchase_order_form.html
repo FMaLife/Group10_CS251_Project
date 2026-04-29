@@ -1,20 +1,38 @@
-<form method="POST" class="form-box">
+<form method="POST" class="form-box form-layout"
+    action="{% url 'add_item' model_name %}"
+>
     {% csrf_token %}
 
-    <div class="info-grid">
-
+    <div class="form-grid purchase-grid">
         <div class="form-group">
-            <label>Product</label>
-            <input name="name">
+                {{ form.supplier.label_tag }}
+                {{ form.supplier }}
+                {{ form.supplier.errors }}
         </div>
 
-        <div class="form-group">
-            <label>Quantity</label>
-            <input name="quantity">
+        <div id="items">
+
+            <div class="item-row">
+
+                <div class="form-group">
+                    <label>Product</label>
+                    <select name="product[]">
+                        {% for p in products %}
+                            <option value="{{ p.id }}">{{ p.product_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity[]" placeholder="Qty">
+                </div>
+            </div>
+
         </div>
-
-
     </div>
 
-    <button type="submit">Add New Purchase Order</button>
+    <button class="add-row" type="button" onclick="addRow()"><ion-icon name="add"></ion-icon></button>
+    <button type="submit">Create Purchase Order</button>
+
 </form>

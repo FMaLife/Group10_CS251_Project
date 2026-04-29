@@ -1,67 +1,89 @@
-<form method="POST" class="product-form-layout" enctype="multipart/form-data">
+<form method="POST" class="form-box form-layout" enctype="multipart/form-data"
+    {% if is_edit %}
+        action="{% url 'edit_item' model_name object.id %}"
+    {% else %}
+        action="{% url 'add_item' model_name %}"
+    {% endif %}
+>
     {% csrf_token %}
 
     <div class="form-grid">
 
         <!-- LEFT: IMAGE -->
+        
         <div class="form-image">
-            <label>Image</label>
-            <input type="file" name="image">
+            <label for="id_image" class="image-box" id="preview-box">
+                {% if form.instance.image %}
+                    <img src="{{ form.instance.image.url }}">
+                {% else %}
+                    <ion-icon name="add"></ion-icon>
+                {% endif %}
+            </label>
+            <input type="file" name="image" id="id_image" hidden>
         </div>
+        
         <!-- RIGHT SIDE -->
 
-        <div class="form-field">
-            <label>Product Name</label>
-            <input name="product_name">
+        <div class="form-group">
+            {{ form.product_name.label_tag }}
+            {{ form.product_name }}
+            {{ form.product_name.errors }}
         </div>
 
         <!-- Dimension (W x L x H) -->
-        <div class="form-field">
+        <div class="form-group dimension-field">
             <label>Dimension (W x L x H)</label>
             <div class="dimension-grid">
-                <input name="width" placeholder="W">
-                <input name="length" placeholder="L">
-                <input name="height" placeholder="H">
+                {{ form.width }}
+                {{ form.length }}
+                {{ form.height }}
             </div>
+            {{ form.width.errors }}
+            {{ form.length.errors }}
+            {{ form.height.errors }}
         </div>
 
-        <div class="form-field">
+        <div class="form-group">
             <label>Category</label>
-            <select name="category">
-                <option>Select category</option>
-            </select>
+            {{ form.category }}
         </div>
 
-        <div class="form-field">
-            <label>Color</label>
-            <input name="color">
+        <div class="form-group">
+            {{ form.color.label_tag }}
+            {{ form.color }}
+            {{ form.color.errors }}
         </div>
 
-        <div class="form-field">
-            <label>Warehouse</label>
-            <select name="warehouse">
-                <option>Select warehouse</option>
-            </select>
+        <div class="form-group">
+            {{ form.warehouse.label_tag }}
+            {{ form.warehouse }}
+            {{ form.warehouse.errors }}
         </div>
 
-        <div class="form-field">
-            <label>Price</label>
-            <input name="price">
+        <div class="form-group">
+            {{ form.price.label_tag }}
+            {{ form.price }}
+            {{ form.price.errors }}
         </div>
 
-        <div class="form-field">
-            <label>Supplier</label>
-            <select name="supplier">
-                <option>Select supplier</option>
-            </select>
+        <div class="form-group supplier-field">
+            {{ form.supplier.label_tag }}
+            {{ form.supplier }}
+            {{ form.supplier.errors }}
         </div>
 
-        <div class="form-field">
-            <label>Product Quantity</label>
-            <input name="quantity">
+        <div class="form-group quantity-field">
+            {{ form.quantity.label_tag }}
+            {{ form.quantity }}
+            {{ form.quantity.errors }}
         </div>
 
     </div>
-
-    <button type="submit" class="save-btn">Add New Product</button>
+        <button type="submit" class="save-btn">
+            {% if is_edit %}
+                Save Changes
+            {% else %}
+                Add New Product
+            {% endif %}
+        </button>
 </form>
