@@ -4,7 +4,11 @@
 
     <!-- รูป -->
     <div class="image-box">
-        <img src="{{ object.image.url|default:'/static/employee/img/default.png' }}">
+        {% if object.image %}
+            <img src="{{ object.image.url }}">
+        {% else %}
+            <p>No image</p>
+        {% endif %}
     </div>
 
     <!-- ข้อมูล -->
@@ -22,7 +26,7 @@
 
         <div class="item">
             <div class="label">Dimension</div>
-            <div class="value">{{ object.dimension }}</div>
+            <div class="value">{{ object.width }} x {{ object.length }} x {{ object.height }}</div>
         </div>
 
         <div class="item">
