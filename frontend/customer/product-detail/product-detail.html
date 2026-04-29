@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Detail — Smart Furniture Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/frontend/customer/components/navbar/navbar.css" />
+  <link rel="stylesheet" href="/frontend/customer/components/footer/footer.css" />
+  <link rel="stylesheet" href="/frontend/customer/product-detail/product.css" />
+</head>
+<body>
+
+  <!-- ======= NAVBAR (navbar.html) ======= -->
+  <nav id="smart-navbar" role="navigation" aria-label="Main navigation">
+
+    <!-- TOP BAR -->
+    <div class="navbar-top">
+
+      <a href="/frontend/customer/home/home.html" class="navbar-logo" aria-label="Smart Furniture Warehouse - Home">
+        <img src="/frontend/customer/assets/logo_smart-furniture-warehouse.svg" alt="Smart Furniture Warehouse logo" />
+      </a>
+
+      <div class="navbar-search" role="search" id="navbar-search-wrap">
+        <input id="navbar-search-input" type="search" placeholder="Search furniture..." aria-label="Search"
+          autocomplete="off" aria-autocomplete="list" aria-controls="search-suggestions" aria-activedescendant="" />
+        <button id="navbar-search-btn" class="navbar-search-btn" aria-label="Submit search">
+          <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <line x1="16.5" y1="16.5" x2="22" y2="22" />
+          </svg>
+        </button>
+        <ul id="search-suggestions" class="search-suggestions" role="listbox" aria-label="Search suggestions"></ul>
+      </div>
+
+      <div class="navbar-actions">
+        <a href="/frontend/customer/profile/profile.html" class="navbar-account" aria-label="Your Account">
+          <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+          Your Account
+        </a>
+        <div class="navbar-divider" aria-hidden="true"></div>
+        <button id="cart-icon-btn" class="navbar-cart-btn" aria-label="Shopping cart">
+          <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          <span id="cart-badge" class="cart-badge" aria-live="polite">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="navbar-bottom">
+      <a href="/frontend/customer/home/home.html" class="nav-link active" id="nav-home">Home</a>
+      <div class="nav-dropdown-wrap">
+        <button id="category-btn" class="nav-link" aria-haspopup="listbox" aria-expanded="false"
+          aria-controls="category-dropdown">
+          Category
+          <svg class="chevron-icon" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <ul id="category-dropdown" class="dropdown-panel" role="listbox" aria-label="Product categories"></ul>
+      </div>
+      <a href="/frontend/customer/checkout/orders/orders.html" class="nav-link" id="nav-orders">Orders</a>
+      <a href="#footer" id="contact-us-link" class="nav-link">Contact Us</a>
+    </div>
+
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pd-main">
+
+    <!-- Breadcrumb -->
+    <nav class="pd-breadcrumb" id="pd-breadcrumb">
+      <a href="/frontend/customer/home/home.html">Home</a>
+      <span class="bc-sep">›</span>
+      <a href="#" id="bc-category">Category</a>
+      <span class="bc-sep">›</span>
+      <span id="bc-name">Product</span>
+    </nav>
+
+    <!-- Product Layout -->
+    <div class="pd-layout">
+
+      <!-- LEFT: Images -->
+      <div class="pd-gallery">
+        <div class="pd-main-img-wrap">
+          <img id="pd-main-img" src="" alt="Product image" />
+          <button class="pd-zoom-btn" id="pd-zoom-btn" aria-label="Zoom image">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+              <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pd-thumbs" id="pd-thumbs"></div>
+      </div>
+
+      <!-- RIGHT: Info -->
+      <div class="pd-info">
+
+        <p class="pd-sku" id="pd-sku">—</p>
+        <h1 class="pd-title" id="pd-title">Loading...</h1>
+
+        <div class="pd-tags" id="pd-tags"></div>
+
+        <p class="pd-price" id="pd-price">—</p>
+
+        <!-- Dimension -->
+        <div class="pd-spec-row" id="pd-dim-row">
+          <span class="pd-spec-label">DIMENSION</span>
+          <div class="pd-dim-chips" id="pd-dims"></div>
+        </div>
+
+        <!-- Color -->
+        <div class="pd-spec-row" id="pd-color-row">
+          <span class="pd-spec-label">COLOR</span>
+          <div class="pd-colors" id="pd-colors"></div>
+        </div>
+
+        <!-- Selected summary -->
+        <div class="pd-summary" id="pd-summary">
+          <span class="pd-summary-name" id="pd-summary-name">—</span>
+          <span class="pd-summary-qty" id="pd-summary-qty">1x</span>
+          <span class="pd-summary-price" id="pd-summary-unit-price">—</span>
+        </div>
+
+        <!-- Qty + Add to Cart -->
+        <div class="pd-actions">
+          <div class="pd-qty-wrap">
+            <button class="pd-qty-btn" id="btn-minus" aria-label="Decrease">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="pd-qty-val" id="pd-qty">1</span>
+            <button class="pd-qty-btn" id="btn-plus" aria-label="Increase">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="pd-stock-badge" id="pd-stock">In Stock</span>
+          </div>
+
+          <button class="pd-add-btn" id="pd-add-btn">
+            <span>Add to Cart</span>
+            <span class="pd-add-divider">|</span>
+            <span id="pd-total-price">—</span>
+          </button>
+        </div>
+
+        <!-- Perks -->
+        <ul class="pd-perks">
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#53A143" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Free shipping on every order.
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#53A143" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Order before 12:00pm for same day dispatch
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#53A143" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Support &amp; ordering open 7 day a week
+          </li>
+        </ul>
+
+      </div><!-- /.pd-info -->
+    </div><!-- /.pd-layout -->
+
+  </main>
+
+  <!-- Zoom overlay -->
+  <div class="pd-zoom-overlay" id="pd-zoom-overlay">
+    <button class="pd-zoom-close" id="pd-zoom-close" aria-label="Close zoom">✕</button>
+    <img id="pd-zoom-img" src="" alt="Zoomed product" />
+  </div>
+
+  <!-- Footer -->
+  <div id="footer-container"></div>
+  <script src="/frontend/customer/components/footer/footer.js"></script>
+  <script>
+    fetch("/frontend/customer/components/footer/footer.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("footer-container").innerHTML = html;
+        initFooter();
+      });
+  </script>
+
+  <script src="/frontend/customer/product-detail/product.js"></script>
+</body>
+</html>
