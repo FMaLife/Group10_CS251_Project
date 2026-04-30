@@ -97,7 +97,7 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
         try:
             cart = Cart.objects.get(pk=cart_id)
             customer = Customer.objects.get(CustomerID=cart.customer)
-            address = CustomerAddress.objects.get(pk=address_id)
+            address = CustomerAddress.objects.get(pk=address_id, CustomerID=customer)
 
             cart_items = cart.items.all()
 
