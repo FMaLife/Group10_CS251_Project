@@ -3,3 +3,14 @@ __pycache__/
 *.pyc
 .env
 db.sqlite3
+
+# Other team branches (untracked on this branch)
+venv/
+frontend/
+backend/accounts/
+backend/cart_delivery/
+backend/catalog/
+backend/customers/
+backend/employee/
+backend/employees/
+backend/stock/
