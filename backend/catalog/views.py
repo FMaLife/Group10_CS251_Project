@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 
@@ -11,6 +11,29 @@ from .serializers import (
     ProductCreateUpdateSerializer,
     ProductImageSerializer, ProductImageUploadSerializer,
 )
+
+
+def _employee_check(request):
+    """Return (employee, error_response). error_response is None if OK."""
+    employee_id = request.session.get("employee_id")
+    if not employee_id:
+        return None, Response({"error": "Authentication required"}, status=401)
+    from employees.models import Employee
+    try:
+        emp = Employee.objects.get(EmployeeID=employee_id, is_active=True)
+        return emp, None
+    except Employee.DoesNotExist:
+        return None, Response({"error": "Employee not found or deactivated"}, status=401)
+
+
+def _admin_check(request):
+    """Return (employee, error_response). Only allows Admin role."""
+    emp, err = _employee_check(request)
+    if err:
+        return None, err
+    if emp.role != "Admin":
+        return None, Response({"error": "Admin access required"}, status=403)
+    return emp, None
 
 
 # ═══════════════════════════════════════════
@@ -27,9 +50,12 @@ def category_list(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def category_create(request):
     """POST /api/catalog/categories/create/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     serializer = CategoryCreateSerializer(data=request.data)
     if serializer.is_valid():
         try:
@@ -41,7 +67,7 @@ def category_create(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def category_detail(request, categoryID):
     """GET/PUT/DELETE /api/catalog/categories/<id>/"""
     try:
@@ -52,8 +78,9 @@ def category_detail(request, categoryID):
     if request.method == 'GET':
         return Response(CategorySerializer(category).data)
 
-    if not request.user.is_staff:
-        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    _, err = _admin_check(request)
+    if err:
+        return err
 
     if request.method == 'PUT':
         serializer = CategoryCreateSerializer(data=request.data)
@@ -96,9 +123,12 @@ def product_list(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def product_create(request):
     """POST /api/catalog/create/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     serializer = ProductCreateUpdateSerializer(data=request.data)
     if serializer.is_valid():
         product = Product.create(productData=serializer.validated_data)
@@ -107,7 +137,7 @@ def product_create(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def product_detail(request, productID):
     """GET/PUT/DELETE /api/catalog/<id>/"""
     try:
@@ -118,8 +148,9 @@ def product_detail(request, productID):
     if request.method == 'GET':
         return Response(ProductDetailSerializer(product).data)
 
-    if not request.user.is_staff:
-        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+    _, err = _admin_check(request)
+    if err:
+        return err
 
     if request.method == 'PUT':
         serializer = ProductCreateUpdateSerializer(data=request.data, partial=True)
@@ -146,9 +177,12 @@ def product_search(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def product_low_stock(request):
     """GET /api/catalog/low-stock/?threshold=5"""
+    _, err = _employee_check(request)
+    if err:
+        return err
     threshold = int(request.query_params.get('threshold', 5))
     products = Product.getLowStock(threshold=threshold)
     serializer = ProductListSerializer(products, many=True)
@@ -165,7 +199,7 @@ def product_by_category(request, categoryID):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def product_location(request, productID):
     """GET /api/catalog/<id>/location/"""
     try:
@@ -173,20 +207,23 @@ def product_location(request, productID):
         if location is None:
             return Response({'location': None})
         return Response({
-            'LocationID': location.LocationID,
-            'WarehouseID': location.WarehouseID_id,
-            'Aisle': location.Aisle,
-            'Zone': location.Zone,
-            'Bin': location.Bin,
+            'location_id': location.location_id,
+            'warehouse_id': location.warehouse_id,
+            'aisle': location.aisle,
+            'zone': location.zone,
+            'bin': location.bin,
         })
     except Product.DoesNotExist:
         return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def product_set_active(request, productID):
     """PATCH /api/catalog/<id>/set-active/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     try:
         product = Product.getById(productID)
         is_active = request.data.get('is_active')
@@ -199,9 +236,12 @@ def product_set_active(request, productID):
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def product_update_location(request, productID):
     """PATCH /api/catalog/<id>/update-location/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     try:
         product = Product.getById(productID)
         locationID = request.data.get('locationID')
@@ -212,9 +252,12 @@ def product_update_location(request, productID):
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def product_update_category(request, productID):
     """PATCH /api/catalog/<id>/update-category/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     try:
         product = Product.getById(productID)
         categoryID = request.data.get('categoryID')
@@ -238,9 +281,12 @@ def image_list_by_product(request, productID):
 
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def image_upload(request, productID):
     """POST /api/catalog/<id>/images/upload/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     serializer = ProductImageUploadSerializer(data=request.data)
     if serializer.is_valid():
         image = ProductImage.upload(
@@ -253,9 +299,12 @@ def image_upload(request, productID):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def image_delete(request, imageID):
     """DELETE /api/catalog/images/<imageID>/delete/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     try:
         image = ProductImage.objects.get(pk=imageID)
         image.delete()
@@ -265,9 +314,12 @@ def image_delete(request, imageID):
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def image_set_primary(request, imageID):
     """PATCH /api/catalog/images/<imageID>/set-primary/"""
+    _, err = _admin_check(request)
+    if err:
+        return err
     try:
         image = ProductImage.objects.get(pk=imageID)
         image.setPrimary()

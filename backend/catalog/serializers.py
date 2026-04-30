@@ -34,7 +34,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         fields = [
             'ProductID', 'ProductName', 'Price', 'StockQuantity',
             'Color', 'Height', 'Width', 'Length',
-            'CategoryID', 'category_name', 'LocationID',
+            'CategoryID', 'category_name', 'location',
             'is_active', 'primary_image'
         ]
 
@@ -54,7 +54,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         fields = [
             'ProductID', 'ProductName', 'Price', 'StockQuantity',
             'Color', 'Height', 'Width', 'Length',
-            'CategoryID', 'category_name', 'LocationID',
+            'CategoryID', 'category_name', 'location',
             'is_active', 'images'
         ]
 
@@ -65,5 +65,5 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
         fields = [
             'ProductName', 'Price', 'StockQuantity',
             'Color', 'Height', 'Width', 'Length',
-            'CategoryID', 'LocationID'
+            'CategoryID', 'location'
         ]
