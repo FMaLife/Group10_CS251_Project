@@ -80,8 +80,10 @@ def add_address(request):
     if errors:
         return JsonResponse({"errors": errors}, status=400)
 
+    is_first = not CustomerAddress.objects.filter(CustomerID=request.customer).exists()
     addr = CustomerAddress.objects.create(
         CustomerID=request.customer,
+        is_default=is_first,
         **{model_field: body[json_key].strip()
            for json_key, model_field in _FIELD_MAP.items()},
     )
