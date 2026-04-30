@@ -29,60 +29,6 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
 
         return qs
 
-    def _get_product_stock_field(self, product):
-        possible_fields = [
-            "Stock",
-            "stock",
-            "Quantity",
-            "quantity",
-            "StockQuantity",
-            "stock_quantity",
-            "Inventory",
-            "inventory",
-        ]
-
-        for field in possible_fields:
-            if hasattr(product, field):
-                return field
-
-        return None
-
-    def _get_product_from_cart_item(self, item):
-        product_value = item.product
-
-        if isinstance(product_value, Product):
-            return Product.objects.select_for_update().get(pk=product_value.pk)
-
-        return Product.objects.select_for_update().get(ProductID=product_value)
-
-    def _validate_cart_items_stock(self, cart_items):
-        checked_items = []
-
-        for item in cart_items:
-            product = self._get_product_from_cart_item(item)
-            stock_field = self._get_product_stock_field(product)
-
-            if not stock_field:
-                raise ValueError(
-                    f"Stock field not found for product {product.ProductName}. "
-                    "Please check Product model stock field name."
-                )
-
-            current_stock = getattr(product, stock_field)
-
-            if item.quantity <= 0:
-                raise ValueError(f"Invalid quantity for product {product.ProductName}")
-
-            if current_stock < item.quantity:
-                raise ValueError(
-                    f"Not enough stock for {product.ProductName}. "
-                    f"Available: {current_stock}, requested: {item.quantity}"
-                )
-
-            checked_items.append((item, product, stock_field))
-
-        return checked_items
-
     def create(self, request, *args, **kwargs):
         cart_id = request.data.get("cart_id")
         address_id = request.data.get("address_id")
@@ -108,24 +54,20 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
                 )
 
             with transaction.atomic():
-                checked_items = self._validate_cart_items_stock(cart_items)
-
                 order = SaleOrder.objects.create(
                     customer=customer,
                     order_status=SaleOrder.OrderStatusChoices.PENDING,
                     total_amount=0,
                 )
 
-                for item, product, stock_field in checked_items:
+                for item in cart_items:
+                    product = Product.objects.get(ProductID=item.product)
                     OrderDetail.objects.create(
                         order=order,
                         product=product,
                         quantity=item.quantity,
                     )
-
-                    current_stock = getattr(product, stock_field)
-                    setattr(product, stock_field, current_stock - item.quantity)
-                    product.save(update_fields=[stock_field])
+                    product.deductStock(item.quantity)
 
                 Delivery.objects.create(
                     order=order.order_id,
