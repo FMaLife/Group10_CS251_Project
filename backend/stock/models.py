@@ -61,7 +61,7 @@ class RestockOrder(models.Model):
         related_name="restock_orders",
     )
     employee = models.ForeignKey(
-        "accounts.Employee",
+        "employees.Employee",
         on_delete=models.PROTECT,
         related_name="restock_orders",
     )
@@ -105,7 +105,7 @@ class RestockOrder(models.Model):
 
                 for detail in details:
                     Product.objects.filter(pk=detail.product_id).update(
-                        stock_quantity=F("stock_quantity") + detail.quantity
+                        StockQuantity=F("StockQuantity") + detail.quantity
                     )
 
 class RestockDetail(models.Model):

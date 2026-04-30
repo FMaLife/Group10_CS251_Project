@@ -40,7 +40,7 @@ class WarehouseLocationSerializer(serializers.ModelSerializer):
 
         
 class RestockDetailSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source="product.product_name", read_only=True)
+    product_name = serializers.CharField(source="product.ProductName", read_only=True)
 
     class Meta:
         model = RestockDetail
@@ -88,7 +88,7 @@ class RestockOrderSerializer(serializers.ModelSerializer):
         ]
 
     def get_employee_name(self, obj):
-        return f"{obj.employee.efirst_name} {obj.employee.elast_name}"
+        return f"{obj.employee.EFirstName} {obj.employee.ELastName}"
 
     def get_location_name(self, obj):
         return str(obj.location)

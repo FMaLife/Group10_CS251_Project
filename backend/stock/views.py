@@ -65,8 +65,8 @@ class RestockOrderViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
         "supplier__company_name",
-        "employee__efirst_name",
-        "employee__elast_name",
+        "employee__EFirstName",
+        "employee__ELastName",
         "restock_status",
     ]
     ordering_fields = ["restock_id", "restock_date", "restock_status"]
