@@ -41,13 +41,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
 
-    'accounts',    # login / logout / register views
-    'customers',   # Customer, CustomerAddress 
-    'employees',   # Employee 
-    #'stock',
-    #'catalog',
-    #'cart_delivery',
-    #'order_payment',
+    'accounts',
+    'customers',
+    'employees',
+    'cart_delivery',
+    'catalog',
+    'stock',
+    'order_payment',
 ]
 
 
