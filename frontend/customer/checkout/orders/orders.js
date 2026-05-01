@@ -65,13 +65,23 @@ async function apiCancelOrder(orderId) {
 
 async function apiMarkPaid(orderId) {
   if (ORDERS_USE_MOCK) {
-    return new Promise((resolve) => setTimeout(resolve, 200));
+    return new Promise((resolve) => setTimeout(() => resolve({ order_status: "Received" }), 200));
   }
-  await fetch(`${ORDERS_API_BASE}/api/orders/${orderId}/`, {
+  // PATCH /api/orders/saleorders/{order_id}/   { payment_status: "paid" }
+  // → 200 { order_status: "Received" }
+  // → 500 Server error
+  const res = await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payment_status: "paid" }),
   });
+  const data = await res.json();
+  if (!res.ok) {
+    const err = new Error("Mark paid failed");
+    err.status = res.status;
+    throw err;
+  }
+  return data;
 }
 
 // ============================================================
@@ -202,26 +212,48 @@ function openOrdersQr(orderId, total) {
 }
 
 function handleOrdersQrClose() {
-  // กด "Not ready" — ปิด overlay โดยไม่เปลี่ยน status
+  // กด "Not ready" — ปิด overlay กลับหน้า Orders (Payment = Waiting, ไม่ navigate ไปไหน)
   document.getElementById("qr-backdrop")?.classList.remove("open");
   document.body.style.overflow = "";
   pendingPaymentOrderId = null;
 }
 
 async function handleOrdersQrComplete() {
-  // กด "Complete" — mark paid แล้วอัปเดต UI
-  const orderId = pendingPaymentOrderId;
-  document.getElementById("qr-backdrop")?.classList.remove("open");
-  document.body.style.overflow = "";
-  pendingPaymentOrderId = null;
- 
-  if (!orderId) return;
- 
+  // กด "Complete" — เรียก PATCH ก่อน ถ้าสำเร็จ navigate ไปหน้า complete
+  // ถ้า 500 แสดง error บนหน้า Orders โดยไม่ navigate
+  const orderId     = pendingPaymentOrderId;
+  const completeBtn = document.querySelector(".qr-btn-complete");
+  const laterBtn    = document.querySelector(".qr-btn-later");
+
+  if (completeBtn) { completeBtn.disabled = true; completeBtn.textContent = "Processing..."; }
+  if (laterBtn)    laterBtn.disabled = true;
+
   try {
     await apiMarkPaid(orderId);
-    updateOrderStatusUI(orderId, "Received");
+
+    document.getElementById("qr-backdrop")?.classList.remove("open");
+    document.body.style.overflow = "";
+    pendingPaymentOrderId = null;
+
+    // navigate ไปหน้า complete พร้อมส่ง order_id
+    window.location.href =
+      `/frontend/customer/checkout/complete/complete.html?order_id=${orderId}&payment=paid`;
+
   } catch (err) {
     console.error("Mark paid failed:", err);
+    // คืนปุ่ม และแสดง error notification บนหน้า Orders (overlay ยังเปิดอยู่)
+    if (completeBtn) { completeBtn.disabled = false; completeBtn.textContent = "Complete"; }
+    if (laterBtn)    laterBtn.disabled = false;
+
+    // แสดง error ใน notification bar (ถ้ามี) หรือ alert เป็น fallback
+    const bar  = document.getElementById("notification-bar");
+    const text = document.getElementById("notification-text");
+    if (bar && text) {
+      text.textContent = "Payment could not be confirmed. Please try again.";
+      bar.classList.remove("hidden");
+    } else {
+      alert("Payment could not be confirmed. Please try again.");
+    }
   }
 }
 
