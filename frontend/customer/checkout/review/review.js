@@ -5,13 +5,13 @@
 const REVIEW_USE_MOCK = true;
 const REVIEW_API_BASE = "http://127.0.0.1:8000";
 
-// cart_id — ในระบบจริงดึงจาก session/localStorage
-// const customer_id = localStorage.getItem("customer_id");
-// เปลี่ยนให้ตรงกับ cart ของ user ที่ login อยู่
-const CART_ID = 1;
+// customer_id — ในระบบจริงดึงจาก session/localStorage
+// เปลี่ยนให้ตรงกับ customer ที่ login อยู่
+const CUSTOMER_ID = 1;
+let reviewCartId = null; // cart_id จาก API response ใช้ส่งต่อไปหน้า shipping
 
 // ============================================================
-//  MOCK DATA — field ตรงกับ GET /api/cart/carts/{cart_id}/
+//  MOCK DATA — field ตรงกับ GET /api/cart/?customer={customer_id}
 // ============================================================
 
 const REVIEW_MOCK_CART = {  // [FIX 1] เปลี่ยนชื่อจาก `cart` → `REVIEW_MOCK_CART`
@@ -75,7 +75,7 @@ async function fetchCart() {
       setTimeout(() => resolve(REVIEW_MOCK_CART), 120)  // [FIX 1] ใช้ REVIEW_MOCK_CART แล้วสอดคล้องกัน
     );
   }
-  const res = await fetch(`${REVIEW_API_BASE}/api/cart/?customer=${customer_id}`);
+  const res = await fetch(`${REVIEW_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
   if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
   return res.json();
 }
@@ -246,33 +246,10 @@ async function syncCartChanges() {
   }
 }
 
-// ส่ง cart_id ไปหน้า shipping ด้วย query string
-async function goToShipping() {
-  if (!reviewCart) {
-    console.error("Cart not loaded yet");
-    return;
-  }
-
-  // ล็อกปุ่มระหว่าง sync เพื่อป้องกันกด 2 ครั้ง
-  const btn = document.getElementById("checkout-btn");
-  if (btn) {
-    btn.disabled = true;
-    btn.querySelector("span").textContent = "Saving...";
-  }
-
-  try {
-    await syncCartChanges(); // sync ทุก pending change ก่อนไปหน้าถัดไป
-    window.location.href =
-      `/frontend/customer/checkout/shipping/shipping.html?cart_id=${reviewCart.cart_id}`;
-  } catch (err) {
-    console.error("Failed to sync cart before checkout:", err);
-    // คืนปุ่มให้กดได้ใหม่ถ้า sync ล้มเหลว
-    if (btn) {
-      btn.disabled = reviewCartItems.length === 0;
-      btn.querySelector("span").textContent = "Checkout";
-    }
-    alert("ไม่สามารถบันทึกตะกร้าได้ กรุณาลองใหม่อีกครั้ง");
-  }
+function goToShipping() {
+  // ส่ง cart_id และ customer_id ไปหน้า shipping ด้วย query string
+  window.location.href =
+    `/frontend/customer/checkout/shipping/shipping.html?cart_id=${reviewCartId}&customer_id=${CUSTOMER_ID}`;
 }
 
 // ============================================================
@@ -281,12 +258,9 @@ async function goToShipping() {
 
 async function initReview() {
   try {
-    const loadedCart = await fetchCart();  // [FIX 4] ใช้ fetchCart() จริง ๆ แทนที่จะ comment ทิ้ง
-
-    // เก็บ cart object และ items array ไว้ใน state
-    reviewCart      = loadedCart;
-    reviewCartItems = loadedCart.items;
-
+    const cart       = await fetchCart();
+    reviewCartId     = cart.cart_id;
+    reviewCartItems  = cart.items;
     renderItems(reviewCartItems);
     updateSummary(reviewCartItems);
   } catch (err) {

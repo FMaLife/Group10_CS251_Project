@@ -5,9 +5,9 @@
 const COMPLETE_USE_MOCK = true;
 const COMPLETE_API_BASE = "http://127.0.0.1:8000";
 
-// ดึง order_id จาก query string ที่ shipping.js / orders.js ส่งมา
-const completeParams    = new URLSearchParams(window.location.search);
-const COMPLETE_ORDER_ID = completeParams.get("order_id") || null;
+const completeParams  = new URLSearchParams(window.location.search);
+const COMPLETE_ORDER_ID  = completeParams.get("order_id") || null;
+const PAYMENT_STATUS     = completeParams.get("payment")  || "pending"; // paid | pending
 
 // ============================================================
 //  MOCK DATA — field ตรงกับ GET /api/orders/saleorders/{order_id}/
@@ -15,37 +15,11 @@ const COMPLETE_ORDER_ID = completeParams.get("order_id") || null;
 
 const COMPLETE_MOCK_ORDER = {
   order_id: 1,
-  customer: 1,
-  order_date: "2025-01-01T12:00:00Z",
-  order_status: "Pending",           // "Pending" | "Received" | "In_transit" | "Complete" | "Cancelled"
-  total_amount: "9040.00",           // ← total_amount (ไม่ใช่ order_total_amount)
-  delivery_date: null,
-  address: "99 Moo 18, Paholyothin Road, Klong Nueng, Klong Luang, Pathumthani, 12121",
-  items: [                           // ← items[] (ไม่ใช่ details[])
-    {
-      item_id: 1,
-      order: 1,
-      product: 1,
-      product_name: "VOXLÖV วอกซ์เลิฟ",
-      product_price: "2450.00",
-      quantity: 2,
-      color: "Brown",
-      width: 60, length: 58, height: 78,
-      image: null,
-      subtotal: "4900.00",
-    },
-    {
-      item_id: 2,
-      order: 1,
-      product: 2,
-      product_name: "VOXLÖV วอกซ์เลิฟ",
-      product_price: "2450.00",
-      quantity: 2,
-      color: "Brown",
-      width: 60, length: 58, height: 78,
-      image: null,
-      subtotal: "4900.00",
-    },
+  total_amount: "9040.00",
+  address: "123, Sukhumvit, Khlong Toei, Bangkok, 10110",
+  details: [
+    { line_number: 1, product_name: "VOXLÖV วอกซ์เลิฟ",  product_price: "2450.00", quantity: 1 },
+    { line_number: 2, product_name: "TULLSTA ทูลสต้า",      product_price: "6590.00", quantity: 1 },
   ],
   payment: {
     ref_number: "PAY000001",
@@ -60,20 +34,11 @@ const COMPLETE_MOCK_ORDER = {
 //  API layer
 // ============================================================
 
-// GET /api/orders/saleorders/{order_id}/
-// → 200 { order_id, order_status, total_amount, address, items: [...], payment: { payment_status } }
-// → 404 order_id ไม่มีในระบบ
-async function fetchOrderDetail(orderId) {
+async function fetchCompleteOrder() {
   if (COMPLETE_USE_MOCK) {
-    return new Promise((resolve) => setTimeout(() => resolve(COMPLETE_MOCK_ORDER), 120));
+    return new Promise((resolve) => setTimeout(() => resolve(COMPLETE_MOCK_ORDER), 100));
   }
-  const res = await fetch(`${COMPLETE_API_BASE}/api/orders/saleorders/${orderId}/`);
-  if (res.status === 404) {
-    const err = new Error("Order not found");
-    err.status = 404;
-    throw err;
-  }
-  if (!res.ok) throw new Error(`Order fetch failed: ${res.status}`);
+  const res = await fetch(`${COMPLETE_API_BASE}/api/orders/saleorders/${COMPLETE_ORDER_ID}/`);
   return res.json();
 }
 
@@ -144,19 +109,13 @@ function renderCompleteItems(items) {
   }).join("");
 }
 
-// ใช้ order.total_amount และ order.address จาก response
 function renderCompleteSummary(order) {
-  const fmt = formatPrice(order.total_amount);  // ← total_amount
+  const fmt = formatPrice(order.total_amount);
 
-  document.getElementById("complete-total").textContent = fmt;
-  document.getElementById("meta-subtotal").textContent  = fmt;
-  document.getElementById("meta-total").textContent     = fmt;
-  document.getElementById("meta-address").textContent   = order.address || "—";
-}
-
-function renderError(msg) {
-  const main = document.querySelector(".complete-section");
-  if (main) main.innerHTML = `<div class="review-empty" style="padding:2rem 0;">${msg}</div>`;
+  document.getElementById("complete-total").textContent  = fmt;
+  document.getElementById("meta-subtotal").textContent   = fmt;
+  document.getElementById("meta-total").textContent      = fmt;
+  document.getElementById("meta-address").textContent    = order.address || "—";
 }
 
 // ============================================================
@@ -170,13 +129,9 @@ async function initComplete() {
   }
 
   try {
-    const order = await fetchOrderDetail(COMPLETE_ORDER_ID);
-
-    // ใช้ order.payment.payment_status ตรวจสถานะการจ่ายเงิน
-    renderCompleteStatus(order.payment?.payment_status ?? "Pending");
-    renderCompleteItems(order.items);       // ← items (ไม่ใช่ details)
+    const order = await fetchCompleteOrder();
+    renderCompleteItems(order.details);
     renderCompleteSummary(order);
-
   } catch (err) {
     console.error("Complete init failed:", err);
     if (err.status === 404) {

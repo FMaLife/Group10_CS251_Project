@@ -1,0 +1,48 @@
+<form method="POST" class="form-box"
+    {% if is_edit %}
+        action="{% url 'edit_item' model_name object.pk %}"
+    {% else %}
+        action="{% url 'add_item' model_name %}"
+    {% endif %}
+>
+    {% csrf_token %}
+
+    <div class="form-group">
+        {{ form.role.label_tag }}
+        {{ form.role }}
+        {{ form.role.errors }}
+    </div>
+
+
+    <div class="form-group">
+        {{ form.EFirstName.label_tag }}
+        {{ form.EFirstName }}
+        {{ form.EFirstName.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.ELastName.label_tag }}
+        {{ form.ELastName }}
+        {{ form.ELastName.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.EPhone.label_tag }}
+        {{ form.EPhone }}
+        {{ form.EPhone.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.EEmail.label_tag }}
+        {{ form.EEmail }}
+        {{ form.EEmail.errors }}
+    </div>
+
+        <button type="submit" class="save-btn">
+            {% if is_edit %}
+                Save Changes
+            {% else %}
+                Add New Employee
+            {% endif %}
+        </button>
+</form>
