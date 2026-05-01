@@ -36,15 +36,17 @@ class CartItemSerializer(serializers.ModelSerializer):
             "added_date",
             "cartitem_total",
         ]
-        read_only_fields = ["item_id", "added_date"]
+        read_only_fields = ["item_id", "added_date", "cartitem_total"]
 
     def get_product_name(self, obj: CartItem):
-        # TODO: return obj.product.product_name once Product FK is in place.
-        return None
+        # MOCK: ถ้า ID=101 ให้ชื่อ 'Modern Chair'
+        if obj.product == 101:
+            return "Modern Chair"
+        return f"Product #{obj.product}"
 
     def get_product_price(self, obj: CartItem):
-        # TODO: return obj.product.price once Product FK is in place.
-        return None
+        # MOCK: ราคาคงที่ 500 ตามที่ตั้งไว้ใน model save()
+        return 500.00
 
 
 class CartItemWriteSerializer(serializers.ModelSerializer):
@@ -52,9 +54,8 @@ class CartItemWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = ["cart", "product", "quantity", "cartitem_total"]
+        fields = ["cart", "product", "quantity"]
         extra_kwargs = {
-            "cartitem_total": {"required": False},
             "quantity": {"required": False, "default": 1},
         }
 
@@ -85,35 +86,26 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class DeliverySerializer(serializers.ModelSerializer):
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    delivery_name_display = serializers.CharField(
-        source="get_delivery_name_display", read_only=True
-    )
+    """Schema ตรงตาม Data Dictionary — ไม่มี status/timestamps."""
 
     class Meta:
         model = Delivery
         fields = [
-            "delivery_id",
-            "order",
+            "order",          # PK
             "address",
-            "status",
-            "status_display",
             "delivery_name",
-            "delivery_name_display",
             "tracking_number",
             "delivery_date",
-            "created_at",
-            "updated_at",
         ]
-        read_only_fields = ["delivery_id", "created_at", "updated_at"]
 
 
-class DeliveryStatusUpdateSerializer(serializers.Serializer):
-    """Used by employees to update delivery status."""
+class DeliveryTrackingUpdateSerializer(serializers.Serializer):
+    """พนักงานอัปเดตเลขพัสดุ + ชื่อขนส่ง + วันจัดส่ง (Phase 2 SQL #28)."""
 
-    status = serializers.ChoiceField(choices=Delivery.Status.choices)
-    delivery_name = serializers.ChoiceField(
-        choices=Delivery.Courier.choices, required=False, allow_blank=True
+    delivery_name = serializers.CharField(
+        max_length=150, required=False, allow_blank=True
     )
-    tracking_number = serializers.CharField(required=False, allow_blank=True)
-    delivery_date = serializers.DateTimeField(required=False, allow_null=True)
+    tracking_number = serializers.CharField(
+        max_length=13, required=False, allow_blank=True
+    )
+    delivery_date = serializers.DateField(required=False, allow_null=True)

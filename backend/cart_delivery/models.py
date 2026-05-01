@@ -33,7 +33,8 @@ class Cart(models.Model):
 class CartItem(models.Model):
     """รายการสินค้าในตะกร้า — ตะกร้า 1 ใบมีหลายรายการได้."""
 
-    item_id = models.AutoField(primary_key=True, db_column="CartItemID")
+    # Data dict: column name is `Item_ID`
+    item_id = models.AutoField(primary_key=True, db_column="Item_ID")
     cart = models.ForeignKey(
         Cart,
         on_delete=models.CASCADE,
@@ -44,7 +45,11 @@ class CartItem(models.Model):
     product = models.IntegerField(db_column="ProductID")
     quantity = models.PositiveIntegerField(default=1, db_column="Quantity")
     cartitem_total = models.DecimalField(
-        max_digits=12, decimal_places=2, default=0, db_column="CartItem_Total"
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        db_column="CartItem_Total",
+        help_text="ราคารวมของรายการนี้ (Price * Quantity)",
     )
     added_date = models.DateTimeField(auto_now_add=True, db_column="AddedDate")
 
@@ -53,62 +58,69 @@ class CartItem(models.Model):
         verbose_name = "Cart Item"
         verbose_name_plural = "Cart Items"
         constraints = [
-            models.UniqueConstraint(
-                fields=["cart", "product"], name="uq_cart_product"
-            ),
+            models.UniqueConstraint(fields=["cart", "product"], name="uq_cart_product"),
             models.CheckConstraint(
                 check=models.Q(quantity__gt=0), name="ck_cartitem_qty_positive"
             ),
         ]
+
+    def save(self, *args, **kwargs):
+        """คำนวณ cartitem_total อัตโนมัติก่อนบันทึก."""
+        # TODO: เมื่อ merge catalog แล้ว ให้ดึงราคาจริงจาก self.product.price
+        # ตอนนี้ใช้ราคา Mock: 500 บาทต่อชิ้นไปก่อน
+        mock_price = 500
+        self.cartitem_total = mock_price * self.quantity
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"CartItem#{self.item_id} cart={self.cart_id} product={self.product} x{self.quantity}"
 
 
 class Delivery(models.Model):
-    """ข้อมูลการจัดส่งสินค้า ผูกกับคำสั่งซื้อ (Sale_Order) หนึ่งบิล."""
+    """ข้อมูลการจัดส่งสินค้า ผูกกับคำสั่งซื้อ (Sale_Order) หนึ่งบิล.
 
-    class Status(models.TextChoices):
-        PENDING = "PENDING", "รอการจัดส่ง"
-        SHIPPED = "SHIPPED", "จัดส่งแล้ว"
-        IN_TRANSIT = "IN_TRANSIT", "อยู่ระหว่างจัดส่ง"
-        DELIVERED = "DELIVERED", "ส่งสำเร็จ"
-        FAILED = "FAILED", "จัดส่งไม่สำเร็จ"
-        CANCELLED = "CANCELLED", "ยกเลิก"
+    Schema ตรงตาม Data Dictionary (Phase 2):
+        OrderID         INT          PK, FK -> Sale_Order.OrderID
+        AddressID       INT          FK -> Customer_Address.AddressID
+        DeliveryName    VARCHAR(150) ชื่อบริษัทขนส่ง
+        TrackingNumber  VARCHAR(13)  เลขติดตามพัสดุ
+        DeliveryDate    DATE         วันที่จัดส่ง
 
-    class Courier(models.TextChoices):
-        KERRY = "KERRY", "Kerry Express"
-        FLASH = "FLASH", "Flash Express"
-        THAILAND_POST = "THAILAND_POST", "Thailand Post"
-        J_AND_T = "J_AND_T", "J&T Express"
-        SHOPEE = "SHOPEE", "Shopee Express"
-        OTHER = "OTHER", "อื่นๆ"
+    — ไม่มีฟิลด์ Status (ระบบใช้ Sale_Order.OrderStatus แทน; ดู Phase 2 SQL #16)
+    — ไม่มี DeliveryID แยกต่างหาก ใช้ OrderID เป็น PK (1:1 กับ Sale_Order)
+    — ไม่มี timestamps (CreatedAt/UpdatedAt) — ไม่อยู่ใน data dict
+    """
 
-    delivery_id = models.AutoField(primary_key=True, db_column="DeliveryID")
-    # FK -> Sale_Order.OrderID (owned by order_payment app). One delivery per order.
-    order = models.IntegerField(unique=True, db_column="OrderID")
-    # FK -> Customer_Address.AddressID (owned by accounts app)
-    address = models.IntegerField(db_column="AddressID")
-    status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.PENDING,
-        db_column="Status",
+    # PK = OrderID (1 order = 1 delivery). พนักงานจะ UPDATE tracking ผ่าน OrderID (Phase 2 SQL #28).
+    order = models.IntegerField(
+        primary_key=True,
+        db_column="OrderID",
+        help_text="FK -> Sale_Order.OrderID",
     )
-    # ชื่อบริษัทขนส่ง (data dict: CourierName) — exposed as `delivery_name` in API per team
+    address = models.IntegerField(
+        db_column="AddressID",
+        help_text="FK -> Customer_Address.AddressID",
+    )
     delivery_name = models.CharField(
-        max_length=30,
-        choices=Courier.choices,
+        max_length=150,
         blank=True,
         default="",
-        db_column="CourierName",
+        db_column="DeliveryName",
+        help_text="ชื่อบริษัทขนส่ง เช่น Kerry, Flash, SCG",
     )
     tracking_number = models.CharField(
-        max_length=64, blank=True, default="", db_column="TrackingNumber"
+        max_length=13,
+        blank=True,
+        default="",
+        db_column="TrackingNumber",
+        help_text="เลขติดตามพัสดุ (ได้จากขนส่งหลัง pickup)",
     )
-    delivery_date = models.DateTimeField(null=True, blank=True, db_column="DeliveryDate")
-    created_at = models.DateTimeField(auto_now_add=True, db_column="CreatedAt")
-    updated_at = models.DateTimeField(auto_now=True, db_column="UpdatedAt")
+    delivery_date = models.DateField(
+        null=True,
+        blank=True,
+        db_column="DeliveryDate",
+        help_text="วันที่จัดส่งสินค้า",
+    )
 
     class Meta:
         db_table = "Delivery"
@@ -116,4 +128,4 @@ class Delivery(models.Model):
         verbose_name_plural = "Deliveries"
 
     def __str__(self) -> str:
-        return f"Delivery#{self.delivery_id} order={self.order} status={self.status}"
+        return f"Delivery(order={self.order}, tracking={self.tracking_number or '-'})"
