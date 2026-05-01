@@ -5,21 +5,21 @@
 const COMPLETE_USE_MOCK = true;
 const COMPLETE_API_BASE = "http://127.0.0.1:8000";
 
-// แก้ CART_ID ให้ดึงจาก session ของ user ที่ login อยู่
 const completeParams  = new URLSearchParams(window.location.search);
-const COMPLETE_CART_ID   = completeParams.get("cart_id")  || 1;
 const COMPLETE_ORDER_ID  = completeParams.get("order_id") || null;
 const PAYMENT_STATUS     = completeParams.get("payment")  || "pending"; // paid | pending
-const SHIPPING_ADDRESS   = decodeURIComponent(completeParams.get("address") || "");
 
 // ============================================================
-//  MOCK DATA
+//  MOCK DATA — field ตรงกับ GET /api/orders/saleorders/{order_id}/
 // ============================================================
 
-const COMPLETE_MOCK_CART = {
-  items: [
-    { item_id: 1, product_name: "VOXLÖV วอกซ์เลิฟ",  product_price: "2450.00", quantity: 1 },
-    { item_id: 2, product_name: "TULLSTA ทูลสต้า",      product_price: "6590.00", quantity: 1 },
+const COMPLETE_MOCK_ORDER = {
+  order_id: 1,
+  total_amount: "9040.00",
+  address: "123, Sukhumvit, Khlong Toei, Bangkok, 10110",
+  details: [
+    { line_number: 1, product_name: "VOXLÖV วอกซ์เลิฟ",  product_price: "2450.00", quantity: 1 },
+    { line_number: 2, product_name: "TULLSTA ทูลสต้า",      product_price: "6590.00", quantity: 1 },
   ],
 };
 
@@ -27,11 +27,11 @@ const COMPLETE_MOCK_CART = {
 //  API layer
 // ============================================================
 
-async function fetchCompleteCart() {
+async function fetchCompleteOrder() {
   if (COMPLETE_USE_MOCK) {
-    return new Promise((resolve) => setTimeout(() => resolve(COMPLETE_MOCK_CART), 100));
+    return new Promise((resolve) => setTimeout(() => resolve(COMPLETE_MOCK_ORDER), 100));
   }
-  const res = await fetch(`${COMPLETE_API_BASE}/api/cart/carts/${COMPLETE_CART_ID}/`);
+  const res = await fetch(`${COMPLETE_API_BASE}/api/orders/saleorders/${COMPLETE_ORDER_ID}/`);
   return res.json();
 }
 
@@ -99,14 +99,13 @@ function renderCompleteItems(items) {
   }).join("");
 }
 
-function renderCompleteSummary(items) {
-  const total = calcTotal(items);
-  const fmt   = formatPrice(total);
+function renderCompleteSummary(order) {
+  const fmt = formatPrice(order.total_amount);
 
   document.getElementById("complete-total").textContent  = fmt;
   document.getElementById("meta-subtotal").textContent   = fmt;
   document.getElementById("meta-total").textContent      = fmt;
-  document.getElementById("meta-address").textContent    = SHIPPING_ADDRESS || "—";
+  document.getElementById("meta-address").textContent    = order.address || "—";
 }
 
 // ============================================================
@@ -117,9 +116,9 @@ async function initComplete() {
   renderCompleteStatus(PAYMENT_STATUS);
 
   try {
-    const cart = await fetchCompleteCart();
-    renderCompleteItems(cart.items);
-    renderCompleteSummary(cart.items);
+    const order = await fetchCompleteOrder();
+    renderCompleteItems(order.details);
+    renderCompleteSummary(order);
   } catch (err) {
     console.error("Complete init failed:", err);
   }

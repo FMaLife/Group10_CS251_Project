@@ -5,9 +5,10 @@
 const SHIPPING_USE_MOCK = true;
 const SHIPPING_API_BASE = "http://127.0.0.1:8000";
 
-// ดึง cart_id จาก query string ที่ review.js ส่งมา
-const params  = new URLSearchParams(window.location.search);
-const CART_ID = params.get("cart_id") || 1;
+// ดึง cart_id และ customer_id จาก query string ที่ review.js ส่งมา
+const params      = new URLSearchParams(window.location.search);
+const CART_ID     = params.get("cart_id") || 1;
+const CUSTOMER_ID = params.get("customer_id") || 1;
 
 // ============================================================
 //  MOCK DATA
@@ -21,6 +22,10 @@ const SHIPPING_MOCK_CART = {
   ],
 };
 
+const SHIPPING_MOCK_ADDRESSES = [
+  { AddressID: 1, HouseNo: "123", Street: "Sukhumvit", SubDistrict: "Khlong Toei", District: "Khlong Toei", Province: "Bangkok", ZipCode: "10110", is_default: true },
+];
+
 // ============================================================
 //  State
 // ============================================================
@@ -28,6 +33,7 @@ const SHIPPING_MOCK_CART = {
 let shippingCartData  = null;
 let orderIdCreated    = null; // เก็บ order_id หลัง place order สำเร็จ
 let paymentStatus     = "pending"; // pending | paid
+let selectedAddressId = null; // address_id ที่เลือกสำหรับ POST /api/orders/saleorders/
 
 // ============================================================
 //  API layer
@@ -37,18 +43,49 @@ async function fetchShippingCart() {
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_CART), 100));
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/cart/carts/${CART_ID}/`);
+  const res = await fetch(`${SHIPPING_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
   return res.json();
 }
 
+async function fetchAddresses() {
+  if (SHIPPING_USE_MOCK) {
+    return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_ADDRESSES), 80));
+  }
+  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses/`);
+  return res.json();
+}
+
+function renderAddressSelector(addresses) {
+  const container = document.getElementById("address-selector");
+  if (!container || !addresses.length) return;
+
+  const defaultAddr = addresses.find((a) => a.is_default) || addresses[0];
+  selectedAddressId = defaultAddr.AddressID;
+
+  container.innerHTML = `
+    <label class="form-label" for="address-select">Select delivery address</label>
+    <select id="address-select" class="form-input" onchange="handleAddressSelect(this.value)">
+      ${addresses.map((a) => `
+        <option value="${a.AddressID}" ${a.AddressID === defaultAddr.AddressID ? "selected" : ""}>
+          ${[a.HouseNo, a.Street, a.SubDistrict, a.District, a.Province, a.ZipCode].filter(Boolean).join(", ")}
+        </option>
+      `).join("")}
+    </select>
+  `;
+}
+
+function handleAddressSelect(addressId) {
+  selectedAddressId = parseInt(addressId, 10);
+}
+
 async function apiPlaceOrder(payload) {
-  // POST /api/orders/   { cart_id, address, payment_status }
+  // POST /api/orders/saleorders/   { cart_id, address_id }
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) =>
       setTimeout(() => resolve({ order_id: Math.floor(10000 + Math.random() * 90000) }), 300)
     );
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/orders/`, {
+  const res = await fetch(`${SHIPPING_API_BASE}/api/orders/saleorders/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -57,11 +94,11 @@ async function apiPlaceOrder(payload) {
 }
 
 async function apiMarkPaid(orderId) {
-  // PATCH /api/orders/{order_id}/   { payment_status: "paid" }
+  // PATCH /api/orders/saleorders/{order_id}/   { payment_status: "paid" }
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(resolve, 200));
   }
-  await fetch(`${SHIPPING_API_BASE}/api/orders/${orderId}/`, {
+  await fetch(`${SHIPPING_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payment_status: "paid" }),
@@ -195,10 +232,15 @@ async function handlePlaceOrder() {
   btn.querySelector("span").textContent = "Placing...";
 
   try {
+    if (!selectedAddressId) {
+      showNotification("Please select a delivery address.");
+      btn.disabled = false;
+      btn.querySelector("span").textContent = "Place Order";
+      return;
+    }
     const payload = {
       cart_id: CART_ID,
-      address: buildAddressString(f),
-      payment_status: "pending",
+      address_id: selectedAddressId,
     };
     const result = await apiPlaceOrder(payload);
     orderIdCreated = result.order_id;
@@ -256,13 +298,16 @@ function setupAddressListeners() {
 
 async function initShipping() {
   try {
-    shippingCartData = await fetchShippingCart();
+    const [cartData, addresses] = await Promise.all([fetchShippingCart(), fetchAddresses()]);
+    shippingCartData = cartData;
     const total = calcTotal(shippingCartData.items);
 
     document.getElementById("shipping-item-count").textContent =
       `(${shippingCartData.items.length})`;
     document.getElementById("shipping-subtotal").textContent = formatPrice(total);
     document.getElementById("place-order-total").textContent  = formatPrice(total);
+
+    renderAddressSelector(addresses);
   } catch (err) {
     console.error("Shipping init failed:", err);
   }

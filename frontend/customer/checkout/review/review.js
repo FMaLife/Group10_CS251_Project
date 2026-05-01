@@ -5,12 +5,13 @@
 const REVIEW_USE_MOCK = true;
 const REVIEW_API_BASE = "http://127.0.0.1:8000";
 
-// cart_id — ในระบบจริงดึงจาก session/localStorage
-// เปลี่ยนให้ตรงกับ cart ของ user ที่ login อยู่
-const CART_ID = 1;
+// customer_id — ในระบบจริงดึงจาก session/localStorage
+// เปลี่ยนให้ตรงกับ customer ที่ login อยู่
+const CUSTOMER_ID = 1;
+let reviewCartId = null; // cart_id จาก API response ใช้ส่งต่อไปหน้า shipping
 
 // ============================================================
-//  MOCK DATA — field ตรงกับ GET /api/cart/carts/{cart_id}/
+//  MOCK DATA — field ตรงกับ GET /api/cart/?customer={customer_id}
 // ============================================================
 
 const REVIEW_MOCK_CART = {
@@ -55,7 +56,7 @@ async function fetchCart() {
       setTimeout(() => resolve(REVIEW_MOCK_CART), 120)
     );
   }
-  const res = await fetch(`${REVIEW_API_BASE}/api/cart/carts/${CART_ID}/`);
+  const res = await fetch(`${REVIEW_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
   if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
   return res.json();
 }
@@ -198,9 +199,9 @@ async function handleRemoveItem(itemId) {
 }
 
 function goToShipping() {
-  // ส่ง cart_id ไปหน้า shipping ด้วย query string
+  // ส่ง cart_id และ customer_id ไปหน้า shipping ด้วย query string
   window.location.href =
-    `/frontend/customer/checkout/shipping/shipping.html?cart_id=${CART_ID}`;
+    `/frontend/customer/checkout/shipping/shipping.html?cart_id=${reviewCartId}&customer_id=${CUSTOMER_ID}`;
 }
 
 // ============================================================
@@ -210,6 +211,7 @@ function goToShipping() {
 async function initReview() {
   try {
     const cart       = await fetchCart();
+    reviewCartId     = cart.cart_id;
     reviewCartItems  = cart.items;
     renderItems(reviewCartItems);
     updateSummary(reviewCartItems);
