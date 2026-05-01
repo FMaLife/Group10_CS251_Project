@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — Smart Furniture Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/frontend/customer/components/navbar/navbar.css" />
+  <link rel="stylesheet" href="/frontend/customer/components/footer/footer.css" />
+  <link rel="stylesheet" href="/frontend/customer/profile/profile.css" />
+</head>
+<body>
+
+  <!-- ======= NAVBAR (navbar.html) ======= -->
+  <nav id="smart-navbar" role="navigation" aria-label="Main navigation">
+
+    <!-- TOP BAR -->
+    <div class="navbar-top">
+
+      <a href="/frontend/customer/home/home.html" class="navbar-logo" aria-label="Smart Furniture Warehouse - Home">
+        <img src="/frontend/customer/assets/logo_smart-furniture-warehouse.svg" alt="Smart Furniture Warehouse logo" />
+      </a>
+
+      <div class="navbar-search" role="search" id="navbar-search-wrap">
+        <input id="navbar-search-input" type="search" placeholder="Search furniture..." aria-label="Search"
+          autocomplete="off" aria-autocomplete="list" aria-controls="search-suggestions" aria-activedescendant="" />
+        <button id="navbar-search-btn" class="navbar-search-btn" aria-label="Submit search">
+          <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <line x1="16.5" y1="16.5" x2="22" y2="22" />
+          </svg>
+        </button>
+        <ul id="search-suggestions" class="search-suggestions" role="listbox" aria-label="Search suggestions"></ul>
+      </div>
+
+      <div class="navbar-actions">
+        <a href="/frontend/customer/profile/profile.html" class="navbar-account" aria-label="Your Account">
+          <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+          Your Account
+        </a>
+        <div class="navbar-divider" aria-hidden="true"></div>
+        <button id="cart-icon-btn" class="navbar-cart-btn" aria-label="Shopping cart">
+          <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          <span id="cart-badge" class="cart-badge" aria-live="polite">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="navbar-bottom">
+      <a href="/frontend/customer/home/home.html" class="nav-link active" id="nav-home">Home</a>
+      <div class="nav-dropdown-wrap">
+        <button id="category-btn" class="nav-link" aria-haspopup="listbox" aria-expanded="false"
+          aria-controls="category-dropdown">
+          Category
+          <svg class="chevron-icon" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <ul id="category-dropdown" class="dropdown-panel" role="listbox" aria-label="Product categories"></ul>
+      </div>
+      <a href="/frontend/customer/checkout/orders/orders.html" class="nav-link" id="nav-orders">Orders</a>
+      <a href="#footer" id="contact-us-link" class="nav-link">Contact Us</a>
+    </div>
+
+  </nav>
+
+  <!-- Main Content -->
+  <main class="profile-main">
+    <h1 class="profile-title">Profile</h1>
+    <div class="profile-divider"></div>
+
+    <div class="profile-body">
+
+      <!-- Avatar -->
+      <div class="avatar-col">
+        <div class="avatar" id="avatar">
+          <span class="avatar-initial" id="avatar-initial">A</span>
+          <img class="avatar-img" id="avatar-img" src="" alt="Profile picture" />
+        </div>
+        <button class="avatar-upload-btn" id="avatar-upload-btn" type="button">
+          Change Photo
+        </button>
+        <input type="file" id="avatar-file-input" accept="image/*" style="display:none" />
+      </div>
+
+      <!-- Form -->
+      <form class="profile-form" id="profile-form" novalidate>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="first-name">FIRST NAME <span class="required">*</span></label>
+            <input class="form-input" id="first-name" type="text" value="Adisorn" autocomplete="given-name" required />
+            <span class="form-error" id="first-name-error"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="last-name">LAST NAME <span class="required">*</span></label>
+            <input class="form-input" id="last-name" type="text" value="Songsakdina" autocomplete="family-name" required />
+            <span class="form-error" id="last-name-error"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="phone">PHONE NUMBER <span class="required">*</span></label>
+            <input class="form-input" id="phone" type="tel" value="087xxxxxxxx" autocomplete="tel" required />
+            <span class="form-error" id="phone-error"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">EMAIL <span class="required">*</span></label>
+            <input class="form-input" id="email" type="email" value="adisorn.song@gmail.com" autocomplete="email" required />
+            <span class="form-error" id="email-error"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="password">CHANGE PASSWORD <span class="required">*</span></label>
+            <div class="input-password-wrap">
+              <input class="form-input" id="password" type="password" autocomplete="new-password" placeholder="" />
+              <button type="button" class="toggle-pw" data-target="password" aria-label="Toggle password visibility">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <span class="form-error" id="password-error"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="confirm-password">CONFIRM PASSWORD <span class="required">*</span></label>
+            <div class="input-password-wrap">
+              <input class="form-input" id="confirm-password" type="password" autocomplete="new-password" placeholder="" />
+              <button type="button" class="toggle-pw" data-target="confirm-password" aria-label="Toggle confirm password visibility">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <span class="form-error" id="confirm-password-error"></span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-submit" type="submit" id="submit-btn">Submit</button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="profile-toast" id="profile-toast"></div>
+
+  <!-- Footer -->
+  <div id="footer-container"></div>
+  <script src="/frontend/customer/components/footer/footer.js"></script>
+  <script>
+    fetch("/frontend/customer/components/footer/footer.html")
+      .then((r) => r.text())
+      .then((html) => {
+        document.getElementById("footer-container").innerHTML = html;
+        initFooter();
+      });
+  </script>
+
+  <script src="/frontend/customer/profile/profile.js"></script>
+</body>
+</html>

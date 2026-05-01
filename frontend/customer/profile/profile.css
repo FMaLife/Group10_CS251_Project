@@ -1,0 +1,289 @@
+/* ============================================================
+   profile.css — Smart Furniture Warehouse
+   ============================================================ */
+
+/* ---- Design tokens (aligned with navbar/footer) ---- */
+:root {
+  --font-body:     'Lexend', sans-serif;
+  --green:         #53A143;
+  --green-hover:   #458B36;
+  --neutral-900:   #060709;
+  --neutral-400:   #46494F;
+  --neutral-300:   #717378;
+  --neutral-200:   #9D9EA2;
+  --neutral-100:   #C8C9CB;
+  --neutral-50:    #F4F4F4;
+  --border:        #e8e8e8;
+  --red:           #EB2606;
+  --white:         #ffffff;
+  --radius-sm:     6px;
+  --radius-md:     10px;
+  --radius-full:   999px;
+  --shadow-card:   0 2px 16px rgba(0,0,0,.07);
+  --transition:    .2s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--neutral-400);
+  background: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.profile-main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+
+/* ---- Title ---- */
+.profile-title {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--neutral-900);
+  text-align: center;
+  letter-spacing: -.3px;
+  margin-bottom: 20px;
+}
+
+.profile-divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 48px;
+}
+
+/* ---- Body layout: avatar left, form right ---- */
+.profile-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 56px;
+}
+
+/* ============================================================
+   AVATAR
+   ============================================================ */
+.avatar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #bdbdbd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: filter var(--transition);
+}
+.avatar:hover { filter: brightness(.88); }
+
+.avatar-initial {
+  font-size: 48px;
+  font-weight: 500;
+  color: var(--white);
+  line-height: 1;
+  user-select: none;
+}
+
+.avatar-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+.avatar-img.visible { display: block; }
+
+.avatar-upload-btn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--neutral-300);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+.avatar-upload-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* ============================================================
+   FORM
+   ============================================================ */
+.profile-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  color: var(--neutral-400);
+  text-transform: uppercase;
+}
+
+.required { color: var(--red); margin-left: 1px; }
+
+.form-input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--neutral-900);
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+.form-input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(83,161,67,.12);
+}
+.form-input.error {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(235,38,6,.08);
+}
+
+/* Password wrap */
+.input-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-password-wrap .form-input {
+  padding-right: 42px;
+}
+.toggle-pw {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--neutral-200);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color var(--transition);
+}
+.toggle-pw:hover { color: var(--neutral-400); }
+.eye-icon { width: 18px; height: 18px; }
+
+/* Error message */
+.form-error {
+  font-size: 11.5px;
+  color: var(--red);
+  min-height: 16px;
+  display: block;
+}
+
+/* ---- Actions ---- */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-submit {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--white);
+  background: var(--green);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 11px 40px;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+.btn-submit:hover {
+  background: var(--green-hover);
+  transform: translateY(-1px);
+}
+.btn-submit:active { transform: translateY(0); }
+.btn-submit:disabled {
+  background: var(--neutral-100);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.profile-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--neutral-900);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 400;
+  padding: .7rem 1.6rem;
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+  z-index: 9999;
+  white-space: nowrap;
+}
+.profile-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.profile-toast.success { background: var(--green); }
+.profile-toast.error   { background: var(--red); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .profile-main { padding: 32px 20px 60px; }
+  .profile-body { flex-direction: column; align-items: center; gap: 32px; }
+  .profile-form { width: 100%; }
+  .form-row { grid-template-columns: 1fr; gap: 16px; }
+}
+
+@media (max-width: 480px) {
+  .profile-title { font-size: 28px; }
+}
