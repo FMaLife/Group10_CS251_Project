@@ -1,36 +1,14 @@
-// ============================================================
-//  CONFIG — สลับแค่บรรทัดนี้บรรทัดเดียว
-//  true  = ใช้ mock data | false = ใช้ API จริง
-// ============================================================
-
-const FOOTER_USE_MOCK = true;
 const FOOTER_API_BASE = "http://127.0.0.1:8000";
-
-// ============================================================
-//  MOCK DATA — field ตรงกับ GET /api/catalog/categories/
-// ============================================================
-
-const FOOTER_MOCK_CATEGORIES = [
-    // ตรงกับ GET /api/catalog/categories/
-    { category_id: 1, category_name: "Sofas & Chairs"     },
-    { category_id: 2, category_name: "Tables & Desks"     },
-    { category_id: 3, category_name: "Beds & Mattresses"  },
-    { category_id: 4, category_name: "Curtains & Blinds"  },
-    { category_id: 5, category_name: "Storage"            },
-    { category_id: 6, category_name: "Outdoor"            },
-];
 
 // ============================================================
 //  API layer
 // ============================================================
 
 async function footerFetchCategories() {
-  if (FOOTER_USE_MOCK) {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(FOOTER_MOCK_CATEGORIES), 100)
-    );
-  }
   const res = await fetch(`${FOOTER_API_BASE}/api/catalog/categories/`);
+  if (!res.ok) {
+    throw new Error(`Footer categories API error: ${res.status}`);
+  }
   return res.json();
 }
 

@@ -1,68 +1,142 @@
 // ============================================================
-//  MOCK DATA — แก้ตรงนี้ หรือเปลี่ยน mockFetch เป็น fetch จริง
+//  CONFIG
 // ============================================================
 
-const CART_MOCK_DB = {
-  items: [
-    {
-      id: 1,
-      name: "KRYLBO - Chair, Tonerud dark beige",
-      image: "https://placehold.co/80x80/e8e0d4/7a7060?text=Chair",
-      price: 51.80,
-      qty: 2,
-    },
-  ],
-};
-
-// ============================================================
-//  mockFetch
-//  เปลี่ยนเป็น fetch จริงได้เลย เช่น:
-//  async function fetchCart() { return fetch("/api/cart/items").then(r=>r.json()); }
-// ============================================================
-
-function cartMockFetch(endpoint) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (endpoint === "/api/cart/items") resolve({ data: CART_MOCK_DB.items });
-      else resolve({ data: [] });
-    }, 100);
-  });
-}
+// URL ของ backend API
+const CART_API_BASE = "http://127.0.0.1:8000";
 
 // ============================================================
 //  State
 // ============================================================
 
-let cartItems  = [];
+// cart id ปัจจุบัน
+let cartId = null;
+
+// รายการสินค้าใน cart
+let cartItems = [];
+
+// สถานะ cart overlay เปิด/ปิด
 let cartIsOpen = false;
+
+// สถานะ login
+let isLoggedIn = false;
+
+// ============================================================
+//  Helpers
+// ============================================================
+
+// ดึงข้อมูล customer จาก localStorage
+function getCustomer() {
+  try {
+    const raw = localStorage.getItem("customer");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+// redirect ไปหน้า login
+function redirectToLogin() {
+  window.location.href =
+    "/frontend/customer/auth/login/log-in.html";
+}
 
 // ============================================================
 //  API calls
 // ============================================================
 
+/**
+ * โหลดข้อมูล cart จาก backend
+ *
+ * use case:
+ * - ยังไม่ได้ login → redirect login
+ * - cart ว่าง → return []
+ * - cart มีสินค้า → return array items
+ */
 async function fetchCartItems() {
-  const res = await cartMockFetch("/api/cart/items");
-  return res.data;
+
+  // ดึง customer จาก localStorage
+  const customer = getCustomer();
+
+  // ยังไม่ได้ login
+  if (!customer?.customerID) {
+    isLoggedIn = false;
+    return [];
+  }
+
+  isLoggedIn = true;
+
+  // เรียก API cart
+  const res = await fetch(
+    `${CART_API_BASE}/api/cart/?customer=${customer.customerID}`
+  );
+
+  // API error
+  if (!res.ok) {
+    throw new Error(`Cart API error: ${res.status}`);
+  }
+
+  // response จาก backend
+  const data = await res.json();
+
+  // เก็บ cart id
+  cartId = data.cart_id ?? null;
+
+  // แปลง response ให้ frontend ใช้งานง่าย
+  return (data.items || []).map((item) => ({
+    id: item.item_id,
+    name: item.product_name,
+    image: item.image,
+    price: parseFloat(item.product_price),
+    qty: item.quantity,
+  }));
 }
 
+// อัปเดต quantity ของสินค้า ใช้ตอนกด + / -
+async function updateCartItemQuantity(itemId, quantity) {
+  const res = await fetch(`${CART_API_BASE}/api/cart/items/${itemId}/`,{
+      method: "PATCH",
+      headers: {"Content-Type": "application/json",},
+      body: JSON.stringify({quantity,}),
+    }
+  );
+
+  // update ไม่สำเร็จ
+  if (!res.ok) {
+    throw new Error(`Update quantity failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// ลบสินค้าออกจาก cart ใช้ตอนกดปุ่ม ×
 async function removeCartItem(itemId) {
-  // mock: กรอง item ออก — เปลี่ยนเป็น DELETE /api/cart/items/:id ทีหลัง
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      CART_MOCK_DB.items = CART_MOCK_DB.items.filter((i) => i.id !== itemId);
-      resolve({ success: true });
-    }, 80);
-  });
+  const res = await fetch(`${CART_API_BASE}/api/cart/items/${itemId}/`,{
+      method: "DELETE",
+    }
+  );
+
+  // DELETE ปกติจะ return 204
+  if (!res.ok && res.status !== 204) {
+    throw new Error(`Remove item failed: ${res.status}`);
+  }
+
+  return true;
 }
 
 // ============================================================
 //  Calculations
 // ============================================================
 
+// คำนวณ subtotal ของ cart
 function calcSubtotal(items) {
-  return items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  return items.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
 }
 
+// format ราคาให้เป็น xx.xx THB
 function formatPrice(amount) {
   return amount.toFixed(2) + " THB";
 }
@@ -71,40 +145,79 @@ function formatPrice(amount) {
 //  Renderers
 // ============================================================
 
+// render ตอน cart ว่าง
 function renderCartEmpty() {
   return `
     <div class="cart-empty">
       <div class="cart-empty-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
           <line x1="3" y1="6" x2="21" y2="6"/>
           <path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
       </div>
-      <button class="cart-show-product-btn" onclick="closeCart(); window.location.href='home.html'">
+      <div class="cart-empty-message">
+        Cart is empty
+      </div>
+      <button
+        class="cart-show-product-btn"
+        onclick="closeCart(); window.location.href='/frontend/customer/home/home.html'">
         Show Product
       </button>
     </div>
   `;
 }
 
+function renderGuestCart() {
+  return `
+    <div class="cart-empty">
+      <div class="cart-empty-message">
+        Please log in before shopping
+      </div>
+      <button class="cart-show-product-btn" onclick="window.location.href='/frontend/customer/auth/login/log-in.html'">
+        Log In
+      </button>
+    </div>
+  `;
+}
+
+// render card ของสินค้าแต่ละชิ้น
 function renderCartItem(item) {
   return `
     <div class="cart-item" data-id="${item.id}">
-      <img class="cart-item-img" src="${item.image}" alt="${item.name}" />
+      <img class="cart-item-img" src="${item.image}" alt="${item.name}"/>
       <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-qty-price">
-          <span class="cart-item-qty">${item.qty}×</span>
-          <span class="cart-item-unit-price">${formatPrice(item.price)}</span>
-          <span class="cart-item-total-price">${formatPrice(item.price * item.qty)}</span>
+        <div class="cart-item-name">
+          ${item.name}
+        </div>
+        <div class="cart-item-controls">
+          <!-- ปุ่มลดจำนวน -->
+          <button class="qty-btn" onclick="handleDecreaseQty(${item.id})">−</button>
+          <!-- จำนวนสินค้า -->
+          <span class="cart-item-qty">
+            ${item.qty}
+          </span>
+          <!-- ปุ่มเพิ่มจำนวน -->
+          <button class="qty-btn" onclick="handleIncreaseQty(${item.id})">+</button>
+        </div>
+        <!-- ราคารวม -->
+        <div class="cart-item-price">
+          ${formatPrice(item.price * item.qty)}
         </div>
       </div>
+      <!-- ปุ่มลบสินค้า -->
       <button class="cart-item-remove" onclick="handleRemoveItem(${item.id})" aria-label="Remove item">×</button>
     </div>
   `;
 }
 
+// render cart ที่มีสินค้า
 function renderCartWithItems(items) {
   const subtotal = calcSubtotal(items);
   return `
@@ -118,46 +231,75 @@ function renderCartWithItems(items) {
       </div>
       <div class="cart-summary-row cart-total-row">
         <span>TOTAL</span>
-        <span class="cart-total-amount">${formatPrice(subtotal)}</span>
+        <span class="cart-total-amount">
+          ${formatPrice(subtotal)}
+        </span>
       </div>
     </div>
     <div class="cart-actions">
-      <button class="cart-checkout-btn" onclick="window.location.href='/frontend/customer/checkout/review/review.html'">
+      <!-- ปุ่ม checkout -->
+      <button class="cart-checkout-btn" onclick="goToCheckout()">
         Checkout
       </button>
-      <p class="cart-payment-note">MAKE PAYMENT BY SCANNING THE QR CODE.</p>
+      <p class="cart-payment-note">
+        MAKE PAYMENT BY SCANNING THE QR CODE.
+      </p>
     </div>
   `;
 }
 
+// render เนื้อหาทั้งหมดใน cart
 function renderCartContent(items) {
   const body = document.getElementById("cart-body");
   if (!body) return;
-  body.innerHTML = items.length === 0 ? renderCartEmpty() : renderCartWithItems(items);
+  body.innerHTML =
+    items.length === 0
+      ? renderCartEmpty()
+      : renderCartWithItems(items);
 }
 
+// อัปเดตจำนวน item บน header ของ cart
 function updateCartHeader(items) {
   const countEl = document.getElementById("cart-count");
-  if (countEl) countEl.textContent = `(${items.length})`;
+  if (!countEl) return;
+  countEl.textContent = `(${items.length})`;
+}
+
+// อัปเดต badge จำนวนสินค้า ที่ navbar icon
+function updateNavbarBadge() {
+  const badge = document.getElementById("cart-badge");
+  if (!badge) return;
+  badge.textContent = cartItems.length;
+  badge.style.display =
+    cartItems.length > 0
+      ? "flex"
+      : "none";
 }
 
 // ============================================================
 //  Open / Close
 // ============================================================
 
+// เปิด cart overlay
 function openCart() {
   cartIsOpen = true;
-  document.getElementById("cart-overlay")?.classList.add("open");
-  document.getElementById("cart-backdrop")?.classList.add("open");
+  document.getElementById("cart-overlay")
+    ?.classList.add("open");
+  document.getElementById("cart-backdrop")
+    ?.classList.add("open");
+  // กัน scroll body
   document.body.style.overflow = "hidden";
-
+  // โหลดข้อมูล cart
   loadCartContent();
 }
 
+// ปิด cart overlay
 function closeCart() {
   cartIsOpen = false;
-  document.getElementById("cart-overlay")?.classList.remove("open");
-  document.getElementById("cart-backdrop")?.classList.remove("open");
+  document.getElementById("cart-overlay")
+    ?.classList.remove("open");
+  document.getElementById("cart-backdrop")
+    ?.classList.remove("open");
   document.body.style.overflow = "";
 }
 
@@ -165,65 +307,147 @@ function closeCart() {
 //  Actions
 // ============================================================
 
+// โหลดข้อมูล cart แล้ว render
 async function loadCartContent() {
   const body = document.getElementById("cart-body");
-  if (body) body.innerHTML = `<div class="cart-loading">Loading...</div>`;
-
+  // loading state
+  if (body) {
+    body.innerHTML =
+      `<div class="cart-loading">Loading...</div>`;
+  }
   try {
+    // โหลดสินค้า
     cartItems = await fetchCartItems();
+    // render
     renderCartContent(cartItems);
+    // update จำนวนสินค้า
     updateCartHeader(cartItems);
+    // update badge navbar
+    updateNavbarBadge();
   } catch (err) {
     console.error("Failed to load cart:", err);
   }
 }
 
+// เพิ่มจำนวนสินค้า
+async function handleIncreaseQty(itemId) {
+  try {
+    const item = cartItems.find(
+      (i) => i.id === itemId
+    );
+    if (!item) return;
+    const newQty = item.qty + 1;
+    // เรียก API update
+    await updateCartItemQuantity(
+      itemId,
+      newQty
+    );
+    // update local state
+    item.qty = newQty;
+    // render ใหม่
+    renderCartContent(cartItems);
+  } catch (err) {
+    console.error("Increase qty failed:", err);
+  }
+}
+
+// ลดจำนวนสินค้า
+async function handleDecreaseQty(itemId) {
+  try {
+    const item = cartItems.find(
+      (i) => i.id === itemId
+    );
+    if (!item) return;
+    // กัน qty ต่ำกว่า 1
+    if (item.qty <= 1) {
+      return;
+    }
+    const newQty = item.qty - 1;
+    // เรียก API
+    await updateCartItemQuantity(
+      itemId,
+      newQty
+    );
+    // update local state
+    item.qty = newQty;
+    // render ใหม่
+    renderCartContent(cartItems);
+  } catch (err) {
+    console.error("Decrease qty failed:", err);
+  }
+}
+
+// ลบสินค้าออกจาก cart
 async function handleRemoveItem(itemId) {
   try {
+    // เรียก DELETE API
     await removeCartItem(itemId);
-    cartItems = cartItems.filter((i) => i.id !== itemId);
+    // ลบจาก local state
+    cartItems = cartItems.filter(
+      (i) => i.id !== itemId
+    );
+    // render ใหม่
     renderCartContent(cartItems);
+    // update header
     updateCartHeader(cartItems);
-
-    // อัปเดต badge บน navbar ด้วย
-    const badge = document.getElementById("cart-badge");
-    if (badge) {
-      badge.textContent   = cartItems.length;
-      badge.style.display = cartItems.length > 0 ? "flex" : "none";
-    }
+    // update badge
+    updateNavbarBadge();
   } catch (err) {
     console.error("Failed to remove item:", err);
   }
 }
 
+// ไปหน้า checkout
+function goToCheckout() {
+  // ไม่มี cart หรือ cart ว่าง
+  if (!cartId || cartItems.length === 0) {
+    return;
+  }
+  // ส่ง cart_id ผ่าน URL
+  window.location.href =
+    `/frontend/customer/checkout/review/review.html?cart_id=${cartId}`;
+}
+
 // ============================================================
-//  Init — inject HTML แล้ว bind events
+//  Init
 // ============================================================
 
 function initCart() {
-  // inject cart HTML เข้า body ถ้ายังไม่มี
+
+  // inject HTML ถ้ายังไม่มี
   if (!document.getElementById("cart-overlay")) {
-    document.body.insertAdjacentHTML("beforeend", buildCartHTML());
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      buildCartHTML()
+    );
   }
-
-  // ฟัง event จาก navbar
-  document.addEventListener("navbar:openCart", openCart);
-
-  // กด backdrop → ปิด
-  document.getElementById("cart-backdrop")?.addEventListener("click", closeCart);
+  // ฟัง event เปิด cart จาก navbar
+  document.addEventListener(
+    "navbar:openCart",
+    openCart
+  );
+  // กด backdrop → ปิด cart
+  document.getElementById("cart-backdrop")
+    ?.addEventListener("click", closeCart);
 }
 
+// สร้าง HTML ของ cart overlay
 function buildCartHTML() {
   return `
     <div id="cart-backdrop" class="cart-backdrop"></div>
     <div id="cart-overlay" class="cart-overlay" role="dialog" aria-label="Shopping cart" aria-modal="true">
       <div class="cart-header">
-        <h2 class="cart-title">Your Cart</h2>
+        <h2 class="cart-title">
+          Your Cart
+        </h2>
         <div class="cart-header-right">
-          <span id="cart-count" class="cart-count">(0)</span>
+          <span id="cart-count" class="cart-count">
+            (0)
+          </span>
           <button class="cart-close-btn" onclick="closeCart()" aria-label="Close cart">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
@@ -233,9 +457,16 @@ function buildCartHTML() {
   `;
 }
 
-// auto-init เมื่อ DOM พร้อม
+// ============================================================
+//  Auto init
+// ============================================================
+
+// รอ DOM โหลดก่อน init
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initCart);
+  document.addEventListener(
+    "DOMContentLoaded",
+    initCart
+  );
 } else {
   initCart();
 }

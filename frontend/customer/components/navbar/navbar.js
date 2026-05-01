@@ -1,11 +1,4 @@
 // ============================================================
-//  CONFIG — สลับแค่บรรทัดนี้บรรทัดเดียว
-//  true  = ใช้ mock data (ไม่ต้องรัน Django)
-//  false = ใช้ API จริง
-// ============================================================
-const USE_MOCK = true;
-
-// ============================================================
 //  API BASE URL
 //  - ถ้ารัน Django กับ frontend คนละ port (เช่น Live Preview)
 //    ให้ใส่ URL เต็ม เช่น "http://127.0.0.1:8000"
@@ -14,94 +7,58 @@ const USE_MOCK = true;
 const API_BASE = "http://127.0.0.1:8000";  // ← แก้ port ที่นี่
 
 // ============================================================
-//  MOCK DATA — แก้ให้ตรงกับ response จริงจาก Django
+//  API layer
 // ============================================================
-const MOCK_DB = {
-  // ตรงกับ GET /api/catalog/categories/
-  categories: [
-    { category_id: 1, category_name: "Sofas & Chairs"     },
-    { category_id: 2, category_name: "Tables & Desks"     },
-    { category_id: 3, category_name: "Beds & Mattresses"  },
-    { category_id: 4, category_name: "Curtains & Blinds"  },
-    { category_id: 5, category_name: "Storage"            },
-    { category_id: 6, category_name: "Outdoor"            },
-  ],
-  products: [
-    { product_id: 1,  product_name: "KOARP Armchair",          category: 1, category_name: "Sofas & Chairs"    },
-    { product_id: 2,  product_name: "FRÖSET Chair",            category: 1, category_name: "Sofas & Chairs"    },
-    { product_id: 3,  product_name: "SKOGSTA Chair",           category: 1, category_name: "Sofas & Chairs"    },
-    { product_id: 4,  product_name: "TULLSTA Chair",           category: 1, category_name: "Sofas & Chairs"    },
-    { product_id: 5,  product_name: "LISABO Desk",             category: 2, category_name: "Tables & Desks"    },
-    { product_id: 6,  product_name: "ALEX Drawer Unit",        category: 2, category_name: "Tables & Desks"    },
-    { product_id: 7,  product_name: "HEMNES Bed Frame",        category: 3, category_name: "Beds & Mattresses" },
-    { product_id: 8,  product_name: "MALFORS Mattress",        category: 3, category_name: "Beds & Mattresses" },
-    { product_id: 9,  product_name: "MAJGULL Blackout Curtain",category: 4, category_name: "Curtains & Blinds" },
-    { product_id: 10, product_name: "KALLAX Shelf Unit",       category: 5, category_name: "Storage"           },
-    { product_id: 11, product_name: "ÄPPLARÖ Bench",           category: 6, category_name: "Outdoor"           },
-  ],
-  cart: { itemCount: 3 },
-  user: {
-    customer_id:  1,
-    first_name:   "Natasha",
-    last_name:    "Romanoff",
-    email:        "natasha.ro@mail.com",
-    phone_number: "0123456789",
-    addresses:    [] }
-};
-
-// ============================================================
-//  API layer — mock และ real ใช้ signature เดียวกันทุก function
-//  เปลี่ยน USE_MOCK แล้วไม่ต้องแตะโค้ดส่วนอื่นเลย
-// ============================================================
-
-async function fecthUserProfile() {
-  if (USE_MOCK) {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(MOCK_DB.user), 120)
-    );
-  }
-  const res = await fetch(`${API_BASE}/api/accounts/customers/`);
-  return res.json();
-}
 
 // ----> get user data from localStorage
-// function loadUserProfile() {
-//   const raw = localStorage.getItem("user");
-//   if (!raw) return updateProfile(null);
+function loadUserProfile() {
+  try {
+    const raw = localStorage.getItem("customer"); // key ตรงกับที่ log-in.js บันทึกไว้
+    if (!raw) return updateProfile(null);
 
-//   const user = JSON.parse(raw);
-//   updateProfile(user);
-// }
+    const customer = JSON.parse(raw);
 
-async function fetchCategories() {
-  if (USE_MOCK) {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(MOCK_DB.categories), 120)
-    );
+    // แปลง key ให้ตรงกับที่ updateProfile() ใช้ (first_name / last_name)
+    updateProfile({
+      first_name: customer.firstName,
+      last_name:  customer.lastName,
+      email:      customer.email
+    });
+  } catch {
+    updateProfile(null);
   }
-  const res = await fetch(`${API_BASE}/api/catalog/categories/`);
-  return res.json();
 }
 
-async function fetchProducts() {
-  if (USE_MOCK) {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(MOCK_DB.products), 120)
-    );
+async function fetchCategories() {
+  const res = await fetch(`${API_BASE}/api/catalog/categories/`);
+
+  if (!res.ok) {
+    throw new Error(`Categories API error: ${res.status}`);
   }
-  const res = await fetch(`${API_BASE}/api/catalog/products/`);
+
   return res.json();
 }
 
 async function fetchCartCount() {
-  if (USE_MOCK) {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(MOCK_DB.cart.itemCount), 120)
+  try {
+    const raw = localStorage.getItem("customer");
+    if (!raw) return 0;
+    const customer = JSON.parse(raw);
+    if (!customer?.customerID) return 0;
+
+    const res = await fetch(
+      `${API_BASE}/api/cart/?customer=${customer.customerID}`
     );
+    if (!res.ok) {
+      throw new Error(`Cart API error: ${res.status}`);
+    }
+    const data = await res.json();
+    return (data.items || []).length;
+
+  } catch (err) {
+    console.error("fetchCartCount failed:", err);
+    return 0;
   }
-  const res  = await fetch(`${API_BASE}/api/cart/`);
-  const data = await res.json();
-  return data.itemCount;
 }
 
 // ============================================================
@@ -134,7 +91,7 @@ function updateProfile(user) {
 
   if (!user) {
     nameEl.textContent = "Log in";
-    linkEl.href = "/frontend/customer/auth/login/login.html";
+    linkEl.href = "/frontend/customer/auth/login/log-in.html";
     return;
   }
 
@@ -334,19 +291,17 @@ function setupContactUs() {
 
 async function initNavbar() {
   try {
-    const [categories, cartCount, user] = await Promise.all([
+    const [categories, cartCount] = await Promise.all([
       fetchCategories(),
       fetchCartCount(),
-      fecthUserProfile(),
     ]);
     allNavCategories = categories;
     renderCategories(categories);
     updateCartBadge(cartCount);
-    updateProfile(user);
   } catch (err) {
     console.error("Navbar init failed:", err);
   }
-  // loadUserProfile();
+  loadUserProfile(); // ดึงจาก localStorage — ไม่ต้องรอ async
   setupSearch();
   setupCategoryDropdown();
   setupCartButton();
