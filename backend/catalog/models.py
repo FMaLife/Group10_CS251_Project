@@ -7,7 +7,7 @@ class Category(models.Model):
     CategoryName = models.CharField(max_length=100, unique=True)
 
     class Meta:
-        db_table = 'Category'
+        db_table = 'category'
 
     def __str__(self):
         return self.CategoryName
@@ -49,6 +49,7 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
     ProductID = models.AutoField(primary_key=True)
     ProductName = models.CharField(max_length=150)
     Price = models.DecimalField(max_digits=12, decimal_places=2)
@@ -57,7 +58,7 @@ class Product(models.Model):
     Height = models.IntegerField(blank=True, null=True)
     Width = models.IntegerField(blank=True, null=True)
     Length = models.IntegerField(blank=True, null=True)
-    CategoryID = models.ForeignKey(
+    category = models.ForeignKey(
         Category,
         on_delete=models.RESTRICT,
         db_column='CategoryID',
@@ -70,10 +71,15 @@ class Product(models.Model):
         blank=True,
         related_name='products'
     )
+    supplier = models.ForeignKey('stock.Supplier', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name='products')
+
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        db_table = 'Product'
+        db_table = 'product'
 
     def __str__(self):
         return self.ProductName

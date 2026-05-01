@@ -1,0 +1,80 @@
+{% load static %}
+<nav class="sidebar">
+    <ul>
+        <li class="no-hover">
+            <a class="logo">
+                <img src="{% static 'employee/images/logo.png' %}" alt="logo">
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'product' %}active{% endif %}">
+            <a href="{% url 'product' %}">
+                <span class="icon"><ion-icon name="cart"></ion-icon></span>
+                <span class="text">Product</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'supplier' %}active{% endif %}">
+            <a href="{% url 'supplier' %}">
+                <span class="icon"><ion-icon name="people"></ion-icon></span>
+                <span class="text">Supplier</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'category' %}active{% endif %}">
+            <a href="{% url 'category' %}">
+                <span class="icon"><ion-icon name="checkbox-outline"></ion-icon></span>
+                <span class="text">Category</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'warehouse' %}active{% endif %}">
+            <a href="{% url 'warehouse' %}">
+                <span class="icon"><ion-icon name="cube"></ion-icon></span>
+                <span class="text">Warehouse</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'location' %}active{% endif %}">
+            <a href="{% url 'location' %}">
+                <span class="icon"><ion-icon name="compass"></ion-icon></span>
+                <span class="text">Location</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'purchase_order' %}active{% endif %}">
+            <a href="{% url 'purchase_order' %}">
+                <span class="icon"><i class="lni lni-ambulance-1"></i></span>
+                <span class="text">Purchase Order</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'sales_order' %}active{% endif %}">
+            <a href="{% url 'sales_order' %}">
+                <span class="icon"><i class="lni lni-basket-shopping-3"></i></span>
+                <span class="text">Sales Order</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'employee' %}active{% endif %}">
+            <a href="{% url 'employee' %}">
+                <span class="icon"><ion-icon name="person-add"></ion-icon></span>
+                <span class="text">Employee</span>
+            </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'payment' %}active{% endif %}">
+            <a href="{% url 'payment' %}">
+                <span class="icon"><i class="lni lni-dollar-circle"></i></span>
+                <span class="text">Payment</span>
+            </a>
+        </li>
+        <li class="profile no-hover">
+            <div class="profile-box">
+                <span class="icon">
+                    <ion-icon name="contact"></ion-icon>
+                </span>
+                <div class="user">
+                    <span class="name">name</span>
+                    <span class="role">role</span>
+                </div>
+                <a href="#" class="logout">
+                    <ion-icon name="log-out"></ion-icon>
+                </a>
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>

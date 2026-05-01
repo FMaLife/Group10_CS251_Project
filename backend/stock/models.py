@@ -44,7 +44,7 @@ class WarehouseLocation(models.Model):
         unique_together = ("warehouse", "aisle", "zone", "bin")
 
     def __str__(self):
-        return f"{self.warehouse.wname} - {self.zone}/{self.aisle}/{self.bin}"
+        return f"{self.warehouse.wname} - {self.zone}{self.aisle}{self.bin}"
 
 
 class RestockOrder(models.Model):
