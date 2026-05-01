@@ -18,13 +18,11 @@ class CartItemAdmin(admin.ModelAdmin):
 @admin.register(Delivery)
 class DeliveryAdmin(admin.ModelAdmin):
     list_display = (
-        "delivery_id",
         "order",
         "address",
-        "status",
         "delivery_name",
         "tracking_number",
         "delivery_date",
     )
-    search_fields = ("delivery_id", "tracking_number", "order")
-    list_filter = ("status", "delivery_name")
+    search_fields = ("order", "tracking_number", "delivery_name")
+    list_filter = ("delivery_name",)

@@ -9,16 +9,15 @@ Customer
   - PATCH  /api/cart/items/<id>/                Update quantity / total
   - DELETE /api/cart/items/<id>/                Remove a product from the cart
   - DELETE /api/cart/<cart_id>/clear/           Empty the cart
-  - GET    /api/cart/deliveries/by-order/<id>/  Customer tracks a delivery
+  - GET    /api/cart/deliveries/<order_id>/     Customer tracks a delivery (OrderID = PK)
 
 Employee
-  - GET    /api/cart/deliveries/                List deliveries
-  - POST   /api/cart/deliveries/                Create a delivery for an order
-  - GET    /api/cart/deliveries/<id>/           Detail
-  - PATCH  /api/cart/deliveries/<id>/status/    Update delivery status
+  - GET    /api/cart/deliveries/                       List deliveries
+  - POST   /api/cart/deliveries/                       Create a delivery for an order
+  - GET    /api/cart/deliveries/<order_id>/            Detail (PK = OrderID)
+  - PATCH  /api/cart/deliveries/<order_id>/tracking/   Update tracking & courier (Phase 2 SQL #28)
 """
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -30,11 +29,11 @@ from .serializers import (
     CartItemWriteSerializer,
     CartSerializer,
     DeliverySerializer,
-    DeliveryStatusUpdateSerializer,
+    DeliveryTrackingUpdateSerializer,
 )
 
 
-# ------------------------------------------------------------------ Cart ----
+# ------------------------------------- Cart ---------------------------------
 
 
 class CartView(APIView):
@@ -70,7 +69,7 @@ class CartClearView(APIView):
         return Response({"deleted": deleted}, status=status.HTTP_200_OK)
 
 
-# -------------------------------------------------------------- Cart Item ---
+# ---------------------------------- Cart Item -------------------------------
 
 
 class CartItemViewSet(viewsets.ModelViewSet):
@@ -108,19 +107,16 @@ class CartItemViewSet(viewsets.ModelViewSet):
         write_serializer.is_valid(raise_exception=True)
         product = write_serializer.validated_data["product"]
         quantity = write_serializer.validated_data.get("quantity", 1)
-        cartitem_total = write_serializer.validated_data.get("cartitem_total", 0)
 
         # ถ้ามีอยู่แล้ว เพิ่มจำนวนแทนการสร้างซ้ำ (ตามข้อกำหนด unique cart+product)
         item, created = CartItem.objects.get_or_create(
             cart=cart,
             product=product,
-            defaults={"quantity": quantity, "cartitem_total": cartitem_total},
+            defaults={"quantity": quantity},
         )
         if not created:
             item.quantity += int(quantity)
-            if cartitem_total:
-                item.cartitem_total = cartitem_total
-            item.save()
+            item.save()  # item.save() จะคำนวณ cartitem_total ให้อัตโนมัติ (logic ใน models.py)
 
         # Update cart timestamp
         cart.save(update_fields=["last_updated"])
@@ -140,51 +136,42 @@ class CartItemViewSet(viewsets.ModelViewSet):
         cart.save(update_fields=["last_updated"])
 
 
-# --------------------------------------------------------------- Delivery ---
+# ---------------------------------- Delivery --------------------------------
 
 
 class DeliveryViewSet(viewsets.ModelViewSet):
     """
-    GET    /api/cart/deliveries/                list (filter ?status=, ?order=)
-    POST   /api/cart/deliveries/                create
-    GET    /api/cart/deliveries/<id>/           detail
-    PATCH  /api/cart/deliveries/<id>/status/    update status (employee)
-    GET    /api/cart/deliveries/by-order/<id>/  track by order id (customer)
+    GET    /api/cart/deliveries/                        list (filter ?delivery_name=)
+    POST   /api/cart/deliveries/                        create
+    GET    /api/cart/deliveries/<order_id>/             detail (lookup by OrderID = PK)
+    PATCH  /api/cart/deliveries/<order_id>/tracking/    update tracking + courier (Phase 2 SQL #28)
+
+    — ไม่มี status field ตาม data dict (สถานะไปอยู่ที่ Sale_Order.OrderStatus)
+    — PK = OrderID, URL pattern ใช้ order_id
     """
 
     queryset = Delivery.objects.all()
     serializer_class = DeliverySerializer
+    lookup_field = "order"
+    lookup_url_kwarg = "order_id"
 
     def get_queryset(self):
         qs = super().get_queryset()
         params = self.request.query_params
-        if "status" in params:
-            qs = qs.filter(status=params["status"])
-        if "order" in params:
-            qs = qs.filter(order=params["order"])
-        elif "order_id" in params:  # legacy alias
-            qs = qs.filter(order=params["order_id"])
+        if "delivery_name" in params:
+            qs = qs.filter(delivery_name__icontains=params["delivery_name"])
         return qs
 
-    @action(detail=True, methods=["patch"], url_path="status")
-    def update_status(self, request, pk=None):
-        """อัปเดตสถานะการจัดส่ง (employee function)."""
+    @action(detail=True, methods=["patch"], url_path="tracking")
+    def update_tracking(self, request, order_id=None):
+        """พนักงานอัปเดตเลขพัสดุ + ชื่อขนส่ง (Phase 2 SQL #28).
+
+        UPDATE Delivery SET TrackingNumber = ?, DeliveryName = ? WHERE OrderID = ?
+        """
         delivery = self.get_object()
-        serializer = DeliveryStatusUpdateSerializer(data=request.data, partial=True)
+        serializer = DeliveryTrackingUpdateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         for field, value in serializer.validated_data.items():
             setattr(delivery, field, value)
-        # auto-stamp delivery_date เมื่อเปลี่ยนเป็น DELIVERED
-        if (
-            serializer.validated_data.get("status") == Delivery.Status.DELIVERED
-            and delivery.delivery_date is None
-        ):
-            delivery.delivery_date = timezone.now()
         delivery.save()
-        return Response(DeliverySerializer(delivery).data)
-
-    @action(detail=False, methods=["get"], url_path=r"by-order/(?P<order_id>[^/.]+)")
-    def by_order(self, request, order_id=None):
-        """ลูกค้าตรวจสอบการจัดส่งจาก OrderID."""
-        delivery = get_object_or_404(Delivery, order=order_id)
         return Response(DeliverySerializer(delivery).data)
