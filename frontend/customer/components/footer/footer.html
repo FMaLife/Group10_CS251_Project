@@ -1,0 +1,71 @@
+<!--
+  footer.html
+  ============================================================
+  โค้ดหลักของ Footer อยู่ที่นี่
+  วิธีใช้ในหน้าอื่น: ใช้ fetch() หรือ include ด้วย JS
+  ============================================================
+-->
+<link rel="stylesheet" href="/frontend/customer/components/footer/footer.css" />
+
+<footer id="smart-footer">
+
+  <!-- ====== Main footer content ====== -->
+  <div class="footer-main">
+
+    <!-- Brand column -->
+    <div class="footer-brand">
+      <a href="/frontend/customer/home/home.html" class="footer-logo-link">
+        <img src="/frontend/customer/assets/logo_smart-furniture-warehouse.svg" alt="Smart Furniture Warehouse" />
+      </a>
+      <p class="footer-tagline">
+        We focus on delivering furniture that truly balances quality, design,
+        and price. By carefully selecting materials and optimizing production,
+        we're able to offer durable, stylish pieces without unnecessary markups.
+        Our mission is to provide furniture that not only looks good but also
+        performs well in your everyday life — giving you real value you can trust.
+      </p>
+    </div>
+
+    <!-- Quick Link column -->
+    <div class="footer-col">
+      <h3 class="footer-col-title">QUICK LINK</h3>
+      <ul class="footer-links">
+        <li><a href="/frontend/customer/home/home.html" class="footer-link">Home</a></li>
+        <li><a href="/frontend/customer/checkout/orders/orders.html" class="footer-link">Orders</a></li>
+        <li><a href="/frontend/customer/profile/profile.html" class="footer-link">Profile</a></li>
+        <!-- Cart: scroll ขึ้นบนสุด แล้วเปิด cart overlay -->
+        <li><a href="#" class="footer-link" id="footer-cart-link">Cart</a></li>
+      </ul>
+
+      <h3 class="footer-col-title" style="margin-top: 40px;">CONTACT US</h3>
+      <ul class="footer-links">
+        <li>
+          <a href="mailto:smartFurwh@gmail.com" class="footer-link footer-email">
+            smartFurwh@gmail.com
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Category column — inject โดย footer.js -->
+    <div class="footer-col">
+      <h3 class="footer-col-title">CATEGORY</h3>
+      <div class="footer-categories" id="footer-categories">
+        <!-- inject โดย footer.js -->
+      </div>
+    </div>
+
+  </div><!-- /.footer-main -->
+
+  <!-- ====== Bottom bar ====== -->
+  <div class="footer-bottom">
+    <span class="footer-copyright">
+      © 2026 Smart Furniture Warehouse. All Rights Reserved. 
+    </span>
+    <div class="footer-legal">
+      <a class="footer-legal-link">Privacy Policy</a>
+      <a class="footer-legal-link">Terms & Conditions</a>
+    </div>
+  </div>
+
+</footer>

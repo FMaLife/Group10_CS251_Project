@@ -1,0 +1,109 @@
+<!--
+  navbar.html
+  ============================================================
+  โค้ดหลักของ Navbar อยู่ที่นี่
+  วิธีใช้ในหน้าอื่น: ใช้ fetch() หรือ include ด้วย JS
+  ============================================================
+-->
+<link rel="stylesheet" href="/frontend/customer/components/navbar/navbar.css" />
+
+<nav id="smart-navbar" role="navigation" aria-label="Main navigation">
+
+  <!-- ====== TOP BAR ====== -->
+  <div class="navbar-top">
+
+    <!-- Logo -->
+    <a href="/frontend/customer/home/home.html" class="navbar-logo" aria-label="Smart Furniture Warehouse - Home">
+      <img src="/frontend/customer/assets/logo_smart-furniture-warehouse.svg" alt="Smart Furniture Warehouse logo" />
+    </a>
+
+    <!-- Search Box -->
+    <div class="navbar-search" role="search">
+      <input
+        id="navbar-search-input"
+        type="search"
+        placeholder="Search furniture..."
+        aria-label="Search"
+        autocomplete="off"
+      />
+      <button
+        id="navbar-search-btn"
+        class="navbar-search-btn"
+        aria-label="Submit search"
+      >
+        <!-- Search icon -->
+        <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/>
+          <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="navbar-actions">
+
+      <!-- Account -->
+      <a href="/frontend/customer/profile/profile.html" class="navbar-account" id="navbar-account-link" aria-label="Your Account">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        <span id="navbar-account-name"></span>
+      </a>
+
+      <div class="navbar-divider" aria-hidden="true"></div>
+
+      <!-- Cart -->
+      <button id="cart-icon-btn" class="navbar-cart-btn" aria-label="Shopping cart">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span id="cart-badge" class="cart-badge" aria-live="polite">0</span>
+      </button>
+
+    </div>
+  </div><!-- /.navbar-top -->
+
+  <!-- ====== BOTTOM BAR ====== -->
+  <div class="navbar-bottom">
+
+    <!-- Home -->
+    <a href="/frontend/customer/home/home.html" class="nav-link" id="nav-home">Home</a>
+
+    <!-- Category dropdown -->
+    <div class="nav-dropdown-wrap">
+      <button
+        id="category-btn"
+        class="nav-link"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-controls="category-dropdown-list"
+      >
+        Category
+        <svg class="chevron-icon" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      <!-- Items injected by navbar.js → loadCategories() -->
+      <ul
+        id="category-dropdown"
+        class="dropdown-panel"
+        role="listbox"
+        aria-label="Product categories"
+      >
+        <!-- dynamic -->
+      </ul>
+    </div>
+
+    <!-- Orders -->
+    <a href="/frontend/customer/checkout/orders/orders.html" class="nav-link" id="nav-orders">Orders</a>
+
+    <!-- Contact Us → scrolls to footer -->
+    <a href="#footer" id="contact-us-link" class="nav-link">Contact Us</a>
+
+  </div><!-- /.navbar-bottom -->
+
+</nav>
