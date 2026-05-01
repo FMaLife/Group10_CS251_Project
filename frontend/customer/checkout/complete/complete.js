@@ -2,7 +2,7 @@
 //  CONFIG
 // ============================================================
 
-const COMPLETE_USE_MOCK = true;
+const COMPLETE_USE_MOCK = false;
 const COMPLETE_API_BASE = "http://127.0.0.1:8000";
 
 const completeParams  = new URLSearchParams(window.location.search);

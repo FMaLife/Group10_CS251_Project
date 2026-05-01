@@ -2,7 +2,7 @@
 //  CONFIG
 // ============================================================
 
-const REVIEW_USE_MOCK = true;
+const REVIEW_USE_MOCK = false;
 const REVIEW_API_BASE = "http://127.0.0.1:8000";
 
 // customer_id — ในระบบจริงดึงจาก session/localStorage

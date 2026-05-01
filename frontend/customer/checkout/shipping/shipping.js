@@ -2,7 +2,7 @@
 //  CONFIG
 // ============================================================
 
-const SHIPPING_USE_MOCK = true;
+const SHIPPING_USE_MOCK = false;
 const SHIPPING_API_BASE = "http://127.0.0.1:8000";
 
 // ดึง cart_id จาก query string ที่ review.js ส่งมา
