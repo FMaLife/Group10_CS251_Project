@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Furniture Warehouse — Sign In</title>
+  <link rel="stylesheet" href="log-in.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static '/employee/css/log-in.css' %}">
+</head>
+
+<body>
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+
+        <div class="brand">
+        <div class="brand-logo">
+            <img src="{% static 'employee/images/logo.png' %}"  width="422" height="237" alt="logo">
+        </div>
+        <p class="brand-desc">
+            Welcome back — your space is waiting. <br> Log in to continue creating a home that reflects your style <br> and comfort. From browsing your favorite pieces to tracking <br>your latest orders, everything you need is right here.
+        </p>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+        
+        <div class="form-container">
+        <h1 class="form-title">Welcome back !</h1>
+        <p class="form-subtitle">Log in to continue your shopping experience.</p>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <div class="input-wrapper">
+            <input type="email" id="email" placeholder="Enter your email" autocomplete="email" />
+            <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M2 7l10 7 10-7"/>
+                </svg>
+            </span>
+            </div>
+            <p class="error-msg" id="email-error"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+            <button class="toggle-pw" id="toggle-pw" type="button" aria-label="Toggle password">
+                <svg id="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg id="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+            </button>
+            </div>
+            <p class="error-msg" id="password-error"></p>
+        </div>
+
+        <button class="btn-signin" id="btn-signin" type="button">
+            <span class="btn-text">Sign in</span>
+            <span class="btn-loader" id="btn-loader"></span>
+        </button>
+        </div>
+    </div>
+    <script src="{% static 'employee/js/log-in.js' %}"></script>
+    </body>
+    </html>

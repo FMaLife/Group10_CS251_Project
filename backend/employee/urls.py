@@ -1,11 +1,14 @@
 from django.urls import path
 from . import views
+from accounts.views.auth_views import employee_login, employee_logout
 
 
 urlpatterns = [
-    path('', views.product, name='product'),
-    path('product/', views.product, name='product'),
+    path("", views.login_page, name="home"),
+    path("login/", employee_login),
+    path("logout/", employee_logout),
 
+    path('product/', views.product, name='product'),    
     path('supplier/', views.supplier, name='supplier'),
     path('category/', views.category, name='category'),
     path('warehouse/', views.warehouse, name='warehouse'),

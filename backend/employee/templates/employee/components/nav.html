@@ -66,10 +66,16 @@
                     <ion-icon name="contact"></ion-icon>
                 </span>
                 <div class="user">
-                    <span class="name">name</span>
-                    <span class="role">role</span>
+                    {% if employee %}
+                        <span class="name">
+                            {{ employee.EFirstName }} {{ employee.ELastName }}
+                        </span>
+                        <span class="role">
+                            {{ employee.role }}
+                        </span>
+                    {% endif %}
                 </div>
-                <a href="#" class="logout">
+                <a href="#" class="logout"  id="logout-btn">
                     <ion-icon name="log-out"></ion-icon>
                 </a>
             </div>
@@ -78,3 +84,4 @@
 </nav>
 
 <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
+<script src="{% static 'employee/js/log-in.js' %}"></script>

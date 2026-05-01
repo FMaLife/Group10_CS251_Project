@@ -4,11 +4,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.utils import timezone
+from django.http import HttpResponseForbidden
 
 from catalog.models import Product, Category
 from stock.models import Supplier, Warehouse, WarehouseLocation, RestockOrder , RestockDetail
 from order_payment.models import SaleOrder, Payment
 from employees.models import Employee
+from django.shortcuts import render
 
 from .forms import (
     ProductForm, SupplierForm, CategoryForm,
@@ -67,6 +69,12 @@ def table_view(request, model, template, title, columns, headers, actions, show_
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    emp = None
+    emp_id = request.session.get("employee_id")
+
+    if emp_id:
+        emp = Employee.objects.filter(EmployeeID=emp_id).first()
+
     return render(request, template, {
         "title": title,
         "model_name": MODEL_TO_NAME[model],
@@ -78,6 +86,7 @@ def table_view(request, model, template, title, columns, headers, actions, show_
         "delete_url": "delete_item",
         "actions": actions,
         "display_field": columns[0],
+        "employee": emp
     })
 
 # =========================
@@ -170,6 +179,13 @@ def sales_order(request):
 
 
 def employee(request):
+    show_add = True
+    show_actions = True
+
+    if request.session.get("role") == "Staff":
+        show_add = False
+        show_actions=False
+
     return table_view(
         request,
         Employee,
@@ -178,6 +194,8 @@ def employee(request):
         ["EFirstName", "ELastName", "EmployeeID", "role", "EPhone", "EEmail"],
         ["First Name", "Last Name", "Employee ID", "Role", "Phone Number", "Email"],
         {"edit": True, "delete": True, "detail": False},
+        show_actions=show_actions,
+        show_add=show_add
     )
 
 
@@ -271,6 +289,10 @@ def add_item(request, model):
     if not form_class:
         return HttpResponse("Form not found")
 
+    if model == "employee":
+        if request.session.get("role") == "Staff":
+            return HttpResponseForbidden("Permission denied")
+
     if request.method == "POST":
         form = form_class(request.POST, request.FILES)
 
@@ -284,7 +306,7 @@ def add_item(request, model):
                 obj.location = WarehouseLocation.objects.first()
             
             obj.save()
-
+                        
             products = request.POST.getlist("product[]")
             quantities = request.POST.getlist("StockQuantity[]")
 
@@ -320,3 +342,6 @@ def paginate(request, data, per_page=10):
     paginator = Paginator(data, per_page)
     page_number = request.GET.get("page")
     return paginator.get_page(page_number)
+
+def login_page(request):
+    return render(request, "employee/log-in.html")
