@@ -33,11 +33,10 @@
                     </div>
                 </div>
 
-                <div class="info-grid sale-grid">
-                    <div class="item">
-                        <div class="label">Address</div>
-                        <div class="value">{{ object.addresses }}</div>
-                    </div>
+                <div class="value">
+                    {% for addr in object.customer.addresses.all %}
+                        {{ addr.HouseNo }} {{ addr.Street }}, {{ addr.District }}, {{ addr.Province }} {{ addr.ZipCode }}<br>
+                    {% endfor %}
                 </div>
 
 
