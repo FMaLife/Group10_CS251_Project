@@ -1,0 +1,51 @@
+<div class="detail">
+
+    <!-- ข้อมูล -->
+    <div class="info-grid">
+
+        <div class="item">
+            <div class="label">Purchase Ordered Date</div>
+            <div class="value">{{ object.restock_date }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Purchase Order ID</div>
+            <div class="value">{{ object.restock_id }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Company Name</div>
+            <div class="value">{{ object.supplier }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Product Name</div>
+            <div class="value">
+                {% for item in object.details.all %}
+                    {{ item.product.ProductName }}<br>
+                {% empty %}
+                    -
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <div class="item">
+            <div class="label">Quantity</div>
+            <div class="value">
+                {% for item in object.details.all %}
+                    {{ item.quantity }}<br>
+                {% empty %}
+                    -
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="item">
+            <div class="label">Status</div>
+            <div class="value">{{ object.get_restock_status_display }}</div>
+        </div>
+
+    </div>
+
+</div>
