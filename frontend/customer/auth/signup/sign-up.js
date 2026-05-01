@@ -113,24 +113,75 @@
     else btnLoader.classList.remove('visible');
   }
 
-  async function fakeRegisterRequest() {
-    return new Promise(resolve => setTimeout(() => resolve({ success: true }), 1800));
+  // ── แยก firstName / lastName จาก fullname ──────────────────────────────────
+  // ถ้ากรอกชื่อเดียว (ไม่มีเว้นวรรค) ให้ firstName = ชื่อนั้น และ lastName = ''
+  function splitFullName(fullname) {
+    const parts = fullname.trim().split(/\s+/);
+    const firstName = parts[0] || '';
+    const lastName  = parts.slice(1).join(' ');
+    return { firstName, lastName };
   }
 
+  // ── เรียก API จริง ─────────────────────────────────────────────────────────
+  async function registerRequest() {
+    const { firstName, lastName } = splitFullName(fullnameInput.value);
+
+    const payload = {
+      firstName:   firstName,
+      lastName:    lastName,
+      email:       emailInput.value.trim(),
+      password:    passwordInput.value,
+      phoneNumber: [phoneInput.value.trim()]   // API รับเป็น array
+    };
+
+    const response = await fetch('/api/accounts/customer/register', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // จัดการ error ที่ server ส่งกลับมา
+      const serverMsg = data?.message || data?.error || 'Registration failed. Please try again.';
+      throw new Error(serverMsg);
+    }
+
+    return data; // { message, customer: { customerID, firstName, lastName, email } }
+  }
+
+  // ── handler ปุ่ม Sign up ───────────────────────────────────────────────────
   signInBtn.addEventListener('click', async () => {
     if (!validateAll()) return;
+
     setLoading(true);
-    const result = await fakeRegisterRequest();
-    setLoading(false);
-    if (result.success) {
+
+    try {
+      const result = await registerRequest();
+
+      setLoading(false);
+
+      // สำเร็จ
       signInBtn.classList.add('success');
-      btnText.textContent = '✓ Account created!';
+      btnText.textContent   = '✓ Account created!';
       btnText.style.opacity = '1';
+
       setTimeout(() => {
-        alert('🎉 Welcome! Your account has been created. Redirecting...');
-        signInBtn.classList.remove('success');
-        btnText.textContent = 'Sign in';
+        alert(`🎉 ยินดีต้อนรับ ${result.customer.firstName}! สมัครสมาชิกสำเร็จแล้ว กำลังพาไปหน้าล็อกอิน...`);
+        window.location.href = '/frontend/customer/auth/login/log-in.html';
       }, 1500);
+
+    } catch (err) {
+      setLoading(false);
+
+      // ตรวจสอบว่า server แจ้ง email ซ้ำหรือไม่
+      const msg = err.message || '';
+      if (/email/i.test(msg) && /(exist|duplicate|already|taken|ซ้ำ)/i.test(msg)) {
+        showError(emailInput, emailError, 'อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่น');
+      } else {
+        alert(`เกิดข้อผิดพลาด: ${msg}`);
+      }
     }
   });
 

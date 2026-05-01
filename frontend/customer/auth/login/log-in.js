@@ -19,35 +19,18 @@
 
   // ── Helpers ───────────────────────────────────────────────
 
-  /**
-   * Validate email format.
-   * @param {string} value
-   * @returns {boolean}
-   */
   function isValidEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
-  /**
-   * Show error message and mark input as invalid.
-   * @param {HTMLInputElement} input
-   * @param {HTMLElement}      errorEl
-   * @param {string}           message
-   */
   function showError(input, errorEl, message) {
     input.classList.add('error');
-    // Re-trigger animation
     errorEl.textContent = '';
     requestAnimationFrame(() => {
       errorEl.textContent = message;
     });
   }
 
-  /**
-   * Clear error state.
-   * @param {HTMLInputElement} input
-   * @param {HTMLElement}      errorEl
-   */
   function clearError(input, errorEl) {
     input.classList.remove('error');
     errorEl.textContent = '';
@@ -70,8 +53,8 @@
   });
 
   passwordInput.addEventListener('input', () => {
-    if (passwordInput.value.length > 0 && passwordInput.value.length < 6) {
-      showError(passwordInput, passwordError, 'Password must be at least 6 characters.');
+    if (passwordInput.value.length > 0 && passwordInput.value.length < 8) {
+      showError(passwordInput, passwordError, 'Password must be at least 8 characters.');
     } else {
       clearError(passwordInput, passwordError);
     }
@@ -93,12 +76,8 @@
     passwordInput.focus();
   });
 
-  // ── Form submission ───────────────────────────────────────
+  // ── Validate all fields before submit ────────────────────
 
-  /**
-   * Validate all fields before submit.
-   * @returns {boolean}
-   */
   function validateAll() {
     let valid = true;
 
@@ -113,17 +92,14 @@
     if (!passwordInput.value) {
       showError(passwordInput, passwordError, 'Password is required.');
       valid = false;
-    } else if (passwordInput.value.length < 6) {
-      showError(passwordInput, passwordError, 'Password must be at least 6 characters.');
+    } else if (passwordInput.value.length < 8) {
+      showError(passwordInput, passwordError, 'Password must be at least 8 characters.');
       valid = false;
     }
 
     return valid;
   }
 
-  /**
-   * Set button to loading state.
-   */
   function setLoading(isLoading) {
     signInBtn.disabled = isLoading;
     btnText.style.opacity = isLoading ? '0' : '1';
@@ -134,48 +110,77 @@
     }
   }
 
-  /**
-   * Simulate API call (replace with real fetch).
-   * @param {string} email
-   * @param {string} password
-   * @returns {Promise<{ success: boolean, message: string }>}
-   */
-  async function fakeAuthRequest(email, password) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Demo: treat any well-formed credentials as success
-        resolve({ success: true, message: 'Login successful!' });
-      }, 1800);
+  // ── เรียก API จริง ────────────────────────────────────────
+  async function loginRequest() {
+    const payload = {
+      email:    emailInput.value.trim(),
+      password: passwordInput.value
+    };
+
+    const response = await fetch('/api/accounts/customer/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
     });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // ดึง message จาก server (เช่น "Invalid email or password")
+      const serverMsg = data?.message || data?.error || 'Invalid credentials. Please try again.';
+      throw new Error(serverMsg);
+    }
+
+    return data; // { message, customer: { customerID, firstName, lastName, email } }
   }
 
+  // ── handler ปุ่ม Sign in ──────────────────────────────────
   signInBtn.addEventListener('click', async () => {
     if (!validateAll()) return;
 
     setLoading(true);
 
-    const result = await fakeAuthRequest(
-      emailInput.value.trim(),
-      passwordInput.value
-    );
+    try {
+      const result = await loginRequest();
 
-    setLoading(false);
+      setLoading(false);
 
-    if (result.success) {
-      // Success state
+      // ── บันทึกข้อมูล user ลง localStorage ───────────────────
+      // เก็บเฉพาะข้อมูลที่จำเป็น (ไม่เก็บ password)
+      localStorage.setItem('customer', JSON.stringify({
+        customerID: result.customer.customerID,
+        firstName:  result.customer.firstName,
+        lastName:   result.customer.lastName,
+        email:      result.customer.email
+      }));
+
+      // สำเร็จ
       signInBtn.classList.add('success');
-      btnText.textContent = '✓ Signed in!';
+      btnText.textContent   = '✓ Signed in!';
       btnText.style.opacity = '1';
 
       setTimeout(() => {
-        // Navigate or reset
-        alert('🎉 Welcome back! Redirecting to your dashboard…');
-        signInBtn.classList.remove('success');
-        btnText.textContent = 'Sign in';
+        alert(`🎉 ยินดีต้อนรับกลับมา ${result.customer.firstName}! กำลังพาไปหน้าหลัก...`);
+        window.location.href = '/frontend/customer/home/home.html';
       }, 1500);
-    } else {
-      // Show server error
-      showError(passwordInput, passwordError, result.message || 'Invalid credentials. Please try again.');
+
+    } catch (err) {
+      setLoading(false);
+
+      const msg = err.message || '';
+
+      // email ไม่พบในระบบ
+      if (/email/i.test(msg) && /(not found|exist|ไม่พบ)/i.test(msg)) {
+        showError(emailInput, emailError, 'ไม่พบอีเมลนี้ในระบบ');
+      }
+      // password ผิด
+      else if (/password|credential|invalid/i.test(msg)) {
+        showError(passwordInput, passwordError, 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+      }
+      // error ทั่วไป
+      else {
+        showError(passwordInput, passwordError, msg || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+      }
     }
   });
 
@@ -186,7 +191,7 @@
     });
   });
 
-  // ── Input shimmer on focus (subtle glow pulse) ─────────────
+  // ── Input shimmer on focus ────────────────────────────────
   [emailInput, passwordInput].forEach((el) => {
     el.addEventListener('focus', () => {
       el.parentElement.style.transition = 'transform 0.2s ease';
