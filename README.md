@@ -38,10 +38,10 @@ source venv/bin/activate
 ```
 
 **เปิดใช้งาน Virtual Environment**
-เมื่อสำเร็จจะเห็น (venv) ด้านหน้าบรรทัด command
 ```bash
 venv\Scripts\activate
 ```
+
 
 **ติดตั้ง Dependencies**
 ```bash
@@ -59,6 +59,11 @@ python manage.py migrate
 
 **รัน Server**
 ```bash
+#เข้าโฟลเดอร์ backend
+cd backend
+
+#รัน server
 python manage.py server
 ```
+
 เปิด http://127.0.0.1:8000/ เพื่อดูผลลัพธ์
