@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('accounts', '0001_initial'),
+        ('employees', '0001_initial'),
         ('catalog', '0001_initial'),
     ]
 
@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                 ('restock_id', models.AutoField(primary_key=True, serialize=False)),
                 ('restock_date', models.DateField()),
                 ('restock_status', models.CharField(choices=[('Pending', 'Pending'), ('In transit', 'In transit'), ('Received', 'Received'), ('Rejected', 'Rejected')], default='Pending', max_length=20)),
-                ('employee', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='restock_orders', to='accounts.employee')),
+                ('employee', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='restock_orders', to='employees.employee')),
                 ('supplier', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='restock_orders', to='stock.supplier')),
             ],
             options={
