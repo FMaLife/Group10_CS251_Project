@@ -72,7 +72,6 @@ async function fetchShippingCart() {
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_CART), 100));
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
   if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
   return res.json();
 }
@@ -147,6 +146,7 @@ async function apiCreateOrder(cartId, addressId) {
 // → 200 { order_status: "Received" }
 // → 500 Server error
 async function apiMarkPaid(orderId) {
+  // PATCH /api/orders/saleorders/{order_id}/   { payment_status: "paid" }
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve({ order_status: "Received" }), 200));
   }
