@@ -43,13 +43,13 @@
                     <div class="action-buttons">
 
                         {% if actions.edit %}
-                        <button class="edit-button btn-edit" data-model="{{ model_name }}" data-id="{{ row.id }}">
+                        <button class="edit-button btn-edit" data-model="{{ model_name }}" data-id="{{ row.pk }}">
                             <i class="lni lni-pencil-1"></i>
                         </button>
                         {% endif %}
 
                         {% if actions.delete %}
-                        <form method="post" action="{% url delete_url title|lower row.id %}">
+                        <form method="post" action="{% url delete_url title|lower row.pk %}">
                             {% csrf_token %}
                             <button type="submit" class="delete-button">
                                 <i class="lni lni-trash-3"></i>
@@ -58,7 +58,7 @@
                         {% endif %}
 
                         {% if actions.detail %}
-                        <button class="detail-button btn-detail" data-model="{{ model_name }}" data-id="{{ row.id }}">
+                        <button class="detail-button btn-detail" data-model="{{ model_name }}" data-id="{{ row.pk }}">
                             Details
                         </button>
                         {% endif %}

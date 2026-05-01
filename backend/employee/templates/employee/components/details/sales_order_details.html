@@ -9,31 +9,31 @@
                 Customer Details
             </div>
 
-            <div class="info-grid">
+            <div class="info-grid sale-grid">
                 <div class="item">
                     <div class="label">Customer ID</div>
+                    <div class="value">{{ object.customer.CustomerID }}</div>
+                </div>
+            </div>
+
+            <div class="info-grid sale-grid">
+                <div class="item">
+                    <div class="label">Full Name</div>
                     <div class="value">{{ object.customer }}</div>
                 </div>
             </div>
-
-            <div class="info-grid">
-                <div class="item">
-                    <div class="label">Full Name</div>
-                    <div class="value">{{ object.customer_name }}</div>
-                </div>
-            </div>
             
-            <div class="info-grid">
+            <div class="info-grid sale-grid">
                 <div class="item">
                     <div class="label">Phone Number</div>
-                    <div class="value">{{ object.phone_number }}</div>
+                    <div class="value">{{ object.customer.PhoneNumber.0 }}</div>
                 </div>
             </div>
 
-            <div class="info-grid">
+            <div class="info-grid sale-grid">
                 <div class="item">
                     <div class="label">Address</div>
-                    <div class="value">{{ object.address }}</div>
+                    <div class="value">{{ object.addresses }}</div>
                 </div>
             </div>
 
@@ -47,43 +47,46 @@
                 Order Details
             </div>
 
-            <div class="info-grid">
+            <div class="info-grid sale-grid">
                 <div class="item">
                     <div class="label">Ordered Date</div>
-                    <div class="value">{{ object.ordered_date }}</div>
+                    <div class="value">{{ object.order_date }}</div>
                 </div>
                 <div class="item">
                     <div class="label">Order ID</div>
-                    <div class="value">{{ object.sales_order_id }}</div>
+                    <div class="value">{{ object.order_id }}</div>
                 </div>
             </div>
 
-            <div class="info-grid">
+            {% for detail in object.details.all %}
+            <div class="info-grid sale-grid">
                 <div class="item">
                     <div class="label">Product ID</div>
-                    <div class="value">{{ object.product_id }}</div>
+                    <div class="value">{{ detail.product.ProductID }}</div>
                 </div>
                 <div class="item">
                     <div class="label">Product Name</div>
-                    <div class="value">{{ object.product_name }}</div>
+                    <div class="value">{{ detail.product.ProductName }}</div>
                 </div>
             </div>
 
-            <div class="info-grid">
+            <div class="info-grid sale-grid">
                 <div class="item">
                     <div class="label">Quantity</div>
-                    <div class="value">{{ object.quantity }}</div>
+                    <div class="value">{{ detail.quantity }}</div>
                 </div>
                 <div class="item">
                     <div class="label">Total Price</div>
-                    <div class="value">{{ object.total_prices }}</div>
+                    <div class="value">{{ detail.subtotal }}</div>
                 </div>
             </div>
+            
+            {% endfor %}
 
-            <div class="info-grid">
+            <div class="info-grid sale-grid">
                 <div class="item">
                     <div class="label">Status</div>
-                    <div class="value">{{ object.get_status_display }}</div>
+                    <div class="value">{{ object.get_order_status_display }}</div>
                 </div>
                 <div class="item">
                     <div class="label">Tracking Number</div>

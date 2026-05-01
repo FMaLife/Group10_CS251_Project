@@ -1,6 +1,6 @@
 <form method="POST" class="form-box form-layout"
     {% if is_edit %}
-        action="{% url 'edit_item' model_name object.id %}"
+        action="{% url 'edit_item' model_name object.pk %}"
     {% else %}
         action="{% url 'add_item' model_name %}"
     {% endif %}

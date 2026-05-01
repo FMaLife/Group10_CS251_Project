@@ -1,6 +1,6 @@
 <form method="POST" class="form-box"
     {% if is_edit %}
-        action="{% url 'edit_item' model_name object.id %}"
+        action="{% url 'edit_item' model_name object.pk %}"
     {% else %}
         action="{% url 'add_item' model_name %}"
     {% endif %}
@@ -8,8 +8,9 @@
     {% csrf_token %}
 
     <div class="form-group">
-        {{ form.name.label_tag }}
-        {{ form.name }}
+        {{ form.CategoryName.label_tag }}
+        {{ form.CategoryName }}
+        {{ form.CategoryName.error }}
     </div>
     
     <button type="submit" class="save-btn">
