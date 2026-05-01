@@ -1,6 +1,6 @@
 <form method="POST" class="form-box form-layout" enctype="multipart/form-data"
     {% if is_edit %}
-        action="{% url 'edit_item' model_name object.id %}"
+        action="{% url 'edit_item' model_name object.pk %}"
     {% else %}
         action="{% url 'add_item' model_name %}"
     {% endif %}
@@ -25,22 +25,22 @@
         <!-- RIGHT SIDE -->
 
         <div class="form-group">
-            {{ form.product_name.label_tag }}
-            {{ form.product_name }}
-            {{ form.product_name.errors }}
+            {{ form.ProductName.label_tag }}
+            {{ form.ProductName }}
+            {{ form.ProductName.errors }}
         </div>
 
         <!-- Dimension (W x L x H) -->
         <div class="form-group dimension-field">
             <label>Dimension (W x L x H)</label>
             <div class="dimension-grid">
-                {{ form.width }}
-                {{ form.length }}
-                {{ form.height }}
+                {{ form.Width }}
+                {{ form.Length }}
+                {{ form.Height }}
             </div>
-            {{ form.width.errors }}
-            {{ form.length.errors }}
-            {{ form.height.errors }}
+            {{ form.Width.errors }}
+            {{ form.Length.errors }}
+            {{ form.Height.errors }}
         </div>
 
         <div class="form-group">
@@ -49,21 +49,21 @@
         </div>
 
         <div class="form-group">
-            {{ form.color.label_tag }}
-            {{ form.color }}
-            {{ form.color.errors }}
+            {{ form.Color.label_tag }}
+            {{ form.Color }}
+            {{ form.Color.errors }}
         </div>
 
         <div class="form-group">
-            {{ form.warehouse.label_tag }}
-            {{ form.warehouse }}
-            {{ form.warehouse.errors }}
+            {{ form.location.label_tag }}
+            {{ form.location }}
+            {{ form.location.errors }}
         </div>
 
         <div class="form-group">
-            {{ form.price.label_tag }}
-            {{ form.price }}
-            {{ form.price.errors }}
+            {{ form.Price.label_tag }}
+            {{ form.Price }}
+            {{ form.Price.errors }}
         </div>
 
         <div class="form-group supplier-field">
@@ -73,9 +73,9 @@
         </div>
 
         <div class="form-group quantity-field">
-            {{ form.quantity.label_tag }}
-            {{ form.quantity }}
-            {{ form.quantity.errors }}
+            {{ form.StockQuantity.label_tag }}
+            {{ form.StockQuantity }}
+            {{ form.StockQuantity.errors }}
         </div>
 
     </div>

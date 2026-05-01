@@ -397,3 +397,7 @@
     height: 100%;
     object-fit: cover;
 }
+
+.sale-grid{
+    grid-template-columns: 1fr 1fr;
+}

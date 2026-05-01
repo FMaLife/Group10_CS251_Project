@@ -1,85 +1,89 @@
 from django import forms
-from .models import *
+
+from catalog.models import Product, Category
+from stock.models import Supplier, Warehouse, WarehouseLocation, RestockOrder , RestockDetail
+from order_payment.models import SaleOrder
+from employees.models import Employee
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            "product_name", "image", "width", "length", "height",
-            "category", "color", "warehouse", "price", "supplier", "quantity"
+            "ProductName", "image", "Width", "Length", "Height",
+             "Color", "Price", "StockQuantity", "category", "location", "supplier"
         ]
         widgets = {
             "image": forms.ClearableFileInput(attrs={"class": "hidden"}),
-            "price": forms.NumberInput(attrs={"placeholder": "Enter Price"}),
-            "product_name": forms.TextInput(attrs={"placeholder": " Enter Product name"}),
-            "color": forms.TextInput(attrs={"placeholder": "Enter Color"}),
-            "quantity": forms.NumberInput(attrs={"placeholder": "Enter Quantity"}),
-            "width": forms.NumberInput(attrs={"placeholder": "W"}),
-            "length": forms.NumberInput(attrs={"placeholder": "L"}),
-            "height": forms.NumberInput(attrs={"placeholder": "H"}),
+            "Price": forms.NumberInput(attrs={"placeholder": "Enter Price"}),
+            "ProductName": forms.TextInput(attrs={"placeholder": " Enter Product name"}),
+            "Color": forms.TextInput(attrs={"placeholder": "Enter Color"}),
+            "StockQuantity": forms.NumberInput(attrs={"placeholder": "Enter Quantity"}),
+            "Width": forms.NumberInput(attrs={"placeholder": "W"}),
+            "Length": forms.NumberInput(attrs={"placeholder": "L"}),
+            "Height": forms.NumberInput(attrs={"placeholder": "H"}),
         }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['category'].empty_label = "Select Category"
-        self.fields['warehouse'].empty_label = "Select Warehouse"
+        self.fields['location'].empty_label = "Select location"
         self.fields['supplier'].empty_label = "Select Supplier"
 
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        fields = ["contact_name", "phone", "company", "address"]
+        fields = ["contact_person", "phone_num", "company_name", "address"]
         labels = {
-            "contact_name": "Contact Name",
-            "phone": "Phone Number",
-            "company": "Company Name",
+            "contact_person": "Contact Name",
+            "phone_num": "Phone Number",
+            "company_name": "Company Name",
             "address": "Address"
         }
         widgets = {
-            "contact_name": forms.TextInput(attrs={"placeholder": "Enter Contact Name"}),
-            "phone": forms.TextInput(attrs={
+            "contact_person": forms.TextInput(attrs={"placeholder": "Enter Contact Name"}),
+            "phone_num": forms.TextInput(attrs={
                 "placeholder": "Enter Phone Number",
                 "required": True,
                 "pattern": r"\d{9,10}",
                 "title": "Phone must be 9-10 digits"
             }),
-            "company": forms.TextInput(attrs={"placeholder": "Enter Company Name"}),
+            "company_name": forms.TextInput(attrs={"placeholder": "Enter Company Name"}),
             "address": forms.TextInput(attrs={"placeholder": "Enter Address"})
         }
 
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ["name"]
-        labels = {"name": "Catagory Name"}
+        fields = ["CategoryName"]
+        labels = {"CategoryName": "Catagory Name"}
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "Enter Catagory Name"})
+            "CategoryName": forms.TextInput(attrs={"placeholder": "Enter Catagory Name"})
         }
 
 class WarehouseForm(forms.ModelForm):
     class Meta:
         model = Warehouse
-        fields = ["name", "phone", "address"]
+        fields = ["wname", "wphone", "waddress"]
         labels = {
-            "name": "Warehouse Name",
-            "phone": "Warehouse Contact Number",
-            "address": "Address"
+            "wname": "Warehouse Name",
+            "wphone": "Warehouse Contact Number",
+            "waddress": "Address"
         }
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "Enter Warehouse Name"}),
-            "phone": forms.TextInput(attrs={
+            "wname": forms.TextInput(attrs={"placeholder": "Enter Warehouse Name"}),
+            "wphone": forms.TextInput(attrs={
                 "placeholder": "Enter Phone Number",
                 "required": True,
                 "pattern": r"\d{9,10}",
                 "title": "Phone must be 9-10 digits"
             }),
-            "address": forms.TextInput(attrs={"placeholder": "Enter Address"})
+            "waddress": forms.TextInput(attrs={"placeholder": "Enter Address"})
         }
 
 class LocationForm(forms.ModelForm):
     class Meta:
-        model = Location
+        model = WarehouseLocation
         fields = ["warehouse", "zone", "aisle", "bin"]
         widgets = {
             "zone": forms.TextInput(attrs={"placeholder": "Enter Zone"}),
@@ -94,7 +98,7 @@ class LocationForm(forms.ModelForm):
 
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:
-        model = PurchaseOrder
+        model = RestockOrder
         fields = ["supplier"]
         labels = {
             "supplier": "Supplier",
@@ -107,33 +111,42 @@ class PurchaseOrderForm(forms.ModelForm):
 
 class SalesOrderForm(forms.ModelForm):
     class Meta:
-        model = SalesOrder
-        fields = ["status"]
+        model = SaleOrder
+        fields = ["order_status"]
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['status'].choices = [('', 'Select Status')] + [
+        self.fields['order_status'].choices = [('', 'Select Status')] + [
             (key, label)
-            for key, label in self.fields['status'].choices
+            for key, label in self.fields['order_status'].choices
             if key
         ]
 
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
-        fields = ["name", "role", "phone"]
+        fields = ["EFirstName", "ELastName", "role", "EPhone", "EEmail"]
         labels = {
-            "name": "Full Name",
-            "phone": "Phone Number",
-            "role": "Role"
+            "EFirstName": "First Name",
+            "ELastName": "Last Name",
+            "EPhone": "Phone Number",
+            "role": "Role",
+            "EEmail": "Email"
         }
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "Enter Full Name","autocomplete": "name"}),
-            "phone": forms.TextInput(attrs={
+            "EFirstName": forms.TextInput(attrs={"placeholder": "Enter First Name"}),
+            "ELastName": forms.TextInput(attrs={"placeholder": "Enter Last Name"}),
+            "EPhone": forms.TextInput(attrs={
                 "placeholder": "Enter Phone Number",
                 "required": True,
                 "pattern": r"\d{9,10}",
                 "title": "Phone must be 9-10 digits"
+            }),
+            "EEmail": forms.EmailInput(attrs={
+                "placeholder": "Enter Email",
+                "required": True,
+                "pattern": r"^[\w\.-]+@[\w\.-]+\.\w+$",
+                "title": "Enter a valid email (example@mail.com)"
             }),
         }
         

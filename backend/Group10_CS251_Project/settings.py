@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # เคยแก้ตรงนี้
 SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = config('DEBUG', cast=bool, default=True) # ควรตั้งเป็น False ตอน deploy จริง
 
 ALLOWED_HOSTS = []
 
@@ -42,13 +42,16 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
 
-    # 'accounts',
-    # 'stock',
-    # 'catalog',
-    # 'cart_delivery',
-    # 'order_payment',
     'employee',
+    'accounts',
+    'customers',
+    'employees',
+    'cart_delivery',
+    'catalog',
+    'stock',
+    'order_payment',
 ]
+
 
 MIDDLEWARE = [
 
@@ -57,7 +60,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware', # API ใช้ session auth แต่ไม่ใช้ CSRF token
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -88,8 +91,13 @@ WSGI_APPLICATION = 'Group10_CS251_Project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+        'DISABLE_SERVER_SIDE_CURSORS': True,
     }
 }
 
@@ -118,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
@@ -135,10 +143,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Session settings
+SESSION_COOKIE_AGE = 86400          # 24 ชั่วโมง 
+SESSION_COOKIE_HTTPONLY = True      # JS เข้าถึง cookie ไม่ได้
+SESSION_COOKIE_SAMESITE = "Lax"     # ป้องกัน CSRF
+SESSION_COOKIE_SECURE = False       # ควรตั้งเป็น True ตอน deploy จริง (ต้องใช้ HTTPS)
+
 # เพิ่ม CORS Configuration
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -147,6 +162,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
 ]
 
 # เพิ่ม REST Framework Configuration

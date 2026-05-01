@@ -5,24 +5,24 @@
 
         <div class="item">
             <div class="label">Purchase Ordered Date</div>
-            <div class="value">{{ object.ordered_date }}</div>
+            <div class="value">{{ object.restock_date }}</div>
         </div>
 
         <div class="item">
             <div class="label">Purchase Order ID</div>
-            <div class="value">{{ object.purchase_order_id }}</div>
+            <div class="value">{{ object.restock_id }}</div>
         </div>
 
         <div class="item">
-            <div class="label">Supplier ID</div>
-            <div class="value">{{ object.supplier_id }}</div>
+            <div class="label">Company Name</div>
+            <div class="value">{{ object.supplier }}</div>
         </div>
 
         <div class="item">
             <div class="label">Product Name</div>
             <div class="value">
-                {% for item in object.purchaseorderitem_set.all %}
-                    {{ item.product.product_name }}<br>
+                {% for item in object.details.all %}
+                    {{ item.product.ProductName }}<br>
                 {% empty %}
                     -
                 {% endfor %}
@@ -33,7 +33,7 @@
         <div class="item">
             <div class="label">Quantity</div>
             <div class="value">
-                {% for item in object.purchaseorderitem_set.all %}
+                {% for item in object.details.all %}
                     {{ item.quantity }}<br>
                 {% empty %}
                     -
@@ -43,7 +43,7 @@
 
         <div class="item">
             <div class="label">Status</div>
-            <div class="value">{{ object.get_status_display }}</div>
+            <div class="value">{{ object.get_restock_status_display }}</div>
         </div>
 
     </div>

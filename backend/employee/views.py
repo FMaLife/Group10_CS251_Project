@@ -3,11 +3,12 @@ from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import HttpResponse
+from django.utils import timezone
 
-from .models import (
-    Product, Supplier, Category, Warehouse, Location,
-    PurchaseOrder, SalesOrder, Employee, Payment, PurchaseOrderItem
-)
+from catalog.models import Product, Category
+from stock.models import Supplier, Warehouse, WarehouseLocation, RestockOrder , RestockDetail
+from order_payment.models import SaleOrder, Payment
+from employees.models import Employee
 
 from .forms import (
     ProductForm, SupplierForm, CategoryForm,
@@ -24,9 +25,9 @@ MODEL_TO_NAME = {
     Supplier: "supplier",
     Category: "category",
     Warehouse: "warehouse",
-    Location: "location",
-    PurchaseOrder: "purchase_order",
-    SalesOrder: "sales_order",
+    WarehouseLocation: "location",
+    RestockOrder: "purchase_order",
+    SaleOrder: "sales_order",
     Employee: "employee",
     Payment: "payment",
 }
@@ -37,9 +38,9 @@ NAME_TO_MODEL = {
     "supplier": Supplier,
     "category": Category,
     "warehouse": Warehouse,
-    "location": Location,
-    "purchase_order": PurchaseOrder,
-    "sales_order": SalesOrder,
+    "location": WarehouseLocation,
+    "purchase_order": RestockOrder,
+    "sales_order": SaleOrder,
     "employee": Employee,
     "payment": Payment,
 }
@@ -89,7 +90,7 @@ def product(request):
         Product,
         "employee/product.html",
         "Product",
-        ["product_name", "product_id", "company", "warehouse", "category"],
+        ["ProductName", "ProductID", "supplier", "location", "category"],
         ["Product Name", "Product ID", "Company Name", "Warehouse Name", "Category"],
         {"edit": True, "delete": True, "detail": True}
     )
@@ -101,7 +102,7 @@ def supplier(request):
         Supplier,
         "employee/supplier.html",
         "Supplier",
-        ["contact_name", "supplier_id", "company", "address", "phone"],
+        ["contact_person", "supplier_id", "company_name", "address", "phone_num"],
         ["Contact Name", "Supplier ID", "Company Name", "Address", "Phone Number"],
         {"edit": True, "delete": True, "detail": False}
     )
@@ -113,7 +114,7 @@ def category(request):
         Category,
         "employee/category.html",
         "Category",
-        ["name", "id"],
+        ["CategoryName", "CategoryID"],
         ["Category Name", "Category ID"],
         {"edit": True, "delete": True, "detail": False}
     )
@@ -125,7 +126,7 @@ def warehouse(request):
         Warehouse,
         "employee/warehouse.html",
         "Warehouse",
-        ["name", "warehouse_id", "phone", "address"],
+        ["wname", "warehouse_id", "wphone", "waddress"],
         ["Warehouse Name", "Warehouse ID", "Phone Number", "Address"],
         {"edit": True, "delete": True, "detail": False}
     )
@@ -134,7 +135,7 @@ def warehouse(request):
 def location(request):
     return table_view(
         request,
-        Location,
+        WarehouseLocation,
         "employee/location.html",
         "Location",
         ["location_id", "warehouse", "zone", "aisle", "bin"],
@@ -146,10 +147,10 @@ def location(request):
 def purchase_order(request):
     return table_view(
         request,
-        PurchaseOrder,
+        RestockOrder,
         "employee/purchase_order.html",
         "Purchase Order",
-        ["ordered_date", "purchase_order_id", "supplier", "status"],
+        ["restock_date", "restock_id", "supplier", "restock_status"],
         ["Ordered Date", "Purchase Order ID", "Supplier", "Status"],
         {"edit": False, "delete": False, "detail": True}
     )
@@ -158,10 +159,10 @@ def purchase_order(request):
 def sales_order(request):
     return table_view(
         request,
-        SalesOrder,
+        SaleOrder,
         "employee/sales_order.html",
         "Sales Order",
-        ["ordered_date", "sales_order_id", "customer", "status"],
+        ["order_date", "order_id", "customer", "order_status"],
         ["Ordered Date", "Sales Order ID", "Customer", "Status"],
         {"edit": True, "delete": False, "detail": True},
         show_add=False
@@ -174,8 +175,8 @@ def employee(request):
         Employee,
         "employee/employee.html",
         "Employee",
-        ["name", "employee_id", "role", "phone"],
-        ["Employee Name", "Employee ID", "Role", "Phone Number"],
+        ["EFirstName", "ELastName", "EmployeeID", "role", "EPhone", "EEmail"],
+        ["First Name", "Last Name", "Employee ID", "Role", "Phone Number", "Email"],
         {"edit": True, "delete": True, "detail": False},
     )
 
@@ -186,7 +187,7 @@ def payment(request):
         Payment,
         "employee/payment.html",
         "Payment",
-        ["payment_date", "reference_number", "sales_order", "status"],
+        ["payment_timestamp", "ref_number", "order", "payment_status"],
         ["Payment Date", "Reference Number", "Sales Order ID", "Status"],
         {"edit": False, "delete": False, "detail": False},
         show_add=False,
@@ -275,21 +276,25 @@ def add_item(request, model):
 
         if form.is_valid():
             obj = form.save(commit=False)
-            obj.ordered_date = date.today()
-            obj.status = "pending"
+            if model == "purchase_order":
+                obj.restock_date = timezone.now()
+                obj.restock_status = "Pending"
+
+                obj.employee = Employee.objects.first()
+                obj.location = WarehouseLocation.objects.first()
+            
             obj.save()
 
-            if model == "purchase_order":
-                products = request.POST.getlist("product[]")
-                quantities = request.POST.getlist("quantity[]")
+            products = request.POST.getlist("product[]")
+            quantities = request.POST.getlist("StockQuantity[]")
 
-                for p, q in zip(products, quantities):
-                    if p and q:
-                        PurchaseOrderItem.objects.create(
-                            purchase_order=obj,
-                            product_id=p,
-                            quantity=q
-                        )
+            for p, q in zip(products, quantities):
+                if p and q:
+                    RestockDetail.objects.create(
+                        restock=obj,
+                        product_id=p,
+                        quantity=int(q)
+                    )
 
             return redirect(model)
 
