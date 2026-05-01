@@ -1,0 +1,224 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 280px;
+    z-index: 1;
+    background-color: white;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    overflow-x: hidden;
+    padding-top: 10px;
+}
+
+.sidebar ul {
+    position: relative;
+    height: 97vh;
+}
+
+.sidebar ul li {
+    list-style: none;
+    margin: 0 20px;
+    border-radius: 6px;
+}
+
+.sidebar ul li:hover {
+    background: #FEF6F5; 
+    transition: 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    color: #F297A0;;
+}
+
+.sidebar ul li.active {
+    background: #FEF6F5;
+}
+
+.sidebar ul li.active a {
+    color: #F297A0;
+}
+
+.sidebar ul li a{
+    position: relative;
+    display: flex;
+    white-space: nowrap;
+    text-decoration: none;
+    color: #344054;
+}
+
+
+.sidebar ul li .logo{
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.sidebar ul li .logo img {
+    width: 150px;
+    height: 100%;
+}
+
+.sidebar ul li:first-child {
+    border-bottom: 1px solid #E4E7EC;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.sidebar ul li:last-child{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.sidebar ul li .icon{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 50px;
+    height: 40px;
+    font-size: 24px;
+}
+
+.sidebar ul li .text{
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.profile-box {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.profile {
+    border-top: 1px solid #E4E7EC;
+    padding-top: 12px;
+}
+
+.profile a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.user {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.user .name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.user .role {
+    font-size: 14px;
+    color: #667085;
+}
+
+.logout {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    cursor: pointer;
+    transform: translateX(8px);
+    text-decoration: none;
+}
+
+.logout ion-icon {
+    font-size: 28px;
+}
+
+/*no hover bottom*/
+.sidebar ul li.no-hover:hover {
+    background: transparent;
+}
+
+.sidebar ul li.no-hover a:hover {
+    color: #344054;
+}
+
+/*responsive*/
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .sidebar ul li .text {
+        font-size: 14px;
+    }
+
+    .sidebar ul li .icon {
+        min-width: 45px;
+        font-size: 22px;
+    }
+
+    .sidebar ul li .logo img {
+        width: 130px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+    }
+
+    .sidebar ul li .text,
+    .user {
+        display: none;
+    }
+
+    .profile .icon {
+        display: none !important;
+    }
+
+
+    .sidebar ul li .icon {
+        min-width: 100%;
+        justify-content: center;
+    }
+
+    .sidebar ul li .logo img {
+        width: 50px;
+    }
+
+
+    .profile-box {
+        justify-content: center;
+    }
+
+
+    .logout {
+        margin-left: 0;
+        transform: none;
+    }
+
+}
+@media (max-width: 480px) {
+    .sidebar {
+        width: 65px;
+    }
+
+    .sidebar ul li {
+        margin: 0 10px;
+    }
+
+    .sidebar ul li .icon {
+        font-size: 20px;
+        height: 36px;
+    }
+}

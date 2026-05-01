@@ -12,11 +12,11 @@ const ORDERS_API_BASE = "http://127.0.0.1:8000";
 const ORDERS_MOCK = [
   {
     order_id: 10025,
-    status: "Pending",   // Pending | Received | In_transit | Complete | Cancelled
+    order_status: "Pending",   // Pending | Received | In transit | Cancelled
     delivery_date: null,
     address: "Carnaby Street, London, W1F 9PB",
-    total: "9040.00",
-    items: [
+    total_amount: "9040.00",
+    details: [
       {
         item_id: 1,
         product_name: "VOXLÖV วอกซ์เลิฟ",
@@ -43,12 +43,15 @@ const ORDERS_MOCK = [
 //  API layer
 // ============================================================
 
+// customer_id — ในระบบจริงดึงจาก session/localStorage
+const ORDERS_CUSTOMER_ID = 1;
+
 async function fetchOrders() {
   if (ORDERS_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(ORDERS_MOCK), 120));
   }
-  // GET /api/orders/   (list ของ user ที่ login อยู่)
-  const res = await fetch(`${ORDERS_API_BASE}/api/orders/`);
+  // GET /api/orders/saleorders/?customer_id=<id>
+  const res = await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/?customer_id=${ORDERS_CUSTOMER_ID}`);
   return res.json();
 }
 
@@ -56,10 +59,10 @@ async function apiCancelOrder(orderId) {
   if (ORDERS_USE_MOCK) {
     return new Promise((resolve) => setTimeout(resolve, 200));
   }
-  await fetch(`${ORDERS_API_BASE}/api/orders/${orderId}/`, {
+  await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: "cancelled" }),
+    body: JSON.stringify({ order_status: "Cancelled" }),
   });
 }
 
@@ -67,10 +70,7 @@ async function apiMarkPaid(orderId) {
   if (ORDERS_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve({ order_status: "Received" }), 200));
   }
-  // PATCH /api/orders/saleorders/{order_id}/   { payment_status: "paid" }
-  // → 200 { order_status: "Received" }
-  // → 500 Server error
-  const res = await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/${orderId}/`, {
+  await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payment_status: "paid" }),
@@ -97,13 +97,12 @@ function getItemImage(item) {
   return `https://placehold.co/80x100/f0ece4/888070?text=${encodeURIComponent(item.product_name[0])}`;
 }
 
-// status from response: Pending | Received | In_transit | Complete | Cancelled
+// status from response: Pending | Received | In transit | Cancelled
 const STATUS_MAP = {
-  Pending:    { label: "Waiting for payment", cls: "pending" },
-  Received:   { label: "Received order",      cls: "in-process" },
-  In_transit: { label: "In transit",          cls: "in-process" },
-  Complete:   { label: "Complete",            cls: "complete"   },
-  Cancelled:  { label: "Cancelled",           cls: "cancel"     },
+  Pending:      { label: "Waiting for payment", cls: "pending"    },
+  Received:     { label: "Received order",      cls: "in-process" },
+  "In transit": { label: "In transit",          cls: "in-process" },
+  Cancelled:    { label: "Cancelled",           cls: "cancel"     },
 };
 
 function getStatusInfo(status) {
@@ -142,9 +141,9 @@ function renderOrderProducts(items) {
 }
 
 function renderOrderCard(order) {
-  const status = getStatusInfo(order.status);
-  const canCancel = ["Pending"].includes(order.status);
- 
+  const status = getStatusInfo(order.order_status);
+  const canCancel = ["Pending"].includes(order.order_status);
+
   return `
     <div class="order-card" id="order-card-${order.order_id}">
       <div class="order-card-header">
@@ -156,12 +155,12 @@ function renderOrderCard(order) {
       <div class="order-meta">
         <div class="order-meta-row">
           <span class="order-meta-label">Status:</span>
-          ${order.status === "Pending"
+          ${order.order_status === "Pending"
             /* Pending → แสดงเป็นปุ่มกดได้ เพื่อเปิด QR overlay */
             ? `<button
                 class="order-meta-value order-status-value ${status.cls}"
                 style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;text-decoration:underline;text-underline-offset:3px;padding:0;"
-                onclick="openOrdersQr(${order.order_id}, '${order.total}')"
+                onclick="openOrdersQr(${order.order_id}, '${order.total_amount}')"
                >${status.label}</button>`
             /* status อื่น → แสดงเป็น span ธรรมดา */
             : `<span class="order-meta-value order-status-value ${status.cls}">${status.label}</span>`
@@ -177,10 +176,10 @@ function renderOrderCard(order) {
         </div>
         <div class="order-meta-row">
           <span class="order-meta-label">Total:</span>
-          <span class="order-meta-value bold">${formatPrice(order.total)}</span>
+          <span class="order-meta-value bold">${formatPrice(order.total_amount)}</span>
         </div>
       </div>
-      ${renderOrderProducts(order.items)}
+      ${renderOrderProducts(order.details)}
     </div>
   `;
 }

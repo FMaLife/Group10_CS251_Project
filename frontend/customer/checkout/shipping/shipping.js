@@ -5,12 +5,10 @@
 const SHIPPING_USE_MOCK = true;
 const SHIPPING_API_BASE = "http://127.0.0.1:8000";
 
-// ดึง cart_id จาก query string ที่ review.js ส่งมา
-const params  = new URLSearchParams(window.location.search);
-const CART_ID = parseInt(params.get("cart_id") || 1);
-
-// customer_id จาก session (ใช้จริงให้ดึงจาก localStorage / cookie)
-const CUSTOMER_ID = parseInt(localStorage.getItem("customer_id") || 1);
+// ดึง cart_id และ customer_id จาก query string ที่ review.js ส่งมา
+const params      = new URLSearchParams(window.location.search);
+const CART_ID     = params.get("cart_id") || 1;
+const CUSTOMER_ID = params.get("customer_id") || 1;
 
 // ============================================================
 //  MOCK DATA  (field ตรงกับ review.js REVIEW_MOCK_CART)
@@ -39,28 +37,18 @@ const SHIPPING_MOCK_CART = {
   ],
 };
 
-// mock saved addresses — GET /api/customers/addresses
 const SHIPPING_MOCK_ADDRESSES = [
-  // uncomment เพื่อทดสอบ autofill
-  // {
-  //   address_id: 3,
-  //   addressType: "House",
-  //   houseNumber: "12/4",
-  //   street: "Sukhumvit",
-  //   subDistrict: "Khlong Toei",
-  //   district: "Khlong Toei",
-  //   province: "Bangkok",
-  //   zipCode: "10110",
-  // },
+  { AddressID: 1, HouseNo: "123", Street: "Sukhumvit", SubDistrict: "Khlong Toei", District: "Khlong Toei", Province: "Bangkok", ZipCode: "10110", is_default: true },
 ];
 
 // ============================================================
 //  State
 // ============================================================
 
-let shippingCartData = null;   // cart object จาก API
-let savedAddressId   = null;   // address_id ที่มีอยู่แล้ว (ถ้ามี)
-let orderIdCreated   = null;   // order_id หลัง place order สำเร็จ
+let shippingCartData  = null;
+let orderIdCreated    = null; // เก็บ order_id หลัง place order สำเร็จ
+let paymentStatus     = "pending"; // pending | paid
+let selectedAddressId = null; // address_id ที่เลือกสำหรับ POST /api/orders/saleorders/
 
 // ============================================================
 //  API layer
@@ -73,55 +61,42 @@ async function fetchShippingCart() {
     return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_CART), 100));
   }
   const res = await fetch(`${SHIPPING_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
-  if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
   return res.json();
 }
 
-// Step 2 — โหลดที่อยู่ที่บันทึกไว้
-// GET /api/customers/addresses
-async function fetchSavedAddresses() {
+async function fetchAddresses() {
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_ADDRESSES), 80));
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses`);
-  if (!res.ok) throw new Error(`Address fetch failed: ${res.status}`);
-  return res.json(); // { addresses: [...] }
+  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses/`);
+  return res.json();
 }
 
-// Place Order Step 1 — บันทึกที่อยู่
-// POST /api/customers/addresses/add
-// body: { addressType, houseNumber, street, subDistrict, district, province, zipCode }
-// → 201 { address: { address_id, ... } }
-// → 400 Missing fields  /  400 { errors: { zipCode: "..." } }
-async function apiSaveAddress(addressPayload) {
-  if (SHIPPING_USE_MOCK) {
-    return new Promise((resolve) =>
-      setTimeout(() => resolve({ address: { address_id: 3, ...addressPayload } }), 200)
-    );
-  }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses/add`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(addressPayload),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    // ส่ง error กลับพร้อม status เพื่อให้ handler จัดการได้
-    const err = new Error("Save address failed");
-    err.status = res.status;
-    err.data   = data;
-    throw err;
-  }
-  return data;
+function renderAddressSelector(addresses) {
+  const container = document.getElementById("address-selector");
+  if (!container || !addresses.length) return;
+
+  const defaultAddr = addresses.find((a) => a.is_default) || addresses[0];
+  selectedAddressId = defaultAddr.AddressID;
+
+  container.innerHTML = `
+    <label class="form-label" for="address-select">Select delivery address</label>
+    <select id="address-select" class="form-input" onchange="handleAddressSelect(this.value)">
+      ${addresses.map((a) => `
+        <option value="${a.AddressID}" ${a.AddressID === defaultAddr.AddressID ? "selected" : ""}>
+          ${[a.HouseNo, a.Street, a.SubDistrict, a.District, a.Province, a.ZipCode].filter(Boolean).join(", ")}
+        </option>
+      `).join("")}
+    </select>
+  `;
 }
 
-// Place Order Step 2 — สร้าง order
-// POST /api/orders/saleorders/
-// body: { cart_id, address_id }
-// → 201 { order_id }
-// → 400 cart_id absent / address_id absent / cart empty
-// → 404 Cart not found / Address not found
-async function apiCreateOrder(cartId, addressId) {
+function handleAddressSelect(addressId) {
+  selectedAddressId = parseInt(addressId, 10);
+}
+
+async function apiPlaceOrder(payload) {
+  // POST /api/orders/saleorders/   { cart_id, address_id }
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) =>
       setTimeout(() => resolve({ order_id: Math.floor(10000 + Math.random() * 90000) }), 300)
@@ -147,10 +122,11 @@ async function apiCreateOrder(cartId, addressId) {
 // → 200 { order_status: "Received" }
 // → 500 Server error
 async function apiMarkPaid(orderId) {
+  // PATCH /api/orders/saleorders/{order_id}/   { payment_status: "paid" }
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve({ order_status: "Received" }), 200));
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/orders/saleorders/${orderId}/`, {
+  await fetch(`${SHIPPING_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payment_status: "paid" }),
@@ -338,49 +314,18 @@ async function handlePlaceOrder() {
   const f = getAddressFields();
 
   try {
-    // ── Place Order Step 1: บันทึก / ใช้ address ──────────────────
-    let addressId = savedAddressId; // ถ้ามีที่อยู่เดิมจาก API ใช้เลย
-
-    if (!addressId) {
-      // POST /api/customers/addresses/add
-      let saveResult;
-      try {
-        saveResult = await apiSaveAddress(f);
-      } catch (addrErr) {
-        if (addrErr.status === 400) {
-          // highlight เฉพาะ field ที่ API บอกว่า error (เช่น zipCode รูปแบบผิด)
-          const errorFields = parseApiAddressErrors(addrErr.data);
-          if (errorFields.length > 0) {
-            highlightErrors(errorFields);
-            showNotification("Please check the highlighted fields and try again.");
-          } else {
-            showNotification("Address information is incomplete. Please review and try again.");
-          }
-        } else {
-          showNotification("Something went wrong saving your address. Please try again.");
-        }
-        setPlaceOrderBtnState("error");
-        return;
-      }
-      addressId = saveResult.address.address_id;
-    }
-
-    // ── Place Order Step 2: สร้าง order ───────────────────────────
-    // POST /api/orders/saleorders/  { cart_id, address_id }
-    let orderResult;
-    try {
-      orderResult = await apiCreateOrder(CART_ID, addressId);
-    } catch (orderErr) {
-      const msg =
-        orderErr.status === 404 ? "Cart or address not found. Please go back and try again." :
-        orderErr.status === 400 ? "There was a problem with your order. Please go back and try again." :
-        "Something went wrong placing your order. Please try again.";
-      showNotification(msg);
-      setPlaceOrderBtnState("error");
+    if (!selectedAddressId) {
+      showNotification("Please select a delivery address.");
+      btn.disabled = false;
+      btn.querySelector("span").textContent = "Place Order";
       return;
     }
-
-    orderIdCreated = orderResult.order_id;
+    const payload = {
+      cart_id: CART_ID,
+      address_id: selectedAddressId,
+    };
+    const result = await apiPlaceOrder(payload);
+    orderIdCreated = result.order_id;
     openQrOverlay();
 
   } catch (err) {
@@ -448,29 +393,16 @@ function setupAddressListeners() {
 async function initShipping() {
   // ── โหลด cart และ saved addresses พร้อมกัน ───────────────────
   try {
-    const [cartData, addressData] = await Promise.all([
-      fetchShippingCart(),
-      fetchSavedAddresses(),
-    ]);
-
-    // เก็บ cart
+    const [cartData, addresses] = await Promise.all([fetchShippingCart(), fetchAddresses()]);
     shippingCartData = cartData;
     const total = calcTotal(shippingCartData.items);
 
-    document.getElementById("shipping-item-count").textContent = `(${shippingCartData.items.length})`;
-    document.getElementById("shipping-subtotal").textContent   = formatPrice(total);
-    document.getElementById("place-order-total").textContent   = formatPrice(total);
+    document.getElementById("shipping-item-count").textContent =
+      `(${shippingCartData.items.length})`;
+    document.getElementById("shipping-subtotal").textContent = formatPrice(total);
+    document.getElementById("place-order-total").textContent  = formatPrice(total);
 
-    // ตรวจสอบ saved addresses
-    const addresses = addressData?.addresses ?? addressData; // รองรับทั้ง { addresses: [] } และ []
-    if (Array.isArray(addresses) && addresses.length > 0) {
-      // มีที่อยู่เดิม → autofill และเก็บ address_id ไว้ใช้ตอน place order
-      const primary    = addresses[0];       // ใช้ address แรกก่อน (ปรับ logic ถ้ามี default)
-      savedAddressId   = primary.address_id;
-      autofillAddress(primary);
-    }
-    // ถ้าไม่มี → ปล่อยให้ user กรอกเอง (savedAddressId ยังเป็น null)
-
+    renderAddressSelector(addresses);
   } catch (err) {
     console.error("Shipping init failed:", err);
     showNotification("Failed to load cart data. Please refresh the page.");
