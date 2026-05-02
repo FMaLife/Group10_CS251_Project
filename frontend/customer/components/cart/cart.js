@@ -377,6 +377,28 @@ async function handleDecreaseQty(itemId) {
   }
 }
 
+// เพิ่มสินค้าเข้า cart
+async function addCartItem(productId, qty) {
+  const customer = getCustomer();
+  if (!customer?.customerID) { redirectToLogin(); return; }
+
+  // ต้องมี cartId ก่อน — ถ้ายังไม่มีให้ fetch
+  if (!cartId) {
+    const res = await fetch(`${CART_API_BASE}/api/cart/?customer=${customer.customerID}`);
+    if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
+    const data = await res.json();
+    cartId = data.cart_id;
+  }
+
+  const res = await fetch(`${CART_API_BASE}/api/cart/items/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ cart: cartId, product: productId, quantity: qty }),
+  });
+  if (!res.ok) throw new Error(`Add item failed: ${res.status}`);
+  return res.json();
+}
+
 // ลบสินค้าออกจาก cart
 async function handleRemoveItem(itemId) {
   try {
@@ -426,6 +448,17 @@ function initCart() {
     "navbar:openCart",
     openCart
   );
+
+  // ฟัง event เพิ่มสินค้าจาก product page
+  document.addEventListener("cart:addItem", async (e) => {
+    const { product_id, qty } = e.detail;
+    try {
+      await addCartItem(product_id, qty || 1);
+      updateNavbarBadge();
+    } catch (err) {
+      console.error("Add to cart failed:", err);
+    }
+  });
   // กด backdrop → ปิด cart
   document.getElementById("cart-backdrop")
     ?.addEventListener("click", closeCart);
