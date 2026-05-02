@@ -100,7 +100,7 @@ async function apiSaveAddress(addressPayload) {
       setTimeout(() => resolve({ address: { address_id: 3, ...addressPayload } }), 200)
     );
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses/add`, {
+  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses/add/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...addressPayload, customer_id: CUSTOMER_ID }),
