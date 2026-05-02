@@ -10,7 +10,8 @@ const params  = new URLSearchParams(window.location.search);
 const CART_ID = parseInt(params.get("cart_id") || 1);
 
 // customer_id จาก session (ใช้จริงให้ดึงจาก localStorage / cookie)
-const CUSTOMER_ID = parseInt(localStorage.getItem("customer_id") || 1);
+const _shipCustomerRaw = localStorage.getItem("customer");
+const CUSTOMER_ID = _shipCustomerRaw ? (JSON.parse(_shipCustomerRaw).customerID || 1) : 1;
 
 // ============================================================
 //  MOCK DATA  (field ตรงกับ review.js REVIEW_MOCK_CART)
@@ -72,6 +73,7 @@ async function fetchShippingCart() {
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_CART), 100));
   }
+  const res = await fetch(`${SHIPPING_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
   if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
   return res.json();
 }
@@ -101,7 +103,7 @@ async function apiSaveAddress(addressPayload) {
   const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses/add`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(addressPayload),
+    body: JSON.stringify({ ...addressPayload, customer_id: CUSTOMER_ID }),
   });
   const data = await res.json();
   if (!res.ok) {
@@ -180,7 +182,7 @@ function formatPrice(n) {
 function getAddressFields() {
   return {
     addressType:  document.getElementById("field-type")?.value,
-    houseNumber:  document.getElementById("field-house-no")?.value.trim(),
+    houseNo:      document.getElementById("field-house-no")?.value.trim(),
     street:       document.getElementById("field-street")?.value.trim(),
     subDistrict:  document.getElementById("field-subdistrict")?.value.trim(),
     district:     document.getElementById("field-district")?.value.trim(),
@@ -191,7 +193,7 @@ function getAddressFields() {
 
 // สร้าง string สำหรับแสดงใน summary / query string ไปหน้า complete
 function buildAddressString(f) {
-  return [f.houseNumber, f.street, f.addressType, f.subDistrict, f.district, f.province, f.zipCode]
+  return [f.houseNo, f.street, f.addressType, f.subDistrict, f.district, f.province, f.zipCode]
     .filter(Boolean)
     .join(", ");
 }
@@ -203,7 +205,7 @@ function autofillAddress(addr) {
     if (el) el.value = val || "";
   };
   set("field-type",        addr.addressType);
-  set("field-house-no",    addr.houseNumber);
+  set("field-house-no",    addr.houseNo);
   set("field-street",      addr.street);
   set("field-subdistrict", addr.subDistrict);
   set("field-district",    addr.district);
@@ -253,8 +255,8 @@ function setupFieldErrorClear() {
 function parseApiAddressErrors(errData) {
   if (!errData?.errors) return [];
   const keyToFieldId = {
-    zipCode:     "field-postcode",
-    houseNumber: "field-house-no",
+    zipCode:  "field-postcode",
+    houseNo:  "field-house-no",
     street:      "field-street",
     addressType: "field-type",
     subDistrict: "field-subdistrict",
@@ -362,7 +364,7 @@ async function handlePlaceOrder() {
         setPlaceOrderBtnState("error");
         return;
       }
-      addressId = saveResult.address.address_id;
+      addressId = saveResult.address.addressID;
     }
 
     // ── Place Order Step 2: สร้าง order ───────────────────────────
@@ -446,34 +448,30 @@ function setupAddressListeners() {
 // ============================================================
 
 async function initShipping() {
-  // ── โหลด cart และ saved addresses พร้อมกัน ───────────────────
+  // ── โหลด cart (required) ─────────────────────────────────────
   try {
-    const [cartData, addressData] = await Promise.all([
-      fetchShippingCart(),
-      fetchSavedAddresses(),
-    ]);
-
-    // เก็บ cart
-    shippingCartData = cartData;
+    shippingCartData = await fetchShippingCart();
     const total = calcTotal(shippingCartData.items);
 
     document.getElementById("shipping-item-count").textContent = `(${shippingCartData.items.length})`;
     document.getElementById("shipping-subtotal").textContent   = formatPrice(total);
     document.getElementById("place-order-total").textContent   = formatPrice(total);
-
-    // ตรวจสอบ saved addresses
-    const addresses = addressData?.addresses ?? addressData; // รองรับทั้ง { addresses: [] } และ []
-    if (Array.isArray(addresses) && addresses.length > 0) {
-      // มีที่อยู่เดิม → autofill และเก็บ address_id ไว้ใช้ตอน place order
-      const primary    = addresses[0];       // ใช้ address แรกก่อน (ปรับ logic ถ้ามี default)
-      savedAddressId   = primary.address_id;
-      autofillAddress(primary);
-    }
-    // ถ้าไม่มี → ปล่อยให้ user กรอกเอง (savedAddressId ยังเป็น null)
-
   } catch (err) {
     console.error("Shipping init failed:", err);
     showNotification("Failed to load cart data. Please refresh the page.");
+  }
+
+  // ── โหลด saved addresses (optional) ─────────────────────────
+  try {
+    const addressData = await fetchSavedAddresses();
+    const addresses = addressData?.addresses ?? addressData;
+    if (Array.isArray(addresses) && addresses.length > 0) {
+      const primary  = addresses[0];
+      savedAddressId = primary.addressID;
+      autofillAddress(primary);
+    }
+  } catch {
+    // address fetch ล้มเหลว (เช่น ยังไม่ login) — ให้ user กรอกเอง
   }
 
   setupAddressListeners();

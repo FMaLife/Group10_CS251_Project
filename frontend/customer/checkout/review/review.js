@@ -7,7 +7,8 @@ const REVIEW_API_BASE = "http://127.0.0.1:8000";
 
 // customer_id — ในระบบจริงดึงจาก session/localStorage
 // เปลี่ยนให้ตรงกับ customer ที่ login อยู่
-const CUSTOMER_ID = localStorage.getItem("customer_id") || 1;
+const _customerRaw = localStorage.getItem("customer");
+const CUSTOMER_ID = _customerRaw ? (JSON.parse(_customerRaw).customerID || 1) : 1;
 let reviewCartId = null; // cart_id จาก API response ใช้ส่งต่อไปหน้า shipping
 
 // ============================================================
@@ -144,7 +145,7 @@ function renderItems(items) {
       <div class="review-item" data-item-id="${item.item_id}">
         <img
           class="review-item-img"
-          src="${item.image}"
+          src="${item.image || 'https://placehold.co/56x56/e8e4dc/888070?text=IMG'}"
           alt="${item.product_name}"
         />
         <div class="review-item-name">${item.product_name}</div>
@@ -155,7 +156,7 @@ function renderItems(items) {
         </div>
         <span class="review-item-unit-price">${formatPrice(item.product_price)}</span>
         <button class="review-item-remove" onclick="handleRemoveItem(${item.item_id})" aria-label="Remove">×</button>
-        <div class="review-item-total" id="total-${item.item_id}">${formatPrice(item.subtotal)}</div>
+        <div class="review-item-total" id="total-${item.item_id}">${formatPrice(item.cartitem_total ?? item.subtotal)}</div>
       </div>
     `;
   }).join("");

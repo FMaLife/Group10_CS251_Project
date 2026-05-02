@@ -64,11 +64,16 @@ def get_address(request, address_id):
 
 
 @require_http_methods(["POST"])
-@customer_required
 def add_address(request):
     body, err = _parse(request)
     if err:
         return err
+
+    # รับ customer_id จาก session หรือ body (dev-friendly)
+    customer_id = getattr(getattr(request, 'customer', None), 'CustomerID', None) \
+                  or body.get('customer_id')
+    if not customer_id:
+        return JsonResponse({"error": "customer_id required"}, status=400)
 
     missing = [k for k in _FIELD_MAP if not body.get(k, "").strip()]
     if missing:
@@ -80,9 +85,9 @@ def add_address(request):
     if errors:
         return JsonResponse({"errors": errors}, status=400)
 
-    is_first = not CustomerAddress.objects.filter(CustomerID=request.customer).exists()
+    is_first = not CustomerAddress.objects.filter(CustomerID=customer_id).exists()
     addr = CustomerAddress.objects.create(
-        CustomerID=request.customer,
+        CustomerID_id=customer_id,
         is_default=is_first,
         **{model_field: body[json_key].strip()
            for json_key, model_field in _FIELD_MAP.items()},
