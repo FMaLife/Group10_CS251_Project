@@ -191,7 +191,7 @@ function renderGuestCart() {
 function renderCartItem(item) {
   return `
     <div class="cart-item" data-id="${item.id}">
-      <img class="cart-item-img" src="${item.image}" alt="${item.name}"/>
+      <img class="cart-item-img" src="${item.image || 'https://placehold.co/80x80/e8e4dc/888070?text=IMG'}" alt="${item.name}"/>
       <div class="cart-item-info">
         <div class="cart-item-name">
           ${item.name}

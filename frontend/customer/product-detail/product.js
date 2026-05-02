@@ -70,7 +70,7 @@ let pdState = {
 //  Helpers
 // ============================================================
 function fmt(price, currency = "THB") {
-  return `เธฟ${Number(price).toLocaleString("th-TH", {
+  return `${Number(price).toLocaleString("th-TH", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -86,13 +86,13 @@ function getProductIdFromUrl() {
 //     เธฃเธญเธเธฃเธฑเธเธ—เธฑเนเธ format เนเธซเธกเน (images เน€เธเนเธ object) เนเธฅเธฐ format เน€เธเนเธฒ
 // ============================================================
 function mapToDetailFormat(p) {
-  // รองรับทั้ง PascalCase (API จริง) และ snake_case (mock เก่า)
-  const id        = p.ProductID    ?? p.product_id;
-  const name      = p.ProductName  ?? p.product_name;
-  const price     = parseFloat(p.Price ?? p.price ?? 0);
-  const stock     = (p.StockQuantity ?? p.stock_quantity ?? p.stock ?? 0) > 0;
-  const colorName = p.Color ?? p.color ?? p.default_color ?? "default";
-  const catName   = p.category_name;
+  // รองรับ camelCase (API จริง), PascalCase, และ snake_case (mock เก่า)
+  const id        = p.productId    ?? p.ProductID    ?? p.product_id;
+  const name      = p.productName  ?? p.ProductName  ?? p.product_name;
+  const price     = parseFloat(p.price ?? p.Price ?? 0);
+  const stock     = (p.stockQuantity ?? p.StockQuantity ?? p.stock_quantity ?? p.stock ?? 0) > 0;
+  const colorName = p.color ?? p.Color ?? p.default_color ?? "default";
+  const catName   = p.categoryName ?? p.category_name;
 
   // แปลง images array จาก API → { colorName: [urls] }
   let imagesMap;
@@ -356,7 +356,7 @@ function updateSummary() {
 
   const total = p.price * pdState.qty;
   const name  = pdState.selectedColor
-    ? `${p.product_name} โ€” ${pdState.selectedColor}`
+    ? `${p.product_name} ${pdState.selectedColor}`
     : p.product_name;
 
   setEl("pd-summary-name",       name);
@@ -410,7 +410,7 @@ function setupAddToCart() {
     const label   = btn?.querySelector("span");
     if (btn && label) {
       btn.style.background  = "#458B36";
-      label.textContent     = "Added โ“";
+      label.textContent     = "Added";
       setTimeout(() => {
         btn.style.background = "";
         label.textContent    = "Add to Cart";

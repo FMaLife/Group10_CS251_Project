@@ -66,10 +66,12 @@ class CartItem(models.Model):
 
     def save(self, *args, **kwargs):
         """คำนวณ cartitem_total อัตโนมัติก่อนบันทึก."""
-        # TODO: เมื่อ merge catalog แล้ว ให้ดึงราคาจริงจาก self.product.price
-        # ตอนนี้ใช้ราคา Mock: 500 บาทต่อชิ้นไปก่อน
-        mock_price = 500
-        self.cartitem_total = mock_price * self.quantity
+        from catalog.models import Product
+        try:
+            price = Product.objects.get(pk=self.product).Price
+        except Product.DoesNotExist:
+            price = 0
+        self.cartitem_total = price * self.quantity
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:

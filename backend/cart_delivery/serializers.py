@@ -19,10 +19,18 @@ from rest_framework import serializers
 from .models import Cart, CartItem, Delivery
 
 
+def _get_product(product_id):
+    from catalog.models import Product, ProductImage
+    try:
+        return Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
+        return None
+
+
 class CartItemSerializer(serializers.ModelSerializer):
-    # Stubs — will be filled from FK once `catalog.Product` is merged.
-    product_name = serializers.SerializerMethodField()
+    product_name  = serializers.SerializerMethodField()
     product_price = serializers.SerializerMethodField()
+    image         = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
@@ -32,6 +40,7 @@ class CartItemSerializer(serializers.ModelSerializer):
             "product",
             "product_name",
             "product_price",
+            "image",
             "quantity",
             "added_date",
             "cartitem_total",
@@ -39,14 +48,20 @@ class CartItemSerializer(serializers.ModelSerializer):
         read_only_fields = ["item_id", "added_date", "cartitem_total"]
 
     def get_product_name(self, obj: CartItem):
-        # MOCK: ถ้า ID=101 ให้ชื่อ 'Modern Chair'
-        if obj.product == 101:
-            return "Modern Chair"
-        return f"Product #{obj.product}"
+        product = _get_product(obj.product)
+        return product.ProductName if product else f"Product #{obj.product}"
 
     def get_product_price(self, obj: CartItem):
-        # MOCK: ราคาคงที่ 500 ตามที่ตั้งไว้ใน model save()
-        return 500.00
+        product = _get_product(obj.product)
+        return float(product.Price) if product else 0.0
+
+    def get_image(self, obj: CartItem):
+        from catalog.models import ProductImage
+        primary = ProductImage.objects.filter(ProductID=obj.product, Is_Primary=1).first()
+        if primary:
+            return primary.Image_URL
+        any_img = ProductImage.objects.filter(ProductID=obj.product).first()
+        return any_img.Image_URL if any_img else None
 
 
 class CartItemWriteSerializer(serializers.ModelSerializer):
@@ -55,6 +70,7 @@ class CartItemWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ["cart", "product", "quantity"]
+        validators = []  # unique(cart, product) handled by get_or_create in view
         extra_kwargs = {
             "quantity": {"required": False, "default": 1},
         }
