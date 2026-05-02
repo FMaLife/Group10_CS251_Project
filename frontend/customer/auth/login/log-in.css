@@ -1,0 +1,386 @@
+/* ============================================================
+   SMART FURNITURE WAREHOUSE — LOGIN PAGE
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lexend', sans-serif; background: #f8f7f4; color: #1e1e1e; }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --pink-light:   #fce4ec;
+  --pink-mid:     #f8bbd0;
+  --pink-main:    #e87d96;
+  --pink-deep:    #d45f7a;
+  --pink-btn:     #e08898;
+  --olive:        #b5a882;
+  --text-dark:    #3a2d2d;
+  --text-muted:   #9e8989;
+  --white:        #ffffff;
+  --input-border: #e8d5da;
+  --input-focus:  #e87d96;
+  --error:        #d64a4a;
+  --radius-sm:    10px;
+  --radius-md:    18px;
+  --radius-lg:    28px;
+  --transition:   0.25s ease;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Lexend', sans-serif;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  background: var(--white);
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   LEFT PANEL
+   ============================================================ */
+
+.left-panel {
+  position: relative;
+  width: 52%;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #fce4ec 0%, #f8c8d4 40%, #fad4c0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+/* Animated blobs */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  animation: float 8s ease-in-out infinite;
+}
+.blob-1 {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle, #ffffff, #ffffff, #F297A0);
+  top: -80px; left: -60px;
+  animation-delay: 0s;
+}
+.blob-2 {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle, #ffffff, #ffffff, #F297A0);
+  bottom: -60px; right: -40px;
+  animation-delay: 3s;
+}
+.blob-3 {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle, #ffffff, #ffffff, #ff9a9e);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 1.5s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-20px) scale(1.05); }
+}
+
+.blob-3 {
+  animation: float3 8s ease-in-out infinite;
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%       { transform: translate(-50%, -55%) scale(1.05); }
+}
+
+/* Brand logo */
+.brand {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 2rem 3rem;
+}
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 2.5rem;
+  line-height: 1;
+}
+
+.word {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 900;
+  display: block;
+  letter-spacing: -0.5px;
+}
+
+
+
+.brand-desc {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: #6a4848;
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* ============================================================
+   RIGHT PANEL
+   ============================================================ */
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 4rem;
+  position: relative;
+}
+
+.top-icon {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  opacity: 0.7;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 400px;
+  animation: fadeUp 0.6s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.form-subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 2.2rem;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 1.4rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.85rem 3rem 0.85rem 1.1rem;
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--text-dark);
+  background: var(--white);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.input-wrapper input::placeholder {
+  color: #c9b4b8;
+}
+
+.input-wrapper input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px rgba(232, 125, 150, 0.15);
+}
+
+.input-wrapper input.error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(214, 74, 74, 0.12);
+}
+
+.input-icon,
+.toggle-pw {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #c9b4b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: color var(--transition);
+}
+
+.toggle-pw:hover { color: var(--pink-main); }
+
+.error-msg {
+  font-size: 0.8rem;
+  color: var(--error);
+  margin-top: 0.35rem;
+  min-height: 1rem;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+/* Forgot password */
+.form-actions {
+  text-align: right;
+  margin-bottom: 1.6rem;
+  margin-top: -0.6rem;
+}
+
+.forgot {
+  font-size: 0.9rem;
+  color: var(--pink-main);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--transition);
+}
+.forgot:hover { color: var(--pink-deep); text-decoration: underline; }
+
+/* Sign in button */
+.btn-signin {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #e08898 0%, #d4607a 100%);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1.05rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+  box-shadow: 0 6px 20px rgba(212, 96, 122, 0.35);
+}
+
+.btn-signin::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.btn-signin:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(212, 96, 122, 0.45);
+}
+.btn-signin:hover::before { opacity: 1; }
+.btn-signin:active:not(:disabled) { transform: translateY(0); }
+
+.btn-signin:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+/* Loader spinner */
+.btn-loader {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.btn-loader.visible { display: block; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success ripple on button */
+.btn-signin.success {
+  background: linear-gradient(135deg, #6dbf82 0%, #48a860 100%);
+  box-shadow: 0 6px 20px rgba(72, 168, 96, 0.4);
+}
+
+/* Sign up link */
+.signup-link {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 1.4rem;
+}
+.signup-link a {
+  color: var(--pink-main);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.signup-link a:hover { color: var(--pink-deep); text-decoration: underline; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 860px) {
+  body { flex-direction: column; }
+
+  .left-panel {
+    width: 100%;
+    min-height: 320px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    padding: 2rem 1rem;
+  }
+
+  .word.smart    { font-size: 2rem; }
+  .word.furniture { font-size: 3rem; }
+  .word.warehouse { font-size: 2.6rem; }
+
+  .brand-desc { display: none; }
+
+  .right-panel {
+    padding: 2.5rem 1.5rem;
+  }
+}

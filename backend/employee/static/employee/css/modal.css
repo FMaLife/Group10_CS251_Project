@@ -1,0 +1,405 @@
+.modal {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+.hidden {
+    display: none;
+}
+
+.modal-box {
+    background: white;
+    width: 850px;
+    max-width: 95%;
+
+    max-height: 90vh;
+
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+#modal-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(90vh - 60px);
+}
+
+/* Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #E9E9E9;
+    flex-shrink: 0;
+    color: #101828;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+
+.product-detail {
+    padding: 10px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 15px;
+}
+
+.image-box img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f3f3f3;
+}
+
+.info-box div {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #667085;
+    margin-bottom: 2px;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #344054;
+    font-weight: 500;
+}
+
+#modal-content {
+    padding: 20px;
+}
+
+.detail-wrapper {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+
+.detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.detail-item {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+/* รูปอยู่บน */
+.image-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border: 1px solid #DCDCDC;
+    border-radius: 8px;
+    align-items: center;
+    width: 100%;
+    height: 240px;
+}
+
+/* grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+/* แต่ละ field */
+.item {
+    padding: 8px;
+    min-width: 0;
+}
+
+/* หัวข้อ */
+.label {
+    font-size: 14px;
+    color: #344054;
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+
+/* ข้อมูล */
+.value {
+    font-size: 14px;
+    color: #667085;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.detail-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* sales order details: หัวข้อย่อย */
+.detail-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #344054;
+    width: fit-content;
+    border-bottom: 2px solid #344054;
+    padding-bottom: 2px;
+}
+
+/* FORMS */
+.form-box {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    color: #344054;
+    font-weight: 500;
+}
+
+.form-group input {
+    padding: 10px 12px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    color: #667085 ;
+}
+
+.form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    height: 150px;
+    color: #667085 ;
+}
+
+.form-group select {
+    padding: 10px 12px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    color: #667085 ;
+}
+
+.form-group input:focus {
+    border-color: #F297A0;
+    box-shadow: 0 0 0 3px rgba(242, 151, 160, 0.2);
+}
+
+/*save button */
+.form-box button[type="submit"] {
+    position: sticky;
+    bottom: 0;
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #F297A0;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/*Form-layout*/
+.form-layout-layout {
+    padding: 20px;
+    min-height: 100%;
+}
+
+.form-layout .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 240px));
+    gap: 16px 40px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-layout .form-image {
+    grid-row: span 3;
+    width: 100%;
+}
+
+.form-layout .dimension-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.form-layout input,
+.form-layout select {
+    color: #667085 ;
+    font-size: 14px;
+
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+
+    padding: 10px 12px;
+
+    outline: none;
+    background: white;
+}
+
+.form-layout input:focus,
+.form-layout select:focus {
+    border-color: #F297A0;
+    box-shadow: 0 0 0 3px rgba(242,151,160,0.2);
+}
+
+.form-image {
+    grid-row: span 4;
+    width: 100%;
+}
+
+.form-layout input[type="file"] {
+    width: 100%;
+    height: 240px;
+    padding: 8px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+}
+
+.form-layout label {
+    font-size: 12px;
+    color: #344054;
+    font-weight: 500;
+}
+
+.form-layout input::placeholder {
+    color: #667085;
+}
+
+.save-btn {
+    margin-top: 20px;
+    padding: 10px 16px;
+    background: #F297A0;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+#id_image {
+    display: none;
+}
+
+.image-box ion-icon {
+    pointer-events: none;
+    border: 4px solid #DCDCDC;
+    border-radius: 50px;
+    color: #DCDCDC;
+    width: 50px;
+    height: 50px;
+}
+
+.dimension-field input{
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.supplier-field{
+    grid-column: span 2;
+}
+
+.quantity-field {
+    grid-column: 3;
+}
+
+.status-feild{
+    width: 120px;
+}
+
+.warehouse-feild{
+    grid-column: span 3;
+}
+
+.add-row {
+    background-color: white;
+    border: none;
+}
+
+.add-row ion-icon{
+    background-color: white;
+    border: 2px solid #F297A0;
+    border-radius: 50%;
+    color: #F297A0;
+}
+
+.form-layout .purchase-grid {
+    grid-template-columns: 1fr;
+}
+
+.item-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+#preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sale-grid{
+    grid-template-columns: 1fr 1fr;
+}

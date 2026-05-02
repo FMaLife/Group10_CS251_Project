@@ -1,0 +1,89 @@
+<form method="POST" class="form-box form-layout" enctype="multipart/form-data"
+    {% if is_edit %}
+        action="{% url 'edit_item' model_name object.pk %}"
+    {% else %}
+        action="{% url 'add_item' model_name %}"
+    {% endif %}
+>
+    {% csrf_token %}
+
+    <div class="form-grid">
+
+        <!-- LEFT: IMAGE -->
+        
+        <div class="form-image">
+            <label for="id_image" class="image-box" id="preview-box">
+                {% if form.instance.image %}
+                    <img src="{{ form.instance.image.url }}">
+                {% else %}
+                    <ion-icon name="add"></ion-icon>
+                {% endif %}
+            </label>
+            <input type="file" name="image" id="id_image" hidden>
+        </div>
+        
+        <!-- RIGHT SIDE -->
+
+        <div class="form-group">
+            {{ form.ProductName.label_tag }}
+            {{ form.ProductName }}
+            {{ form.ProductName.errors }}
+        </div>
+
+        <!-- Dimension (W x L x H) -->
+        <div class="form-group dimension-field">
+            <label>Dimension (W x L x H)</label>
+            <div class="dimension-grid">
+                {{ form.Width }}
+                {{ form.Length }}
+                {{ form.Height }}
+            </div>
+            {{ form.Width.errors }}
+            {{ form.Length.errors }}
+            {{ form.Height.errors }}
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            {{ form.category }}
+        </div>
+
+        <div class="form-group">
+            {{ form.Color.label_tag }}
+            {{ form.Color }}
+            {{ form.Color.errors }}
+        </div>
+
+        <div class="form-group">
+            {{ form.location.label_tag }}
+            {{ form.location }}
+            {{ form.location.errors }}
+        </div>
+
+        <div class="form-group">
+            {{ form.Price.label_tag }}
+            {{ form.Price }}
+            {{ form.Price.errors }}
+        </div>
+
+        <div class="form-group supplier-field">
+            {{ form.supplier.label_tag }}
+            {{ form.supplier }}
+            {{ form.supplier.errors }}
+        </div>
+
+        <div class="form-group quantity-field">
+            {{ form.StockQuantity.label_tag }}
+            {{ form.StockQuantity }}
+            {{ form.StockQuantity.errors }}
+        </div>
+
+    </div>
+        <button type="submit" class="save-btn">
+            {% if is_edit %}
+                Save Changes
+            {% else %}
+                Add New Product
+            {% endif %}
+        </button>
+</form>

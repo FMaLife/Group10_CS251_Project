@@ -1,0 +1,23 @@
+<form method="POST" class="form-box"
+    {% if is_edit %}
+        action="{% url 'edit_item' model_name object.pk %}"
+    {% else %}
+        action="{% url 'add_item' model_name %}"
+    {% endif %}
+>
+    {% csrf_token %}
+
+    <div class="form-group">
+        {{ form.CategoryName.label_tag }}
+        {{ form.CategoryName }}
+        {{ form.CategoryName.errors }}
+    </div>
+
+    <button type="submit" class="save-btn">
+        {% if is_edit %}
+            Save Changes
+        {% else %}
+            Add New Catagory
+        {% endif %}
+    </button>
+</form>

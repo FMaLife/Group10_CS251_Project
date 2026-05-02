@@ -1,0 +1,136 @@
+<form method="POST" class="form-box"
+    action="{% url 'edit_item' model_name object.pk%}"
+>
+    {% csrf_token %}
+
+    <div class="detail">
+
+    <div class="detail-layout">
+        <div class="detail-col">
+
+                <div class="detail-section-title">
+                    Customer Details
+                </div>
+
+                <div class="info-grid sale-grid">
+                    <div class="item">
+                        <div class="label">Customer ID</div>
+                        <div class="value">{{ object.customer.CustomerID }}</div>
+                    </div>
+                </div>
+
+                <div class="info-grid sale-grid">
+                    <div class="item">
+                        <div class="label">Full Name</div>
+                        <div class="value">{{ object.customer }}</div>
+                    </div>
+                </div>
+
+                <div class="info-grid sale-grid">
+                    <div class="item">
+                        <div class="label">Phone Number</div>
+                        <div class="value">{{ object.customer.PhoneNumber.0 }}</div>
+                    </div>
+                </div>
+
+                <div class="info-grid sale-grid">
+                    <div class="item">
+                        <div class="label">Address</div>
+                        <div class="value">
+                            {% for addr in object.customer.addresses.all %}
+                                {{ addr.HouseNo }} {{ addr.Street }}, {{ addr.District }}, {{ addr.Province }} {{ addr.ZipCode }}<br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="detail-col">
+
+                <div class="detail-section-title">
+                    Order Details
+                </div>
+
+                <div class="info-grid sale-grid">
+                    <div class="item">
+                        <div class="label">Ordered Date</div>
+                        <div class="value">{{ object.order_date }}</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Order ID</div>
+                        <div class="value">{{ object.order_id }}</div>
+                    </div>
+                </div>
+
+                {% for detail in object.details.all %}
+                <div class="info-grid sale-grid">
+                    <div class="item">
+                        <div class="label">Product ID</div>
+                        <div class="value">{{ detail.product.ProductID }}</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Product Name</div>
+                        <div class="value">{{ detail.product.ProductName }}</div>
+                    </div>
+                </div>
+
+                <div class="info-grid sale-grid">
+                    <div class="item">
+                        <div class="label">Quantity</div>
+                        <div class="value">{{ detail.quantity }}</div>
+                    </div>
+                    <div class="item">
+                        <div class="label">Total Price</div>
+                        <div class="value">{{ detail.subtotal }}</div>
+                    </div>
+                </div>
+
+                {% endfor %}
+
+                <div class="info-grid sale-grid">
+                    <div class="form-group status-feild">
+                        {{ form.order_status.label_tag }}
+                        {{ form.order_status }}
+                        {{ form.order_status.errors }}
+                    </div>
+                </div>
+
+                <div id="delivery-fields" style="display:none;">
+                    <div class="info-grid sale-grid">
+                        <div class="form-group">
+                            {{ form.delivery_name.label_tag }}
+                            {{ form.delivery_name }}
+                            {{ form.delivery_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.tracking_number.label_tag }}
+                            {{ form.tracking_number }}
+                            {{ form.tracking_number.errors }}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="delivery-display" {% if object.order_status != "In transit" %}style="display:none;"{% endif %}>
+                    <div class="info-grid sale-grid">
+                        <div class="item">
+                            <div class="label">Carrier</div>
+                            <div class="value">{{ delivery.delivery_name|default:"-" }}</div>
+                        </div>
+                        <div class="item">
+                            <div class="label">Tracking Number</div>
+                            <div class="value">{{ delivery.tracking_number|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <button type="submit">Update Status</button>
+</form>
+

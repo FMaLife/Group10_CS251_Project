@@ -1,0 +1,63 @@
+{% load static %}
+
+<div class="{{ model_name }}-detail">
+
+    <!-- รูป -->
+    <div class="image-box">
+        {% if object.image %}
+            <img src="{{ object.image.url }}">
+        {% else %}
+            <p>No image</p>
+        {% endif %}
+    </div>
+
+    <!-- ข้อมูล -->
+    <div class="info-grid">
+
+        <div class="item">
+            <div class="label">Product ID</div>
+            <div class="value">{{ object.ProductID }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Supplier ID</div>
+            <div class="value">{{ object.supplier }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Dimension</div>
+            <div class="value">{{ object.Width }} x {{ object.Length }} x {{ object.Height }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Product Name</div>
+            <div class="value">{{ object.ProductName }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Warehouse</div>
+            <div class="value">{{ object.location }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Color</div>
+            <div class="value">{{ object.Color }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Category</div>
+            <div class="value">{{ object.category }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Price</div>
+            <div class="value">{{ object.Price }}</div>
+        </div>
+
+        <div class="item">
+            <div class="label">Quantity</div>
+            <div class="value">{{ object.StockQuantity }}</div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — Smart Furniture Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/frontend/customer/components/navbar/navbar.css" />
+  <link rel="stylesheet" href="/frontend/customer/components/cart/cart.css" />
+  <link rel="stylesheet" href="/frontend/customer/components/footer/footer.css" />
+  <link rel="stylesheet" href="/frontend/customer/checkout/checkout.css" />
+</head>
+<body>
+
+    <!-- Navbar component  -->
+  <div id="navbar-container"></div>
+  <script src="/frontend/customer/components/navbar/navbar.js"></script>
+  <script src="/frontend/customer/components/cart/cart.js"></script>
+  <script>
+    function loadNavbar() {
+      fetch("/frontend/customer/components/navbar/navbar.html")
+        .then((r) => r.text())
+        .then((html) => {
+          document.getElementById("navbar-container").innerHTML = html;
+          initNavbar();
+        });
+    }
+    loadNavbar();
+  </script>
+
+    <!-- ====== Stepper ====== -->
+    <div class="checkout-stepper">
+      <div class="step done" id="step-cart">
+        <div class="step-icon">
+            <svg style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none"><path stroke="#fff" stroke-width="1.5" d="M3.794 14.97c.537 2.687.806 4.03 1.693 4.895q.247.24.53.434C7.04 21 8.41 21 11.15 21h1.703c2.739 0 4.108 0 5.13-.7q.285-.196.53-.435c.888-.865 1.157-2.208 1.694-4.894c.771-3.856 1.157-5.784.269-7.15a4 4 0 0 0-.56-.683C18.75 6 16.785 6 12.853 6H11.15c-3.934 0-5.9 0-7.066 1.138a4 4 0 0 0-.559.683c-.888 1.366-.502 3.294.27 7.15Z"/><circle cx="15" cy="10" r="1" fill="#fff"/><circle cx="9" cy="10" r="1" fill="#fff"/><path stroke="#fff" stroke-linecap="round" stroke-width="1.5" d="M9 6V5a3 3 0 1 1 6 0v1"/></g></svg>
+            <svg class="tick-icon" style="display: inline;" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 16 16"><polyline fill="none" stroke="#458B36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" points="2.75 8.75 6.25 12.25 13.25 4.75"/></svg>
+        </div>
+        <span class="step-label">Shopping Cart</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step active" id="step-checkout">
+        <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><g fill="none" stroke="#fff" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 10h4"/><path stroke-width="1.5" d="M20.833 11h-2.602C16.446 11 15 12.343 15 14s1.447 3 3.23 3h2.603c.084 0 .125 0 .16-.002c.54-.033.97-.432 1.005-.933c.002-.032.002-.071.002-.148v-3.834c0-.077 0-.116-.002-.148c-.036-.501-.465-.9-1.005-.933c-.035-.002-.076-.002-.16-.002Z"/><path stroke-width="1.5" d="M20.965 11c-.078-1.872-.328-3.02-1.137-3.828C18.657 6 16.771 6 13 6h-3C6.229 6 4.343 6 3.172 7.172S2 10.229 2 14s0 5.657 1.172 6.828S6.229 22 10 22h3c3.771 0 5.657 0 6.828-1.172c.809-.808 1.06-1.956 1.137-3.828"/><path stroke-linecap="round" stroke-width="1.5" d="m6 6l3.735-2.477a3.24 3.24 0 0 1 3.53 0L17 6"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.991 14h.01"/></g></svg>
+            <svg class="tick-icon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 16 16"><polyline fill="none" stroke="#458B36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" points="2.75 8.75 6.25 12.25 13.25 4.75"/></svg>
+        </div>
+        <span class="step-label">Checkout</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" id="step-complete">
+        <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24"><g class="ticket-outline"><g fill="#05422C" class="Vector"><path fill-rule="evenodd" d="M21 11a1 1 0 1 0 0 2a1 1 0 1 1 0 2a3 3 0 1 1 0-6a1 1 0 1 1 0 2M3 11a1 1 0 1 1 0 2a1 1 0 1 0 0 2a3 3 0 1 0 0-6a1 1 0 0 0 0 2" clip-rule="evenodd"/><path fill-rule="evenodd" d="M2 8a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v2h-2V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2H2zm2 6v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2h2v2a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4v-2z" clip-rule="evenodd"/><path d="M13 6a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0zm0 5a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0zm0 6a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0z"/></g></g></svg>
+        </div>
+        <span class="step-label">Order Complete</span>
+      </div>
+    </div>
+
+  <main class="checkout-main">
+
+    <!-- Notification -->
+    <div class="notification-bar hidden" id="notification-bar">
+      <span id="notification-text">Notification Area</span>
+      <button class="notification-close" onclick="closeNotification()">×</button>
+    </div>
+
+    <!-- Content -->
+    <div class="checkout-content">
+
+      <!-- Left: Shipping form -->
+      <div class="shipping-section">
+        <div class="shipping-section-header">
+          <h2 class="shipping-section-title">Shipping</h2>
+          <span class="cart-item-count" id="shipping-item-count">(0)</span>
+        </div>
+        <div class="cart-divider"></div>
+
+        <!-- Saved address selector (populated by JS) -->
+        <div id="address-selector" style="margin-top:20px;margin-bottom:12px;"></div>
+
+        <!-- Manual address form (fallback / new address) -->
+        <div class="form-group" style="margin-top:20px;">
+          <div class="form-row-3">
+            <div class="subcol">
+                <label class="form-label">HOUSE NUMBER <span class="required">*</span></label>
+                <input id="field-house-no"   class="form-input" type="text" placeholder="House No." />
+            </div>
+            <div class="subcol">
+                <label class="form-label">STREET <span class="required">*</span></label>
+                <input id="field-street" class="form-input" type="text" placeholder="Street" />
+            </div>
+            <div class="subcol">
+                <label class="form-label">HOUSE TYPE <span class="required">*</span></label>
+                <div class="form-select-wrap">
+                    <select id="field-type" class="form-select">
+                        <option value="">Type</option>
+                        <option value="House">House</option>
+                        <option value="Condo">Condo</option>
+                        <option value="Apartment">Apartment</option>
+                        <option value="Office">Office</option>
+                    </select>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">SUBDISTRICT <span class="required">*</span></label>
+            <input id="field-subdistrict" class="form-input" type="text" placeholder="" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">DISTRICT <span class="required">*</span></label>
+            <input id="field-district" class="form-input" type="text" placeholder="" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">PROVINCE <span class="required">*</span></label>
+            <input id="field-province" class="form-input" type="text" placeholder="" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">POSTCODE / ZIP <span class="required">*</span></label>
+            <input id="field-postcode" class="form-input" type="text" placeholder="e.g. 10110" maxlength="5" inputmode="numeric" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Summary -->
+      <div class="summary-section">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-value" id="shipping-subtotal">— THB</span>
+        </div>
+        <div class="summary-row" id="ship-to-row" style="display:none;">
+          <span class="summary-label">Ship to</span>
+          <span class="summary-ship-to" id="ship-to-value"></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Shipping Costs</span>
+          <span class="summary-value summary-free">Free</span>
+        </div>
+
+        <div class="confirm-row">
+          <label for="confirm-checkbox" style="display:flex;align-items:center;flex-shrink:0;margin-top:1px;cursor:pointer;">
+            <input type="checkbox" class="confirm-checkbox" id="confirm-checkbox"
+              onchange="handleConfirmChange()" />
+            <div class="confirm-checkbox-box">
+              <svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1.5,6 4.5,9.5 10.5,2.5"/>
+              </svg>
+            </div>
+          </label>
+          <span class="confirm-text">
+            I confirm that my address is 100% correct and WILL NOT hold company liable
+            if this shipment is sent to an incorrect address.
+            <span class="required">*</span>
+          </span>
+        </div>
+
+        <button class="place-order-btn" id="place-order-btn" disabled onclick="handlePlaceOrder()">
+          <span>Place Order</span>
+          <span class="place-order-btn-divider">|</span>
+          <span id="place-order-total">0 THB</span>
+        </button>
+        <p class="payment-note">MAKE PAYMENT BY SCANNING THE QR CODE.</p>
+      </div>
+
+    </div>
+
+    <div class="section-divider"></div>
+    
+    <!-- ====== Info cards ====== -->
+    <div class="info-section">
+
+      <div class="info-group">
+        <h3 class="info-group-title">Delivery</h3>
+          <div class="info-card">
+            <div class="info-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#458B36" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13" rx="1"/>
+                <path d="M16 8h4l3 5v3h-7V8z"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </div>
+            <h4 class="info-card-title">Free shipping on every order.</h4>
+            <p class="info-card-desc">No minimum spend required.</p>
+          </div>
+      </div>
+
+      <div class="info-group">
+        <h3 class="info-group-title none">none</h3>
+          <div class="info-card">
+            <div class="info-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#458B36" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                <line x1="12" y1="22.08" x2="12" y2="12"/>
+              </svg>
+            </div>
+            <h4 class="info-card-title">Daily delivery at 12:00PM (excluding holidays).</h4>
+            <p class="info-card-desc">Orders are processed and shipped on schedule.</p>
+          </div>
+      </div>
+
+      <div class="info-group">
+        <h3 class="info-group-title no-returns">No Returns</h3>
+          <div class="info-card">
+            <div class="info-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#458B36" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+            </div>
+            <h4 class="info-card-title">All sales are final. No refunds.</h4>
+            <p class="info-card-desc">Please review your order carefully before checkout.</p>
+          </div>
+      </div>
+
+    </div><!-- /.info-section -->
+
+  </main>
+
+  <!-- QR overlay -->
+  <div class="qr-backdrop" id="qr-backdrop">
+    <div class="qr-modal">
+      <h3 class="qr-title">Scan to Pay</h3>
+      <p class="qr-subtitle">After payment, please wait for the status to update.<br>Once updated, the process is complete.</p>
+      <div class="qr-image-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#000" d="M13 21v-2h2v2zm-2-2v-5h2v5zm8-3v-4h2v4zm-2-4v-2h2v2zM5 14v-2h2v2zm-2-2v-2h2v2zm9-7V3h2v2zM4.5 7.5h3v-3h-3zM3 8V4q0-.425.288-.712T4 3h4q.425 0 .713.288T9 4v4q0 .425-.288.713T8 9H4q-.425 0-.712-.288T3 8m1.5 11.5h3v-3h-3zM3 20v-4q0-.425.288-.712T4 15h4q.425 0 .713.288T9 16v4q0 .425-.288.713T8 21H4q-.425 0-.712-.288T3 20M16.5 7.5h3v-3h-3zM15 8V4q0-.425.288-.712T16 3h4q.425 0 .713.288T21 4v4q0 .425-.288.713T20 9h-4q-.425 0-.712-.288T15 8m2 13v-3h-2v-2h4v3h2v2zm-4-7v-2h4v2zm-4 0v-2H7v-2h6v2h-2v2zm1-5V5h2v2h2v2zM5.25 6.75v-1.5h1.5v1.5zm0 12v-1.5h1.5v1.5zm12-12v-1.5h1.5v1.5z"/></svg>
+      </div>
+      <div class="qr-amount" id="qr-amount">0 THB</div>
+      <div class="qr-actions">
+        <button class="qr-btn qr-btn-later"     onclick="handleQrLater()">Not ready</button>
+        <button class="qr-btn qr-btn-complete"  onclick="handleQrComplete()">Complete</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- footer ใส่ใน tag <body> ส่วนสุดท้าย -->
+    <div id="footer-container"></div>
+    <script src="/frontend/customer/components/footer/footer.js"></script>
+    <script>
+    fetch("/frontend/customer/components/footer/footer.html")
+        .then((r) => r.text())
+        .then((html) => {
+        document.getElementById("footer-container").innerHTML = html;
+        initFooter();
+        });
+    </script>
+
+  <script src="/frontend/customer/checkout/shipping/shipping.js"></script>
+
+</body>
+</html>
