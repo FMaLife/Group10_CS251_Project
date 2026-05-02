@@ -7,7 +7,7 @@ class Category(models.Model):
     CategoryName = models.CharField(max_length=100, unique=True, db_column='category_name')
 
     class Meta:
-        db_table = 'category'
+        db_table = 'Category'
 
     def __str__(self):
         return self.CategoryName
@@ -81,7 +81,7 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True, db_column='is_active')
 
     class Meta:
-        db_table = 'product'
+        db_table = 'Product'
 
     def __str__(self):
         return self.ProductName

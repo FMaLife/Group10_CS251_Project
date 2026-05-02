@@ -70,7 +70,10 @@ def login_page(request):
 # =========================
 
 def table_view(request, model, template, title, columns, headers, actions, show_add=True, show_actions=True):
-    data = model.objects.all()
+    if model is Product:
+        data = model.objects.filter(is_active=True)
+    else:
+        data = model.objects.all()
 
     paginator = Paginator(data, 10)
     page_number = request.GET.get("page")
@@ -272,7 +275,11 @@ def delete_item(request, model, id):
     obj = get_object_or_404(model_class, pk=id)
 
     if request.method == "POST":
-        obj.delete()
+        if model == "product" and hasattr(obj, "is_active"):
+            obj.is_active = False
+            obj.save(update_fields=["is_active"])
+        else:
+            obj.delete()
 
     return redirect(model)
 

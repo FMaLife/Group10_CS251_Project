@@ -135,6 +135,17 @@ function addRow() {
     container.appendChild(row);
 }
 
+document.addEventListener("click", function(e) {
+    const deleteBtn = e.target.closest(".delete-button");
+    if (deleteBtn) {
+        const form = deleteBtn.closest("form");
+        if (form && !confirm("ยืนยันการลบ?")) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }
+}, true);
+
 document.addEventListener("submit", function(e) {
     const form = e.target;
 
