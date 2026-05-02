@@ -85,22 +85,35 @@ function isHomePage() {
 
 function updateProfile(user) {
   const nameEl = document.getElementById("navbar-account-name");
-  const linkEl = document.getElementById("navbar-account-link");
+  const btn    = document.getElementById("navbar-account-btn");
+  const wrap   = document.getElementById("profile-wrap");
 
-  if (!nameEl || !linkEl) return;
+  if (!nameEl) return;
 
   if (!user) {
     nameEl.textContent = "Log in";
-    linkEl.href = "/frontend/customer/auth/login/log-in.html";
+    wrap?.classList.remove("has-user");
+    btn?.addEventListener("click", () => {
+      window.location.href = "/frontend/customer/auth/login/log-in.html";
+    }, { once: true });
     return;
   }
 
-  const fullName = [user.first_name, user.last_name]
-    .filter(Boolean)
-    .join(" ");
-
+  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
   nameEl.textContent = fullName || "Your Account";
-  linkEl.href = "/frontend/customer/profile/profile.html";
+  wrap?.classList.add("has-user");
+}
+
+async function handleLogout() {
+  try {
+    await fetch(`${API_BASE}/api/accounts/customer/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch { /* ถ้า network fail ก็ logout local ต่อ */ }
+
+  localStorage.removeItem("customer");
+  window.location.href = "/frontend/customer/auth/login/log-in.html";
 }
 
 function renderCategories(categories) {
@@ -301,11 +314,14 @@ async function initNavbar() {
   } catch (err) {
     console.error("Navbar init failed:", err);
   }
-  loadUserProfile(); // ดึงจาก localStorage — ไม่ต้องรอ async
+  loadUserProfile();
   setupSearch();
   setupCategoryDropdown();
   setupCartButton();
   setupContactUs();
+
+  document.getElementById("logout-btn")
+    ?.addEventListener("click", handleLogout);
 }
 
 initNavbar();
