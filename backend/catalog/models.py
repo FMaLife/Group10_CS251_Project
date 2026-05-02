@@ -7,7 +7,7 @@ class Category(models.Model):
     CategoryName = models.CharField(max_length=100, unique=True, db_column='category_name')
 
     class Meta:
-        db_table = 'Category'
+        db_table = 'category'
 
     def __str__(self):
         return self.CategoryName
@@ -41,7 +41,7 @@ class Category(models.Model):
     @classmethod
     def getProductsByCategory(cls, categoryID, page=None):
         from django.core.paginator import Paginator
-        products = Product.objects.filter(CategoryID=categoryID)
+        products = Product.objects.filter(category_id=categoryID)
         if page:
             paginator = Paginator(products, 10)
             return paginator.get_page(page)
@@ -78,10 +78,10 @@ class Product(models.Model):
         blank=True,
         related_name='products'
     )
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_column='is_active')
 
     class Meta:
-        db_table = 'Product'
+        db_table = 'product'
 
     def __str__(self):
         return self.ProductName
@@ -130,8 +130,8 @@ class Product(models.Model):
         self.save(update_fields=['location_id'])
 
     def updateCategory(self, categoryID):
-        self.CategoryID_id = categoryID
-        self.save(update_fields=['CategoryID'])
+        self.category_id = categoryID
+        self.save(update_fields=['category_id'])
 
     @classmethod
     def getAll(cls, page=None, pageSize=10):
@@ -148,7 +148,7 @@ class Product(models.Model):
 
     @classmethod
     def getByCategory(cls, categoryID):
-        return cls.objects.filter(CategoryID=categoryID, is_active=True)
+        return cls.objects.filter(category_id=categoryID, is_active=True)
 
     @classmethod
     def search(cls, keyword):

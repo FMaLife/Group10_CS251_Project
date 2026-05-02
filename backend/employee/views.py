@@ -2,8 +2,11 @@ from datetime import date
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+from accounts.utils.permissions import employee_required
 
 from catalog.models import Product, Category
 from stock.models import Supplier, Warehouse, WarehouseLocation, RestockOrder , RestockDetail
@@ -19,7 +22,6 @@ from .forms import (
 # MAPS
 # =========================
 
-# class → string (ส่งไป frontend)
 MODEL_TO_NAME = {
     Product: "product",
     Supplier: "supplier",
@@ -32,7 +34,6 @@ MODEL_TO_NAME = {
     Payment: "payment",
 }
 
-# string → class (รับจาก URL)
 NAME_TO_MODEL = {
     "product": Product,
     "supplier": Supplier,
@@ -57,6 +58,13 @@ FORM_MAP = {
 }
 
 # =========================
+# LOGIN
+# =========================
+@ensure_csrf_cookie
+def login_page(request):
+    return render(request, "employee/log-in.html")
+
+# =========================
 # TABLE VIEW (REUSABLE)
 # =========================
 
@@ -66,6 +74,12 @@ def table_view(request, model, template, title, columns, headers, actions, show_
     paginator = Paginator(data, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
+
+    emp = None
+    emp_id = request.session.get("employee_id")
+
+    if emp_id:
+        emp = Employee.objects.filter(EmployeeID=emp_id).first()
 
     return render(request, template, {
         "title": title,
@@ -78,12 +92,13 @@ def table_view(request, model, template, title, columns, headers, actions, show_
         "delete_url": "delete_item",
         "actions": actions,
         "display_field": columns[0],
+        "employee": emp
     })
 
 # =========================
 # MODULE PAGES
 # =========================
-
+@employee_required
 def product(request):
     return table_view(
         request,
@@ -95,7 +110,7 @@ def product(request):
         {"edit": True, "delete": True, "detail": True}
     )
 
-
+@employee_required
 def supplier(request):
     return table_view(
         request,
@@ -107,7 +122,7 @@ def supplier(request):
         {"edit": True, "delete": True, "detail": False}
     )
 
-
+@employee_required
 def category(request):
     return table_view(
         request,
@@ -119,7 +134,7 @@ def category(request):
         {"edit": True, "delete": True, "detail": False}
     )
 
-
+@employee_required
 def warehouse(request):
     return table_view(
         request,
@@ -131,7 +146,7 @@ def warehouse(request):
         {"edit": True, "delete": True, "detail": False}
     )
 
-
+@employee_required
 def location(request):
     return table_view(
         request,
@@ -143,7 +158,7 @@ def location(request):
         {"edit": True, "delete": True, "detail": False}
     )
 
-
+@employee_required
 def purchase_order(request):
     return table_view(
         request,
@@ -155,7 +170,7 @@ def purchase_order(request):
         {"edit": False, "delete": False, "detail": True}
     )
 
-
+@employee_required
 def sales_order(request):
     return table_view(
         request,
@@ -168,8 +183,15 @@ def sales_order(request):
         show_add=False
     )
 
-
+@employee_required
 def employee(request):
+    show_add = True
+    show_actions = True
+
+    if request.session.get("role") == "Staff":
+        show_add = False
+        show_actions = False
+
     return table_view(
         request,
         Employee,
@@ -178,9 +200,11 @@ def employee(request):
         ["EFirstName", "ELastName", "EmployeeID", "role", "EPhone", "EEmail"],
         ["First Name", "Last Name", "Employee ID", "Role", "Phone Number", "Email"],
         {"edit": True, "delete": True, "detail": False},
+        show_actions=show_actions,
+        show_add=show_add
     )
 
-
+@employee_required
 def payment(request):
     return table_view(
         request,
@@ -197,13 +221,13 @@ def payment(request):
 # =========================
 # ACTIONS
 # =========================
-
+@employee_required
 def edit_item(request, model, id):
     model_class = NAME_TO_MODEL.get(model)
     form_class = FORM_MAP.get(model)
 
     if not model_class or not form_class:
-        return HttpResponse("Not found")
+        raise Http404()
 
     obj = get_object_or_404(model_class, pk=id)
 
@@ -235,7 +259,7 @@ def edit_item(request, model, id):
         context
     )
 
-
+@employee_required
 def delete_item(request, model, id):
     model_class = NAME_TO_MODEL.get(model)
 
@@ -249,7 +273,7 @@ def delete_item(request, model, id):
 
     return redirect(model)
 
-
+@employee_required
 def detail_item(request, model, id):
     model_class = NAME_TO_MODEL.get(model)
 
@@ -265,11 +289,16 @@ def detail_item(request, model, id):
         "object": obj
     })
 
+@employee_required
 def add_item(request, model):
     form_class = FORM_MAP.get(model)
 
     if not form_class:
         return HttpResponse("Form not found")
+
+    if model == "employee":
+        if request.session.get("role") == "Staff":
+            return HttpResponseForbidden("Permission denied")
 
     if request.method == "POST":
         form = form_class(request.POST, request.FILES)
@@ -282,7 +311,7 @@ def add_item(request, model):
 
                 obj.employee = Employee.objects.first()
                 obj.location = WarehouseLocation.objects.first()
-            
+
             obj.save()
 
             products = request.POST.getlist("product[]")

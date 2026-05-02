@@ -25,7 +25,7 @@
                         <div class="value">{{ object.customer }}</div>
                     </div>
                 </div>
-              
+
                 <div class="info-grid sale-grid">
                     <div class="item">
                         <div class="label">Phone Number</div>
@@ -36,7 +36,11 @@
                 <div class="info-grid sale-grid">
                     <div class="item">
                         <div class="label">Address</div>
-                        <div class="value">{{ object.addresses }}</div>
+                        <div class="value">
+                            {% for addr in object.customer.addresses.all %}
+                                {{ addr.HouseNo }} {{ addr.Street }}, {{ addr.District }}, {{ addr.Province }} {{ addr.ZipCode }}<br>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
 
@@ -59,7 +63,7 @@
                         <div class="value">{{ object.order_id }}</div>
                     </div>
                 </div>
-                
+
                 {% for detail in object.details.all %}
                 <div class="info-grid sale-grid">
                     <div class="item">
@@ -82,7 +86,7 @@
                         <div class="value">{{ detail.subtotal }}</div>
                     </div>
                 </div>
-                
+
                 {% endfor %}
 
                 <div class="info-grid sale-grid">

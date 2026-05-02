@@ -10,9 +10,9 @@
     <div class="form-group">
         {{ form.CategoryName.label_tag }}
         {{ form.CategoryName }}
-        {{ form.CategoryName.error }}
+        {{ form.CategoryName.errors }}
     </div>
-    
+
     <button type="submit" class="save-btn">
         {% if is_edit %}
             Save Changes

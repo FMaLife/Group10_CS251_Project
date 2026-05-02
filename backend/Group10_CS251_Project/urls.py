@@ -2,6 +2,10 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.static import serve
 from django.http import JsonResponse
+from django.conf import settings
+from django.conf.urls.static import static
+
+FRONTEND_ROOT = settings.BASE_DIR.parent / "frontend"
 
 def debug_session(request):
     return JsonResponse({
@@ -9,11 +13,6 @@ def debug_session(request):
         "session_key": request.session.session_key,
         "session_data": dict(request.session),
     })
-
-from django.conf import settings
-from django.conf.urls.static import static
-
-FRONTEND_ROOT = settings.BASE_DIR.parent / "frontend"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
