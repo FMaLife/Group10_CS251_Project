@@ -63,6 +63,17 @@
                         </button>
                         {% endif %}
 
+                        {% if actions.update_status %}
+                        {% if row.restock_status == 'Received' %}
+                        <button class="status-button" disabled>Received</button>
+                        {% else %}
+                        <form method="post" action="{% url 'receive_purchase_order' row.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="status-button btn-receive">Mark Received</button>
+                        </form>
+                        {% endif %}
+                        {% endif %}
+
                     </div>
                 </td>
                 {% endif %}

@@ -1,3 +1,17 @@
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        for (const cookie of document.cookie.split(";")) {
+            const c = cookie.trim();
+            if (c.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(c.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 //---------- DETAILS --------------
 function openModal() {
     document.getElementById("modal").classList.remove("hidden");
@@ -177,3 +191,18 @@ document.addEventListener("submit", function(e) {
 function closeAddModal() {
     document.getElementById("add-modal").classList.add("hidden");
 }
+
+document.addEventListener("click", function(e) {
+    const btn = e.target.closest(".btn-receive");
+    if (!btn || btn.disabled) return;
+    if (!confirm("ยืนยันการรับสินค้า?")) return;
+    const id = btn.dataset.id;
+    fetch(`/purchase_order/${id}/receive/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        credentials: "same-origin"
+    }).then(res => {
+        if (res.ok) window.location.reload();
+        else alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    });
+});

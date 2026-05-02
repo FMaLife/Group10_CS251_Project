@@ -2,7 +2,7 @@ from datetime import date
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseForbidden, Http404
+from django.http import HttpResponse, HttpResponseForbidden, Http404, JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -172,8 +172,17 @@ def purchase_order(request):
         "Purchase Order",
         ["restock_date", "restock_id", "supplier", "restock_status"],
         ["Ordered Date", "Purchase Order ID", "Supplier", "Status"],
-        {"edit": False, "delete": False, "detail": True}
+        {"edit": False, "delete": False, "detail": True, "update_status": True}
     )
+
+@employee_required
+def receive_purchase_order(request, id):
+    if request.method == "POST":
+        order = get_object_or_404(RestockOrder, pk=id)
+        if order.restock_status != "Received":
+            order.restock_status = "Received"
+            order.save()
+    return redirect("purchase_order")
 
 @employee_required
 def sales_order(request):

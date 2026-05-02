@@ -18,6 +18,7 @@ urlpatterns = [
     path('employee/', views.employee, name='employee'),
     path('payment/', views.payment, name='payment'),
 
+    path("purchase_order/<int:id>/receive/", views.receive_purchase_order, name="receive_purchase_order"),
     path("delete/<str:model>/<int:id>/", views.delete_item, name="delete_item"),
     path("edit/<str:model>/<int:id>/", views.edit_item, name="edit_item"),
     path("detail/<str:model>/<int:id>/", views.detail_item, name="detail_item"),
