@@ -105,18 +105,22 @@ function mapToDetailFormat(p) {
   const colorName = p.color ?? p.Color ?? p.default_color ?? "default";
   const catName   = p.categoryName ?? p.category_name;
 
-  // แปลง images array จาก API → { colorName: [urls] }
+  // ดึงเฉพาะ primary image รูปเดียว
   let imagesMap;
   if (Array.isArray(p.images)) {
-    const urls = p.images.map(img =>
-      typeof img === "string" ? img : (img.Image_URL ?? img.image_url ?? "")
-    ).filter(Boolean);
-    imagesMap = { [colorName]: urls };
+    const primary = p.images.find(img => img.Is_Primary === 1 || img.isPrimary === 1) || p.images[0];
+    const url = primary
+      ? (typeof primary === "string" ? primary : (primary.Image_URL ?? primary.imageUrl ?? primary.image_url ?? ""))
+      : "";
+    const resolved = url && !url.startsWith("http") ? `${PD_API_BASE}${url.startsWith("/") ? "" : "/"}${url}` : url;
+    imagesMap = { [colorName]: resolved ? [resolved] : [] };
   } else if (p.images && typeof p.images === "object" && !Array.isArray(p.images)) {
     imagesMap = p.images;
   } else {
     imagesMap = { [colorName]: [] };
   }
+
+  const stockQty = p.stockQuantity ?? p.StockQuantity ?? p.stock_quantity ?? 0;
 
   return {
     product_id:    id,
@@ -125,7 +129,8 @@ function mapToDetailFormat(p) {
     category_name: catName,
     price,
     currency:      p.currency || "THB",
-    stock,
+    stock:         stockQty > 0,
+    stockQuantity: stockQty,
     default_color: colorName,
     dimensions:    p.dimensions || null,
     colors:        p.colors?.length ? p.colors : [{ name: colorName, hex: colorNameToHex(colorName) }],
@@ -382,8 +387,11 @@ function updateSummary() {
 // ============================================================
 function setupQty() {
   document.getElementById("btn-plus")?.addEventListener("click", () => {
-    pdState.qty++;
-    updateSummary();
+    const max = pdState.product?.stockQuantity ?? 999;
+    if (pdState.qty < max) {
+      pdState.qty++;
+      updateSummary();
+    }
   });
   document.getElementById("btn-minus")?.addEventListener("click", () => {
     if (pdState.qty > 1) {
@@ -400,6 +408,12 @@ function setupAddToCart() {
   document.getElementById("pd-add-btn")?.addEventListener("click", () => {
     const p = pdState.product;
     if (!p || !p.stock) return;
+
+    const customer = localStorage.getItem("customer");
+    if (!customer) {
+      window.location.href = "/frontend/customer/auth/login/log-in.html";
+      return;
+    }
 
     const images     = getColorImages(p, pdState.selectedColor);
     const firstImage = images[0] || "";
