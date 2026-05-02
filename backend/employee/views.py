@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from accounts.utils.permissions import employee_required
+from accounts.utils.auth import hash_password
 
 from catalog.models import Product, Category
 from stock.models import Supplier, Warehouse, WarehouseLocation, RestockOrder , RestockDetail
@@ -238,7 +239,12 @@ def edit_item(request, model, id):
     if request.method == "POST":
         form = form_class(request.POST, request.FILES, instance=obj)
         if form.is_valid():
-            saved = form.save()
+            saved = form.save(commit=False)
+            if model == "employee":
+                raw_pw = form.cleaned_data.get("EPassword")
+                if raw_pw:
+                    saved.EPassword = hash_password(raw_pw)
+            saved.save()
             if model == "sales_order" and getattr(saved, "order_status", None) in ("In transit", "In_transit"):
                 Delivery.objects.filter(order=saved.order_id).update(delivery_date=date.today())
             return redirect(model)
@@ -315,6 +321,9 @@ def add_item(request, model):
 
         if form.is_valid():
             obj = form.save(commit=False)
+            if model == "employee":
+                raw_pw = form.cleaned_data.get("EPassword")
+                obj.EPassword = hash_password(raw_pw) if raw_pw else ""
             if model == "purchase_order":
                 obj.restock_date = timezone.now()
                 obj.restock_status = "Pending"

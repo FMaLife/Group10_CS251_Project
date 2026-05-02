@@ -146,6 +146,12 @@ class SalesOrderForm(forms.ModelForm):
         return new_status
 
 class EmployeeForm(forms.ModelForm):
+    EPassword = forms.CharField(
+        label="Password",
+        required=False,
+        widget=forms.PasswordInput(attrs={"placeholder": "Leave blank to keep unchanged"}),
+    )
+
     class Meta:
         model = Employee
         fields = ["EFirstName", "ELastName", "role", "EPhone", "EEmail"]
@@ -161,16 +167,10 @@ class EmployeeForm(forms.ModelForm):
             "ELastName": forms.TextInput(attrs={"placeholder": "Enter Last Name"}),
             "EPhone": forms.TextInput(attrs={
                 "placeholder": "Enter Phone Number",
-                "required": True,
                 "pattern": r"\d{9,10}",
                 "title": "Phone must be 9-10 digits"
             }),
-            "EEmail": forms.EmailInput(attrs={
-                "placeholder": "Enter Email",
-                "required": True,
-                "pattern": r"^[\w\.-]+@[\w\.-]+\.\w+$",
-                "title": "Enter a valid email (example@mail.com)"
-            }),
+            "EEmail": forms.EmailInput(attrs={"placeholder": "Enter Email"}),
         }
         
     def __init__(self, *args, **kwargs):
