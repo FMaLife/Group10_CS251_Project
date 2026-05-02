@@ -2,7 +2,7 @@
 //  CONFIG
 // ============================================================
 
-const PROFILE_USE_MOCK = true;
+const PROFILE_USE_MOCK = false;
 const PROFILE_API_BASE = "http://127.0.0.1:8000";
 
 // ============================================================
@@ -27,9 +27,13 @@ async function fetchProfile() {
       setTimeout(() => resolve(MOCK_PROFILE), 100)
     );
   }
-  const res = await fetch(`${PROFILE_API_BASE}/api/profile/`, {
+  const res = await fetch(`${PROFILE_API_BASE}/api/customers/profile`, {
     credentials: "include",
   });
+  if (res.status === 401) {
+    window.location.href = "/frontend/customer/auth/login/log-in.html";
+    return;
+  }
   if (!res.ok) throw new Error("Failed to fetch profile");
   return res.json();
 }
@@ -40,7 +44,7 @@ async function updateProfile(payload) {
       setTimeout(() => resolve({ success: true }), 400)
     );
   }
-  const res = await fetch(`${PROFILE_API_BASE}/api/profile/update/`, {
+  const res = await fetch(`${PROFILE_API_BASE}/api/customers/profile/update`, {
     method:      "PUT",
     credentials: "include",
     headers:     { "Content-Type": "application/json" },
@@ -189,10 +193,10 @@ async function handleSubmit(e) {
   if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
 
   const payload = {
-    first_name: getEl("first-name")?.value.trim(),
-    last_name:  getEl("last-name")?.value.trim(),
-    phone:      getEl("phone")?.value.trim(),
-    email:      getEl("email")?.value.trim(),
+    firstName:   getEl("first-name")?.value.trim(),
+    lastName:    getEl("last-name")?.value.trim(),
+    phoneNumber: [getEl("phone")?.value.trim()],
+    email:       getEl("email")?.value.trim(),
   };
 
   const pw = getEl("password")?.value;
@@ -210,7 +214,7 @@ async function handleSubmit(e) {
 
     // อัปเดต avatar initial
     const initial = getEl("avatar-initial");
-    if (initial) initial.textContent = payload.first_name.charAt(0).toUpperCase();
+    if (initial) initial.textContent = payload.firstName.charAt(0).toUpperCase();
 
   } catch (err) {
     console.error(err);
@@ -247,9 +251,9 @@ async function initProfile() {
 
     // populate fields
     const fields = {
-      "first-name": profile.first_name,
-      "last-name":  profile.last_name,
-      "phone":      profile.phone,
+      "first-name": profile.firstName,
+      "last-name":  profile.lastName,
+      "phone":      Array.isArray(profile.phoneNumber) ? profile.phoneNumber[0] : profile.phoneNumber,
       "email":      profile.email,
     };
     Object.entries(fields).forEach(([id, val]) => {
@@ -257,7 +261,7 @@ async function initProfile() {
       if (el && val !== undefined) el.value = val;
     });
 
-    initAvatar(profile.avatar_url, profile.first_name);
+    initAvatar(null, profile.firstName);
 
   } catch (err) {
     console.error("Profile load failed:", err);
