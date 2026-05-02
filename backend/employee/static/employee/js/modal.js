@@ -103,6 +103,7 @@ function openEdit(model, id) {
         .then(res => res.text())
         .then(html => {
             content.innerHTML = html;
+            initSalesOrderDeliveryFields();
         })
         .catch(() => {
             content.innerHTML = "<p>Error loading form</p>";
@@ -187,6 +188,23 @@ document.addEventListener("submit", function(e) {
         alert("Error submitting form");
     });
 });
+
+function initSalesOrderDeliveryFields() {
+    const sel      = document.getElementById("id_order_status");
+    const box      = document.getElementById("delivery-fields");
+    const carrier  = document.getElementById("id_delivery_name");
+    const tracking = document.getElementById("id_tracking_number");
+    if (!sel || !box) return;
+
+    function toggle() {
+        const isTransit = sel.value === "In transit";
+        box.style.display = isTransit ? "block" : "none";
+        if (carrier)  carrier.required  = isTransit;
+        if (tracking) tracking.required = isTransit;
+    }
+    sel.addEventListener("change", toggle);
+    toggle();
+}
 
 function closeAddModal() {
     document.getElementById("add-modal").classList.add("hidden");

@@ -43,9 +43,15 @@
                     <div class="action-buttons">
 
                         {% if actions.edit %}
+                        {% if model_name == "sales_order" and row.order_status == "Completed" %}
+                        <button class="edit-button" disabled>
+                            <i class="lni lni-pencil-1"></i>
+                        </button>
+                        {% else %}
                         <button class="edit-button btn-edit" data-model="{{ model_name }}" data-id="{{ row.pk }}">
                             <i class="lni lni-pencil-1"></i>
                         </button>
+                        {% endif %}
                         {% endif %}
 
                         {% if actions.delete %}

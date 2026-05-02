@@ -92,8 +92,18 @@
                     <div class="value">{{ object.get_order_status_display }}</div>
                 </div>
                 <div class="item">
+                    <div class="label">Carrier</div>
+                    <div class="value">{{ delivery.delivery_name|default:"-" }}</div>
+                </div>
+            </div>
+            <div class="info-grid sale-grid">
+                <div class="item">
                     <div class="label">Tracking Number</div>
-                    <div class="value">{{ object.track_number }}</div>
+                    <div class="value">{{ delivery.tracking_number|default:"-" }}</div>
+                </div>
+                <div class="item">
+                    <div class="label">Delivery Date</div>
+                    <div class="value">{{ delivery.delivery_date|default:"-" }}</div>
                 </div>
             </div>
 

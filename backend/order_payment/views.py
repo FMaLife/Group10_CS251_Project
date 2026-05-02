@@ -150,8 +150,10 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
         if order_status_input:
             status_map = {
                 "pending": SaleOrder.OrderStatusChoices.PENDING,
+                "received": SaleOrder.OrderStatusChoices.RECEIVED,
                 "in_transit": SaleOrder.OrderStatusChoices.IN_TRANSIT,
                 "in transit": SaleOrder.OrderStatusChoices.IN_TRANSIT,
+                "completed": SaleOrder.OrderStatusChoices.COMPLETED,
                 "cancelled": SaleOrder.OrderStatusChoices.CANCELLED,
             }
 

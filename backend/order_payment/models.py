@@ -6,6 +6,7 @@ class SaleOrder(models.Model):
         PENDING = "Pending", "Pending"
         RECEIVED = "Received", "Received"
         IN_TRANSIT = "In transit", "In transit"
+        COMPLETED = "Completed", "Completed"
         CANCELLED = "Cancelled", "Cancelled"
 
     order_id = models.AutoField(primary_key=True)

@@ -255,10 +255,36 @@ def edit_item(request, model, id):
                     saved.EPassword = hash_password(raw_pw)
             saved.save()
             if model == "sales_order" and getattr(saved, "order_status", None) in ("In transit", "In_transit"):
-                Delivery.objects.filter(order=saved.order_id).update(delivery_date=date.today())
+                carrier  = form.cleaned_data.get("delivery_name", "")
+                tracking = form.cleaned_data.get("tracking_number", "")
+                delivery = Delivery.objects.filter(order=saved.order_id).first()
+                if delivery:
+                    delivery.delivery_name  = carrier
+                    delivery.tracking_number = tracking
+                    delivery.delivery_date   = date.today()
+                    delivery.save()
+                else:
+                    addr = saved.customer.addresses.first()
+                    Delivery.objects.create(
+                        order=saved.order_id,
+                        address=addr.AddressID if addr else 0,
+                        delivery_name=carrier,
+                        tracking_number=tracking,
+                        delivery_date=date.today(),
+                    )
             return redirect(model)
     else:
-        form = form_class(instance=obj)
+        if model == "sales_order":
+            delivery = Delivery.objects.filter(order=obj.order_id).first()
+            initial = {}
+            if delivery:
+                initial = {
+                    "delivery_name": delivery.delivery_name,
+                    "tracking_number": delivery.tracking_number,
+                }
+            form = form_class(instance=obj, initial=initial)
+        else:
+            form = form_class(instance=obj)
 
     context = {
         "form": form,
@@ -273,6 +299,9 @@ def edit_item(request, model, id):
             "warehouses": Warehouse.objects.all(),
             "suppliers": Supplier.objects.all(),
         })
+
+    if model == "sales_order":
+        context["delivery"] = Delivery.objects.filter(order=obj.order_id).first()
 
     return render(
         request,
@@ -307,12 +336,13 @@ def detail_item(request, model, id):
 
     obj = get_object_or_404(model_class, pk=id)
 
-    print("MODEL:", model)
-    print("ID:", id)
+    context = {"object": obj}
 
-    return render(request, f"employee/components/details/{model}_details.html", {
-        "object": obj
-    })
+    if model == "sales_order":
+        from cart_delivery.models import Delivery
+        context["delivery"] = Delivery.objects.filter(order=obj.order_id).first()
+
+    return render(request, f"employee/components/details/{model}_details.html", context)
 
 @employee_required
 def add_item(request, model):

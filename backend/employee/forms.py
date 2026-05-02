@@ -109,7 +109,27 @@ class PurchaseOrderForm(forms.ModelForm):
 
         self.fields['supplier'].empty_label = "Select Supplier"
 
+CARRIER_CHOICES = [
+    ("", "-- Select Carrier --"),
+    ("Kerry Express", "Kerry Express"),
+    ("Flash Express", "Flash Express"),
+    ("SCG Express", "SCG Express"),
+    ("Thailand Post", "Thailand Post"),
+    ("J&T Express", "J&T Express"),
+    ("Ninja Van", "Ninja Van"),
+    ("DHL", "DHL"),
+]
+
 class SalesOrderForm(forms.ModelForm):
+    delivery_name = forms.ChoiceField(
+        label="Carrier", required=False,
+        choices=CARRIER_CHOICES,
+    )
+    tracking_number = forms.CharField(
+        label="Tracking Number", required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Tracking number", "maxlength": "13"})
+    )
+
     class Meta:
         model = SaleOrder
         fields = ["order_status"]
@@ -122,6 +142,8 @@ class SalesOrderForm(forms.ModelForm):
             allowed = {"Cancelled"}
         elif current == "Received":
             allowed = {"In transit"}
+        elif current == "In transit":
+            allowed = {"Completed"}
         else:
             allowed = set()
 
@@ -131,17 +153,26 @@ class SalesOrderForm(forms.ModelForm):
             if label in allowed
         ]
 
+    def clean(self):
+        cleaned = super().clean()
+        new_status = cleaned.get("order_status")
+        if new_status == "In transit":
+            if not cleaned.get("delivery_name"):
+                self.add_error("delivery_name", "กรุณาเลือกบริษัทขนส่ง")
+            if not cleaned.get("tracking_number"):
+                self.add_error("tracking_number", "กรุณากรอกเลข Tracking")
+        return cleaned
+
     def clean_order_status(self):
         new_status = self.cleaned_data.get("order_status")
         current_status = self.instance.order_status if self.instance.pk else None
 
-        # ห้าม cancel order ที่ไม่ใช่ Pending
         if new_status == "Cancelled" and current_status != "Pending":
             raise forms.ValidationError("Can only cancel orders with status Pending.")
-
-        # ห้าม in_transit ถ้ายังไม่ Received
         if new_status == "In transit" and current_status != "Received":
             raise forms.ValidationError("Can only ship orders with status Received.")
+        if new_status == "Completed" and current_status != "In transit":
+            raise forms.ValidationError("Can only complete orders with status In transit.")
 
         return new_status
 
