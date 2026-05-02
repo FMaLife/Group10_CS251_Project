@@ -3,8 +3,8 @@ from django.core.exceptions import ValidationError
 
 
 class Category(models.Model):
-    CategoryID = models.AutoField(primary_key=True)
-    CategoryName = models.CharField(max_length=100, unique=True)
+    CategoryID = models.AutoField(primary_key=True, db_column='category_id')
+    CategoryName = models.CharField(max_length=100, unique=True, db_column='category_name')
 
     class Meta:
         db_table = 'Category'
@@ -49,18 +49,19 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    ProductID = models.AutoField(primary_key=True)
-    ProductName = models.CharField(max_length=150)
-    Price = models.DecimalField(max_digits=12, decimal_places=2)
-    StockQuantity = models.IntegerField(default=0)
-    Color = models.CharField(max_length=50, blank=True, null=True)
-    Height = models.IntegerField(blank=True, null=True)
-    Width = models.IntegerField(blank=True, null=True)
-    Length = models.IntegerField(blank=True, null=True)
+    image = models.ImageField(upload_to='products/', null=True, blank=True, db_column='image')
+    ProductID = models.AutoField(primary_key=True, db_column='product_id')
+    ProductName = models.CharField(max_length=150, db_column='product_name')
+    Price = models.DecimalField(max_digits=12, decimal_places=2, db_column='price')
+    StockQuantity = models.IntegerField(default=0, db_column='stock_quantity')
+    Color = models.CharField(max_length=50, blank=True, null=True, db_column='color')
+    Height = models.IntegerField(blank=True, null=True, db_column='height')
+    Width = models.IntegerField(blank=True, null=True, db_column='width')
+    Length = models.IntegerField(blank=True, null=True, db_column='length')
     category = models.ForeignKey(
         Category,
         on_delete=models.RESTRICT,
-        db_column='CategoryID',
+        db_column='category_id',
         related_name='products'
     )
     location = models.ForeignKey(
@@ -70,7 +71,13 @@ class Product(models.Model):
         blank=True,
         related_name='products'
     )
-    is_active = models.BooleanField(default=True)
+    supplier = models.ForeignKey('stock.Supplier',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products')
+
+    is_active = models.BooleanField(default=True, db_column='is_active')
 
     class Meta:
         db_table = 'Product'
