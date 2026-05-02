@@ -1,21 +1,21 @@
-/* ========================================
-   Smart Furniture Warehouse – home.js
+﻿/* ========================================
+   Smart Furniture Warehouse โ€“ home.js
    ======================================== */
 
 // ============================================================
 //  CONFIG
 // ============================================================
 
-const HOME_USE_MOCK = true;
+const HOME_USE_MOCK = false;
 const HOME_API_BASE = "http://127.0.0.1:8000";
 
 // ============================================================
-//  MOCK DATA — field ตรงกับ response จริงจาก Django
-//  🔥 เพิ่ม images (object แยกตามสี) และ colors array
+//  MOCK DATA โ€” field เธ•เธฃเธเธเธฑเธ response เธเธฃเธดเธเธเธฒเธ Django
+//  ๐”ฅ เน€เธเธดเนเธก images (object เนเธขเธเธ•เธฒเธกเธชเธต) เนเธฅเธฐ colors array
 // ============================================================
 
 const HOME_MOCK_DB = {
-  // ตรงกับ GET /api/catalog/categories/
+  // เธ•เธฃเธเธเธฑเธ GET /api/catalog/categories/
   categories: [
     { category_id: 1, category_name: "Sofas & Chairs" },
     { category_id: 2, category_name: "Tables & Desks" },
@@ -25,10 +25,10 @@ const HOME_MOCK_DB = {
     { category_id: 6, category_name: "Outdoor" },
   ],
 
-  // ตรงกับ GET /api/catalog/products/
-  // 🔥 images เป็น object { colorName: [url, url, ...] }
-  // 🔥 colors เป็น array [{ name, hex }]
-  // 🔥 thumbnail คือรูปแรกของ default_color ใช้แสดงบน card
+  // เธ•เธฃเธเธเธฑเธ GET /api/catalog/products/
+  // ๐”ฅ images เน€เธเนเธ object { colorName: [url, url, ...] }
+  // ๐”ฅ colors เน€เธเนเธ array [{ name, hex }]
+  // ๐”ฅ thumbnail เธเธทเธญเธฃเธนเธเนเธฃเธเธเธญเธ default_color เนเธเนเนเธชเธ”เธเธเธ card
   products: [
     {
       product_id: 1,
@@ -60,7 +60,7 @@ const HOME_MOCK_DB = {
     },
     {
       product_id: 2,
-      product_name: "FRÖSET Chair",
+      product_name: "FRร–SET Chair",
       price: "1990.00",
       stock_quantity: 5,
       default_color: "whiteoak",
@@ -166,7 +166,7 @@ const HOME_MOCK_DB = {
     },
     {
       product_id: 7,
-      product_name: "FRÖSVI Chair",
+      product_name: "FRร–SVI Chair",
       price: "1250.00",
       stock_quantity: 20,
       default_color: "white",
@@ -272,7 +272,7 @@ const HOME_MOCK_DB = {
     },
     {
       product_id: 12,
-      product_name: "ÅFJÄLL ",
+      product_name: "ร…FJรLL ",
       price: "3490.00",
       stock_quantity: 0,
       default_color: "white",
@@ -437,55 +437,55 @@ function colorToCSS(colorName) {
 }
 
 // ============================================================
-//  🔥 getThumbnail — ดึงรูป thumbnail จาก product สำหรับ card
+//  ๐”ฅ getThumbnail โ€” เธ”เธถเธเธฃเธนเธ thumbnail เธเธฒเธ product เธชเธณเธซเธฃเธฑเธ card
 // ============================================================
 function getThumbnail(product) {
   const defaultColor = product.default_color;
 
-  // กรณีที่ images เป็น object แยกตามสี (format ใหม่)
+  // เธเธฃเธ“เธตเธ—เธตเน images เน€เธเนเธ object เนเธขเธเธ•เธฒเธกเธชเธต (format เนเธซเธกเน)
   if (product.images && typeof product.images === "object" && !Array.isArray(product.images)) {
     const colorImages = product.images[defaultColor] || Object.values(product.images)[0] || [];
-    return colorImages[0] || `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.product_name)}`;
+    return colorImages[0] || `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.ProductName)}`;
   }
 
-  // กรณีเป็น string
+  // เธเธฃเธ“เธตเน€เธเนเธ string
   if (typeof product.images === "string") return product.images;
 
-  // กรณีเป็น array
+  // เธเธฃเธ“เธตเน€เธเนเธ array
   if (Array.isArray(product.images) && product.images.length > 0) {
     const first = product.images[0];
     return typeof first === "string" ? first : (first?.image_url || "");
   }
 
-  return `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.product_name)}`;
+  return `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.ProductName)}`;
 }
 
 function buildProductCardHTML(p) {
-  const inStock = p.stock_quantity > 0;
-  const price = parseFloat(p.price).toLocaleString("th-TH", { minimumFractionDigits: 2 });
+  const inStock = p.StockQuantity > 0;
+  const price = parseFloat(p.Price).toLocaleString("th-TH", { minimumFractionDigits: 2 });
   const imgSrc = getThumbnail(p);
 
-  // แสดงสีของ default_color สำหรับ dot บน card
+  // เนเธชเธ”เธเธชเธตเธเธญเธ default_color เธชเธณเธซเธฃเธฑเธ dot เธเธ card
   const displayColor = p.default_color || (p.colors?.[0]?.name ?? "");
   const colorHex = p.colors?.find(c => c.name === displayColor)?.hex || colorToCSS(displayColor);
 
   return `
-    <div class="product-card" onclick="goToProduct(${p.product_id})">
+    <div class="product-card" onclick="goToProduct(${p.ProductID})">
       <div class="card-img-wrap">
-        <img src="${imgSrc}" alt="${p.product_name}" loading="lazy" />
+        <img src="${imgSrc}" alt="${p.ProductName}" loading="lazy" />
         ${!inStock ? `<div class="out-of-stock-badge">Out Of Stock</div>` : ""}
       </div>
       <div class="card-body">
         <div class="card-category">${p.category_name}</div>
-        <div class="card-name">${p.product_name}</div>
+        <div class="card-name">${p.ProductName}</div>
         <div class="card-color-row">
           <div class="color-dot" style="background:${colorHex}"></div>
           <span class="color-label">${displayColor}</span>
         </div>
-        <div class="card-price">฿${price}</div>
+        <div class="card-price">เธฟ${price}</div>
         <button
           class="add-to-cart-btn ${inStock ? "available" : "unavailable"}"
-          onclick="handleAddToCart(event, ${p.product_id})"
+          onclick="handleAddToCart(event, ${p.ProductID})"
           ${!inStock ? "disabled" : ""}
         >
           Add to Cart
@@ -499,7 +499,7 @@ function renderProducts(products) {
   if (!grid) return;
 
   if (products.length === 0) {
-    grid.innerHTML = `<p style="color:#888;font-size:14px;grid-column:1/-1;padding:40px 0;text-align:center;">ไม่พบสินค้าในหมวดหมู่นี้</p>`;
+    grid.innerHTML = `<p style="color:#888;font-size:14px;grid-column:1/-1;padding:40px 0;text-align:center;">เนเธกเนเธเธเธชเธดเธเธเนเธฒเนเธเธซเธกเธงเธ”เธซเธกเธนเนเธเธตเน</p>`;
     return;
   }
 
@@ -520,9 +520,9 @@ function renderSearchResults(query, results) {
         <span class="search-result-title">
           Search results for "<strong>${escapeHtml(query)}</strong>"
         </span>
-        <button class="search-clear-btn" onclick="clearSearchResults()">✕ Clear search</button>
+        <button class="search-clear-btn" onclick="clearSearchResults()">โ• Clear search</button>
       </div>
-      <p class="search-no-result">ไม่พบสินค้าที่ตรงกับ "<strong>${escapeHtml(query)}</strong>"</p>
+      <p class="search-no-result">เนเธกเนเธเธเธชเธดเธเธเนเธฒเธ—เธตเนเธ•เธฃเธเธเธฑเธ "<strong>${escapeHtml(query)}</strong>"</p>
     `;
     section.style.display = "block";
     return;
@@ -534,7 +534,7 @@ function renderSearchResults(query, results) {
         Search results for "<strong>${escapeHtml(query)}</strong>"
         <span class="search-result-count">${results.length} item${results.length > 1 ? "s" : ""}</span>
       </span>
-      <button class="search-clear-btn" onclick="clearSearchResults()">✕ Clear search</button>
+      <button class="search-clear-btn" onclick="clearSearchResults()">โ• Clear search</button>
     </div>
     <div class="product-grid" id="search-result-grid">
       ${results.map(buildProductCardHTML).join("")}
@@ -610,7 +610,7 @@ function searchProductsByName(query) {
   isSearchMode = true;
 
   const matched = homeProducts.filter((p) =>
-    p.product_name.toLowerCase().includes(q) ||
+    p.ProductName.toLowerCase().includes(q) ||
     p.category_name.toLowerCase().includes(q)
   );
 
@@ -632,14 +632,14 @@ function scrollToCategoryByName(query) {
 }
 
 // ============================================================
-//  🔥 goToProduct — บันทึก product object แบบ full ลง localStorage
-//     product.js จะรับไปใช้โดยตรง ไม่ต้อง hardcode อะไรเลย
+//  ๐”ฅ goToProduct โ€” เธเธฑเธเธ—เธถเธ product object เนเธเธ full เธฅเธ localStorage
+//     product.js เธเธฐเธฃเธฑเธเนเธเนเธเนเนเธ”เธขเธ•เธฃเธ เนเธกเนเธ•เนเธญเธ hardcode เธญเธฐเนเธฃเน€เธฅเธข
 // ============================================================
 function goToProduct(productId) {
-  const product = homeProducts.find((p) => p.product_id === productId);
+  const product = homeProducts.find((p) => p.ProductID === productId);
   if (!product) return;
 
-  // บันทึก full product object (มี images object + colors array แล้ว)
+  // เธเธฑเธเธ—เธถเธ full product object (เธกเธต images object + colors array เนเธฅเนเธง)
   localStorage.setItem("selectedProduct", JSON.stringify(product));
   window.location.href = `/frontend/customer/product-detail/product-detail.html?id=${productId}`;
 }
@@ -681,3 +681,4 @@ async function initHome() {
 }
 
 document.addEventListener("DOMContentLoaded", initHome);
+

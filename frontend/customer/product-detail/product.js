@@ -1,16 +1,16 @@
-/* ============================================================
-   product-detail.js — Smart Furniture Warehouse
-   🔥 ดึงข้อมูลจาก localStorage (บันทึกโดย home.js goToProduct)
-      format ตรงกันเลย ไม่ต้อง hardcode images หรือ colors
+﻿/* ============================================================
+   product-detail.js โ€” Smart Furniture Warehouse
+   ๐”ฅ เธ”เธถเธเธเนเธญเธกเธนเธฅเธเธฒเธ localStorage (เธเธฑเธเธ—เธถเธเนเธ”เธข home.js goToProduct)
+      format เธ•เธฃเธเธเธฑเธเน€เธฅเธข เนเธกเนเธ•เนเธญเธ hardcode images เธซเธฃเธทเธญ colors
    ============================================================ */
 
 // ============================================================
-//  CONFIG (ใช้เมื่อไม่มีข้อมูลจาก localStorage — fallback)
+//  CONFIG (เนเธเนเน€เธกเธทเนเธญเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธเธฒเธ localStorage โ€” fallback)
 // ============================================================
-const PD_USE_MOCK = true;
+const PD_USE_MOCK = false;
 const PD_API_BASE = "http://127.0.0.1:8000";
 
-// Mock fallback (กรณีเข้าหน้านี้โดยตรงไม่ผ่าน home)
+// Mock fallback (เธเธฃเธ“เธตเน€เธเนเธฒเธซเธเนเธฒเธเธตเนเนเธ”เธขเธ•เธฃเธเนเธกเนเธเนเธฒเธ home)
 const PD_MOCK_PRODUCTS = [
   {
     product_id: 1,
@@ -40,7 +40,7 @@ const PD_MOCK_PRODUCTS = [
 ];
 
 // ============================================================
-//  API Layer (fallback เมื่อไม่มี localStorage)
+//  API Layer (fallback เน€เธกเธทเนเธญเนเธกเนเธกเธต localStorage)
 // ============================================================
 async function pdFetchProduct(id) {
   if (PD_USE_MOCK) {
@@ -70,7 +70,7 @@ let pdState = {
 //  Helpers
 // ============================================================
 function fmt(price, currency = "THB") {
-  return `฿${Number(price).toLocaleString("th-TH", {
+  return `เธฟ${Number(price).toLocaleString("th-TH", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -82,59 +82,51 @@ function getProductIdFromUrl() {
 }
 
 // ============================================================
-//  🔥 mapToDetailFormat — แปลง format จาก home.js → product detail
-//     รองรับทั้ง format ใหม่ (images เป็น object) และ format เก่า
+//  ๐”ฅ mapToDetailFormat โ€” เนเธเธฅเธ format เธเธฒเธ home.js โ’ product detail
+//     เธฃเธญเธเธฃเธฑเธเธ—เธฑเนเธ format เนเธซเธกเน (images เน€เธเนเธ object) เนเธฅเธฐ format เน€เธเนเธฒ
 // ============================================================
 function mapToDetailFormat(p) {
-  // ถ้า images เป็น object { colorName: [urls] } แล้ว — ใช้เลย
-  if (p.images && typeof p.images === "object" && !Array.isArray(p.images)) {
-    return {
-      product_id:    p.product_id,
-      sku:           p.sku || `FW-${String(p.product_id).padStart(4, "0")}`,
-      product_name:  p.product_name,
-      category_name: p.category_name,
-      price:         parseFloat(p.price),
-      currency:      p.currency || "THB",
-      stock:         (p.stock_quantity ?? p.stock ?? 0) > 0,
-      default_color: p.default_color || p.colors?.[0]?.name || null,
-      dimensions:    p.dimensions || null,
-      colors:        p.colors || [],
-      images:        p.images,   // ✅ ใช้ตรงๆ ไม่ต้องแปลง
-    };
-  }
+  // รองรับทั้ง PascalCase (API จริง) และ snake_case (mock เก่า)
+  const id        = p.ProductID    ?? p.product_id;
+  const name      = p.ProductName  ?? p.product_name;
+  const price     = parseFloat(p.Price ?? p.price ?? 0);
+  const stock     = (p.StockQuantity ?? p.stock_quantity ?? p.stock ?? 0) > 0;
+  const colorName = p.Color ?? p.color ?? p.default_color ?? "default";
+  const catName   = p.category_name;
 
-  // ── format เก่า: images เป็น string หรือ array ──────────────
-  let imgUrl = "";
-  if (typeof p.images === "string") {
-    imgUrl = p.images;
-  } else if (Array.isArray(p.images) && p.images.length > 0) {
-    const first = p.images[0];
-    imgUrl = typeof first === "string" ? first : (first?.image_url || "");
+  // แปลง images array จาก API → { colorName: [urls] }
+  let imagesMap;
+  if (Array.isArray(p.images)) {
+    const urls = p.images.map(img =>
+      typeof img === "string" ? img : (img.Image_URL ?? img.image_url ?? "")
+    ).filter(Boolean);
+    imagesMap = { [colorName]: urls };
+  } else if (p.images && typeof p.images === "object" && !Array.isArray(p.images)) {
+    imagesMap = p.images;
+  } else {
+    imagesMap = { [colorName]: [] };
   }
-
-  const colorName = p.color || p.default_color || "default";
-  const colorHex  = p.colors?.[0]?.hex || "#cccccc";
 
   return {
-    product_id:    p.product_id,
-    sku:           p.sku || `FW-${String(p.product_id).padStart(4, "0")}`,
-    product_name:  p.product_name,
-    category_name: p.category_name,
-    price:         parseFloat(p.price),
+    product_id:    id,
+    sku:           p.sku || ("FW-" + String(id).padStart(4, "0")),
+    product_name:  name,
+    category_name: catName,
+    price,
     currency:      p.currency || "THB",
-    stock:         (p.stock_quantity ?? p.stock ?? 0) > 0,
+    stock,
     default_color: colorName,
     dimensions:    p.dimensions || null,
-    colors:        p.colors?.length ? p.colors : [{ name: colorName, hex: colorHex }],
-    images:        { [colorName]: imgUrl ? [imgUrl] : [] },
+    colors:        p.colors?.length ? p.colors : [{ name: colorName, hex: "#cccccc" }],
+    images:        imagesMap,
   };
 }
 
 // ============================================================
-//  Render — Product
+//  Render โ€” Product
 // ============================================================
 function renderProduct(rawProduct) {
-  // แปลง format ก่อนเสมอ
+  // เนเธเธฅเธ format เธเนเธญเธเน€เธชเธกเธญ
   const p = mapToDetailFormat(rawProduct);
   pdState.product       = p;
   pdState.selectedColor = p.default_color || p.colors?.[0]?.name || null;
@@ -160,7 +152,7 @@ function renderProduct(rawProduct) {
   // Price
   setEl("pd-price", fmt(p.price, p.currency));
 
-  // Gallery (รูปของ default_color)
+  // Gallery (เธฃเธนเธเธเธญเธ default_color)
   const initImages = getColorImages(p, pdState.selectedColor);
   renderGallery(initImages);
 
@@ -177,7 +169,7 @@ function renderProduct(rawProduct) {
 }
 
 // ============================================================
-//  🔥 getColorImages — ดึง array ของรูปตามสีที่เลือก
+//  ๐”ฅ getColorImages โ€” เธ”เธถเธ array เธเธญเธเธฃเธนเธเธ•เธฒเธกเธชเธตเธ—เธตเนเน€เธฅเธทเธญเธ
 // ============================================================
 function getColorImages(product, colorName) {
   if (!product.images) return [];
@@ -189,7 +181,7 @@ function getColorImages(product, colorName) {
 }
 
 // ============================================================
-//  Render — Gallery (main image + thumbnails)
+//  Render โ€” Gallery (main image + thumbnails)
 // ============================================================
 function renderGallery(images) {
   const mainImg  = document.getElementById("pd-main-img");
@@ -249,7 +241,7 @@ function switchImage(images, idx) {
 
   pdState.activeThumb = idx;
 
-  // อัปเดต zoom btn ให้ชี้ไปรูปที่เลือก
+  // เธญเธฑเธเน€เธ”เธ• zoom btn เนเธซเนเธเธตเนเนเธเธฃเธนเธเธ—เธตเนเน€เธฅเธทเธญเธ
   const zoomBtn = document.getElementById("pd-zoom-btn");
   if (zoomBtn) zoomBtn.onclick = () => openZoom(images[idx]);
 }
@@ -269,7 +261,7 @@ function closeZoom() {
 }
 
 // ============================================================
-//  Render — Dimensions
+//  Render โ€” Dimensions
 // ============================================================
 function renderDimensions(dimensions) {
   const dimsEl  = document.getElementById("pd-dims");
@@ -290,7 +282,7 @@ function renderDimensions(dimensions) {
 }
 
 // ============================================================
-//  Render — Colors
+//  Render โ€” Colors
 // ============================================================
 function renderColors(colors) {
   const colorsEl  = document.getElementById("pd-colors");
@@ -321,7 +313,7 @@ function renderColors(colors) {
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
-      // 🔥 เปลี่ยน gallery ตามสีที่เลือก
+      // ๐”ฅ เน€เธเธฅเธตเนเธขเธ gallery เธ•เธฒเธกเธชเธตเธ—เธตเนเน€เธฅเธทเธญเธ
       const newImages = getColorImages(pdState.product, pdState.selectedColor);
       renderGallery(newImages);
 
@@ -331,7 +323,7 @@ function renderColors(colors) {
 }
 
 // ============================================================
-//  Render — Stock
+//  Render โ€” Stock
 // ============================================================
 function renderStock(inStock) {
   const stockEl = document.getElementById("pd-stock");
@@ -364,7 +356,7 @@ function updateSummary() {
 
   const total = p.price * pdState.qty;
   const name  = pdState.selectedColor
-    ? `${p.product_name} — ${pdState.selectedColor}`
+    ? `${p.product_name} โ€” ${pdState.selectedColor}`
     : p.product_name;
 
   setEl("pd-summary-name",       name);
@@ -418,7 +410,7 @@ function setupAddToCart() {
     const label   = btn?.querySelector("span");
     if (btn && label) {
       btn.style.background  = "#458B36";
-      label.textContent     = "Added ✓";
+      label.textContent     = "Added โ“";
       setTimeout(() => {
         btn.style.background = "";
         label.textContent    = "Add to Cart";
@@ -435,13 +427,13 @@ function setEl(id, text) {
   if (el) el.textContent = text;
 }
 
-// Escape ปิด zoom
+// Escape เธเธดเธ” zoom
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeZoom();
 });
 
 // ============================================================
-//  🔥 Init — อ่านจาก localStorage ก่อน → fallback API/mock
+//  ๐”ฅ Init โ€” เธญเนเธฒเธเธเธฒเธ localStorage เธเนเธญเธ โ’ fallback API/mock
 // ============================================================
 async function initProductDetail() {
   try {
@@ -449,13 +441,13 @@ async function initProductDetail() {
 
     if (stored) {
       const rawProduct = JSON.parse(stored);
-      renderProduct(rawProduct);   // mapToDetailFormat จะจัดการ format ให้
+      renderProduct(rawProduct);   // mapToDetailFormat เธเธฐเธเธฑเธ”เธเธฒเธฃ format เนเธซเน
       setupQty();
       setupAddToCart();
       return;
     }
 
-    // Fallback: เข้าหน้านี้โดยตรง ดึงจาก URL ?id=
+    // Fallback: เน€เธเนเธฒเธซเธเนเธฒเธเธตเนเนเธ”เธขเธ•เธฃเธ เธ”เธถเธเธเธฒเธ URL ?id=
     const id      = getProductIdFromUrl();
     const product = await pdFetchProduct(id);
     renderProduct(product);
@@ -469,3 +461,4 @@ async function initProductDetail() {
 }
 
 document.addEventListener("DOMContentLoaded", initProductDetail);
+
