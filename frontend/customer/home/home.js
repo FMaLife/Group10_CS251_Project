@@ -1,397 +1,23 @@
-﻿/* ========================================
-   Smart Furniture Warehouse โ€“ home.js
+/* ========================================
+   Smart Furniture Warehouse — home.js
    ======================================== */
 
 // ============================================================
-//  CONFIG
+//  API layer — เรียก API จริง
 // ============================================================
 
-const HOME_USE_MOCK = false;
 const HOME_API_BASE = "http://127.0.0.1:8000";
 
-// ============================================================
-//  MOCK DATA โ€” field เธ•เธฃเธเธเธฑเธ response เธเธฃเธดเธเธเธฒเธ Django
-//  ๐”ฅ เน€เธเธดเนเธก images (object เนเธขเธเธ•เธฒเธกเธชเธต) เนเธฅเธฐ colors array
-// ============================================================
-
-const HOME_MOCK_DB = {
-  // เธ•เธฃเธเธเธฑเธ GET /api/catalog/categories/
-  categories: [
-    { category_id: 1, category_name: "Sofas & Chairs" },
-    { category_id: 2, category_name: "Tables & Desks" },
-    { category_id: 3, category_name: "Beds & Mattresses" },
-    { category_id: 4, category_name: "Curtains & Blinds" },
-    { category_id: 5, category_name: "Storage" },
-    { category_id: 6, category_name: "Outdoor" },
-  ],
-
-  // เธ•เธฃเธเธเธฑเธ GET /api/catalog/products/
-  // ๐”ฅ images เน€เธเนเธ object { colorName: [url, url, ...] }
-  // ๐”ฅ colors เน€เธเนเธ array [{ name, hex }]
-  // ๐”ฅ thumbnail เธเธทเธญเธฃเธนเธเนเธฃเธเธเธญเธ default_color เนเธเนเนเธชเธ”เธเธเธ card
-  products: [
-    {
-      product_id: 1,
-      product_name: "KRYLBO Chair",
-      price: "1690.00",
-      stock_quantity: 10,
-      default_color: "darkbeige",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 52, width: 56, height: 80 },
-      colors: [
-        { name: "darkbeige", hex: "#AC967E" },
-        { name: "blue", hex: "#3a4f6b" },
-      ],
-      images: {
-        darkbeige: [
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-dark-beige.avif",
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-dark-beige2.avif",
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-dark-beige3.avif",
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-dark-beige4.avif",
-        ],
-        blue: [
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-blue.avif",
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-blue2.avif",
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-blue3.avif",
-          "../assets/products/KRYLBO-Chair/krylbo-chair-tonerud-blue4.avif",
-        ],
-      },
-    },
-    {
-      product_id: 2,
-      product_name: "FRร–SET Chair",
-      price: "1990.00",
-      stock_quantity: 5,
-      default_color: "whiteoak",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 57, width: 52, height: 78 },
-      colors: [
-        { name: "whiteoak", hex: "#fff1d3" },
-        { name: "black", hex: "#222222" },
-      ],
-      images: {
-        whiteoak: [
-          "../assets/products/FROSET-Chair/froeset-easy-chair-white.avif",
-          "../assets/products/FROSET-Chair/froeset-easy-chair-white2.avif",
-          "../assets/products/FROSET-Chair/froeset-easy-chair-white3.avif",
-          "../assets/products/FROSET-Chair/froeset-easy-chair-white4.avif",
-        ],
-        black: [
-          "../assets/products/FROSET-Chair/froeset-easy-chair-black.avif",
-          "../assets/products/FROSET-Chair/froeset-easy-chair-black2.avif",
-          "../assets/products/FROSET-Chair/froeset-easy-chair-black3.avif",
-          "../assets/products/FROSET-Chair/froeset-easy-chair-black4.avif",
-        ],
-      },
-    },
-    {
-      product_id: 3,
-      product_name: "SKOGSTA Chair",
-      price: "2150.00",
-      stock_quantity: 0,
-      default_color: "clearwood",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 45, width: 51, height: 92 },
-      colors: [{ name: "clearwood", hex: "#c9ad58" }],
-      images: {
-        brown: [
-          "../assets/products/SKOGSTA-Chair/skogsta-chair-clearwood.avif",
-          "../assets/products/SKOGSTA-Chair/skogsta-chair-clearwood2.avif",
-          "../assets/products/SKOGSTA-Chair/skogsta-chair-clearwood3.avif",
-          "../assets/products/SKOGSTA-Chair/skogsta-chair-clearwood4.avif",
-        ],
-      },
-    },
-    {
-      product_id: 4,
-      product_name: "TULLSTA Chair",
-      price: "5990.00",
-      stock_quantity: 8,
-      default_color: "beige",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 75, width: 75, height: 78 },
-      colors: [
-        { name: "beige", hex: "#d6ceab" },
-
-      ],
-      images: {
-        brown: [
-          "../assets/products/TULLSTA-Chair/tullsta-armchair-lofallet-beige.avif",
-          "../assets/products/TULLSTA-Chair/tullsta-armchair-lofallet-beige2.avif",
-          "../assets/products/TULLSTA-Chair/tullsta-armchair-lofallet-beige3.avif",
-          "../assets/products/TULLSTA-Chair/tullsta-armchair-lofallet-beige4.avif", ,],
-      },
-    },
-    {
-      product_id: 5,
-      product_name: "LISABO Chair",
-      price: "1950.00",
-      stock_quantity: 0,
-      default_color: "whiteoak",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 52, width: 58, height: 95 },
-      colors: [{ name: "whiteoak", hex: "#fff1d3" }],
-      images: {
-        whiteoak: [
-          "../assets/products/LISABO-Chair/lisabo-chair-whiteoak.avif",
-          "../assets/products/LISABO-Chair/lisabo-chair-whiteoak2.avif",
-          "../assets/products/LISABO-Chair/lisabo-chair-whiteoak3.avif",
-          "../assets/products/LISABO-Chair/lisabo-chair-whiteoak4.avif",
-        ],
-      },
-    },
-    {
-      product_id: 6,
-      product_name: "VOXLOV Chair",
-      price: "2450.00",
-      stock_quantity: 12,
-      default_color: "tan",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 46, width: 51, height: 90 },
-      colors: [{ name: "bamboo", hex: "#ffdda3" }],
-      images: {
-        bamboo: [
-          "../assets/products/VOXLOV-Chair/voxloev-chair-light-bamboo.avif",
-          "../assets/products/VOXLOV-Chair/voxloev-chair-light-bamboo2.avif",
-          "../assets/products/VOXLOV-Chair/voxloev-chair-light-bamboo3.avif",
-          "../assets/products/VOXLOV-Chair/voxloev-chair-light-bamboo4.avif",
-        ],
-      },
-    },
-    {
-      product_id: 7,
-      product_name: "FRร–SVI Chair",
-      price: "1250.00",
-      stock_quantity: 20,
-      default_color: "white",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 43, width: 48, height: 87 },
-      colors: [{ name: "white", hex: "#ffffff" }],
-      images: {
-        white: [
-          "../assets/products/FROSVI-Chair/froesvi-folding-chair-white.avif",
-          "../assets/products/FROSVI-Chair/froesvi-folding-chair-white2.avif",
-          "../assets/products/FROSVI-Chair/froesvi-folding-chair-white3.avif",
-          "../assets/products/FROSVI-Chair/froesvi-folding-chair-white4.avif",],
-      },
-    },
-    {
-      product_id: 8,
-      product_name: "TOBIAS Chair",
-      price: "3950.00",
-      stock_quantity: 7,
-      default_color: "clear",
-      category: 1,
-      category_name: "Sofas & Chairs",
-      dimensions: { length: 52, width: 47, height: 87 },
-      colors: [{ name: "clear", hex: "#eafaff" },
-      { name: "red", hex: "#d925258f" },
-      ],
-      images: {
-        clear: [
-          "../assets/products/TOBIAS-Chair/tobias-chair-transparent-chrome-plated.avif",
-          "../assets/products/TOBIAS-Chair/tobias-chair-transparent-chrome-plated2.avif",
-          "../assets/products/TOBIAS-Chair/tobias-chair-transparent-chrome-plated3.avif",
-          "../assets/products/TOBIAS-Chair/tobias-chair-transparent-chrome-plated4.avif",
-        ],
-        red: [
-          "../assets/products/TOBIAS-Chair/tobias-chair-brown-red-chrome-plated.avif",
-          "../assets/products/TOBIAS-Chair/tobias-chair-brown-red-chrome-plated2.avif",
-          "../assets/products/TOBIAS-Chair/tobias-chair-brown-red-chrome-plated3.avif",
-          "../assets/products/TOBIAS-Chair/tobias-chair-brown-red-chrome-plated4.avif",]
-      },
-    },
-    {
-      product_id: 9,
-      product_name: "LISABO Desk",
-      price: "3990.00",
-      stock_quantity: 4,
-      default_color: "veneerash",
-      category: 2,
-      category_name: "Tables & Desks",
-      dimensions: { length: 140, width: 65, height: 74 },
-      colors: [{ name: "veneerash", hex: "#f1e9d5" }],
-      images: {
-        veneerash: [
-          "../assets/products/LISABO-Desk/lisabo-desk-ash.avif",
-          "../assets/products/LISABO-Desk/lisabo-desk-ash2.avif",
-          "../assets/products/LISABO-Desk/lisabo-desk-ash3.avif",
-        ],
-      },
-    },
-    {
-      product_id: 10,
-      product_name: "ALEX Drawer Unit",
-      price: "2950.00",
-      stock_quantity: 6,
-      default_color: "white",
-      category: 2,
-      category_name: "Tables & Desks",
-      dimensions: { length: 36, width: 58, height: 70 },
-      colors: [{ name: "white", hex: "#ffffff" },
-      { name: "blackbrown", hex: "#151005" },
-      ],
-
-      images: {
-        white: [
-          "../assets/products/ALEX-Drawer-Unit/alex-drawer-unit-white.avif",
-          "../assets/products/ALEX-Drawer-Unit/alex-drawer-unit-white2.avif",
-          "../assets/products/ALEX-Drawer-Unit/alex-drawer-unit-white3.avif",],
-        blackbrown: [
-          "../assets/products/ALEX-Drawer-Unit/alex-drawer-unit-black-brown.avif",
-          "../assets/products/ALEX-Drawer-Unit/alex-drawer-unit-black-brown2.avif",
-          "../assets/products/ALEX-Drawer-Unit/alex-drawer-unit-black-brown3.avif",],
-      },
-    },
-    {
-      product_id: 11,
-      product_name: "HEMNES Bed Frame",
-      price: "10290.00",
-      stock_quantity: 3,
-      default_color: "white",
-      category: 3,
-      category_name: "Beds & Mattresses",
-      dimensions: { length: 207, width: 168, height: 114 },
-      colors: [
-        { name: "white", hex: "#f5f5f5" },
-      ],
-      images: {
-        white: [
-          "../assets/products/HEMNES-Bed/hemnes-bed-frame-white-stain.avif",
-          "../assets/products/HEMNES-Bed/hemnes-bed-frame-white-stain2.avif",
-          "../assets/products/HEMNES-Bed/hemnes-bed-frame-white-stain3.avif",
-          "../assets/products/HEMNES-Bed/hemnes-bed-frame-white-stain4.avif",],
-      },
-    },
-    {
-      product_id: 12,
-      product_name: "ร…FJรLL ",
-      price: "3490.00",
-      stock_quantity: 0,
-      default_color: "white",
-      category: 3,
-      category_name: "Beds & Mattresses",
-      dimensions: { length: 200, width: 160, height: 16 },
-      colors: [{ name: "white", hex: "#f5f5f5" }],
-      images: {
-        white: [
-          "../assets/products/AFJALL-Mattress/afjaell-foam-mattress-firm-white.avif",
-          "../assets/products/AFJALL-Mattress/afjaell-foam-mattress-firm-white2.avif",
-          "../assets/products/AFJALL-Mattress/afjaell-foam-mattress-firm-white3.avif",
-          "../assets/products/AFJALL-Mattress/afjaell-foam-mattress-firm-white4.avif",],
-      },
-    },
-    {
-      product_id: 13,
-      product_name: "MAJGULL Curtain",
-      price: "990.00",
-      stock_quantity: 15,
-      default_color: "gray",
-      category: 4,
-      category_name: "Curtains & Blinds",
-      dimensions: { length: 145, width: 0, height: 300 },
-      colors: [
-        { name: "gray", hex: "#909090" },
-        { name: "darkgreen", hex: "#30442c" },
-      ],
-      images: {
-        gray: [
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-grey.avif",
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-grey2.avif",
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-grey3.avif",
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-grey4.avif",],
-        darkgreen: [
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-dark-green.avif",
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-dark-green2.avif",
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-dark-green3.avif",
-          "../assets/products/MAJGULL-Curtain/majgull-block-out-curtains-1-pair-dark-green4.avif",],
-      },
-    },
-    {
-      product_id: 14,
-      product_name: "KALLAX Shelf Unit",
-      price: "1990.00",
-      stock_quantity: 9,
-      default_color: "white",
-      category: 5,
-      category_name: "Storage",
-      dimensions: { length: 77, width: 39, height: 147 },
-      colors: [
-        { name: "white", hex: "#f5f5f5" },
-        { name: "blackbrown", hex: "#151005" },
-        { name: "oak", hex: "#e4cfab" },
-      ],
-      images: {
-        white: [
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white2.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white3.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white4.avif",],
-        blackbrown: [
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-black-brown.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-black-brown2.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-black-brown3.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-black-brown4.avif",],
-        oak: [
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white-stained-oak.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white-stained-oak2.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white-stained-oak3.avif",
-          "../assets/products/KALLAX-Shelf-Unit/kallax-shelving-unit-white-stained-oak4.avif",
-        ]
-      },
-    },
-    {
-      product_id: 15,
-      product_name: "LACKO Bench",
-      price: "3190.00",
-      stock_quantity: 5,
-      default_color: "black",
-      category: 6,
-      category_name: "Outdoor",
-      dimensions: { length: 130, width: 44, height: 74 },
-      colors: [{ name: "black", hex: "#000000" }],
-      images: {
-        black: [
-          "../assets/products/LACKO-Bench/laeckoe-2-seat-sofa-outdoor-black.avif",
-          "../assets/products/LACKO-Bench/laeckoe-2-seat-sofa-outdoor-black2.avif",
-          "../assets/products/LACKO-Bench/laeckoe-2-seat-sofa-outdoor-black3.avif",
-        ],
-      },
-    },
-  ],
-};
-
-// ============================================================
-//  API layer
-// ============================================================
-
-async function homeApiFetch(endpoint) {
-  if (HOME_USE_MOCK) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (endpoint === "/api/catalog/categories/") resolve(HOME_MOCK_DB.categories);
-        else if (endpoint.startsWith("/api/catalog/products/")) resolve(HOME_MOCK_DB.products);
-        else resolve([]);
-      }, 100);
-    });
-  }
-  const res = await fetch(`${HOME_API_BASE}${endpoint}`);
+async function homeGetCategories() {
+  const res = await fetch(`${HOME_API_BASE}/api/catalog/categories/`);
+  if (!res.ok) throw new Error('Categories API error: ' + res.status);
   return res.json();
 }
 
-async function homeGetCategories() {
-  return homeApiFetch("/api/catalog/categories/");
-}
-
 async function homeGetProducts() {
-  return homeApiFetch("/api/catalog/products/");
+  const res = await fetch(`${HOME_API_BASE}/api/catalog/products/`);
+  if (!res.ok) throw new Error('Products API error: ' + res.status);
+  return res.json();
 }
 
 // ============================================================
@@ -417,10 +43,10 @@ function renderFilterButtons(categories) {
 
   categories.forEach((cat) => {
     const btn = document.createElement("button");
-    btn.className = "filter-btn" + (Number(activeCatId) === Number(cat.category_id) ? " active" : "");
-    btn.textContent = cat.category_name;
-    btn.dataset.catId = cat.category_id;
-    btn.addEventListener("click", () => filterByCategory(cat.category_id));
+    btn.className = "filter-btn" + (Number(activeCatId) === Number(cat.categoryId) ? " active" : "");
+    btn.textContent = cat.categoryName;
+    btn.dataset.catId = cat.categoryId;
+    btn.addEventListener("click", () => filterByCategory(cat.categoryId));
     bar.insertBefore(btn, divider);
   });
 }
@@ -437,55 +63,45 @@ function colorToCSS(colorName) {
 }
 
 // ============================================================
-//  ๐”ฅ getThumbnail โ€” เธ”เธถเธเธฃเธนเธ thumbnail เธเธฒเธ product เธชเธณเธซเธฃเธฑเธ card
+//  getThumbnail — ดึงรูป thumbnail จาก product สำหรับ card
 // ============================================================
 function getThumbnail(product) {
-  const defaultColor = product.default_color;
+  // API returns primaryImage: { imageId, productId, imageUrl, isPrimary }
+  if (product.primaryImage?.imageUrl) return product.primaryImage.imageUrl;
 
-  // เธเธฃเธ“เธตเธ—เธตเน images เน€เธเนเธ object เนเธขเธเธ•เธฒเธกเธชเธต (format เนเธซเธกเน)
-  if (product.images && typeof product.images === "object" && !Array.isArray(product.images)) {
-    const colorImages = product.images[defaultColor] || Object.values(product.images)[0] || [];
-    return colorImages[0] || `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.ProductName)}`;
-  }
-
-  // เธเธฃเธ“เธตเน€เธเนเธ string
-  if (typeof product.images === "string") return product.images;
-
-  // เธเธฃเธ“เธตเน€เธเนเธ array
+  // Fallback: images array (legacy / mock format)
   if (Array.isArray(product.images) && product.images.length > 0) {
     const first = product.images[0];
-    return typeof first === "string" ? first : (first?.image_url || "");
+    return typeof first === "string" ? first : (first?.imageUrl ?? first?.image_url ?? "");
   }
 
-  return `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.ProductName)}`;
+  return `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.productName ?? "")}`;
 }
 
 function buildProductCardHTML(p) {
-  const inStock = p.StockQuantity > 0;
-  const price = parseFloat(p.Price).toLocaleString("th-TH", { minimumFractionDigits: 2 });
+  const inStock = (p.stockQuantity ?? 0) > 0;
+  const price = parseFloat(p.price).toLocaleString("th-TH", { minimumFractionDigits: 2 });
   const imgSrc = getThumbnail(p);
-
-  // เนเธชเธ”เธเธชเธตเธเธญเธ default_color เธชเธณเธซเธฃเธฑเธ dot เธเธ card
-  const displayColor = p.default_color || (p.colors?.[0]?.name ?? "");
-  const colorHex = p.colors?.find(c => c.name === displayColor)?.hex || colorToCSS(displayColor);
+  const displayColor = p.color ?? "";
+  const colorHex = colorToCSS(displayColor);
 
   return `
-    <div class="product-card" onclick="goToProduct(${p.ProductID})">
+    <div class="product-card" onclick="goToProduct(${p.productId})">
       <div class="card-img-wrap">
-        <img src="${imgSrc}" alt="${p.ProductName}" loading="lazy" />
+        <img src="${imgSrc}" alt="${p.productName}" loading="lazy" />
         ${!inStock ? `<div class="out-of-stock-badge">Out Of Stock</div>` : ""}
       </div>
       <div class="card-body">
-        <div class="card-category">${p.category_name}</div>
-        <div class="card-name">${p.ProductName}</div>
+        <div class="card-category">${p.categoryName}</div>
+        <div class="card-name">${p.productName}</div>
         <div class="card-color-row">
           <div class="color-dot" style="background:${colorHex}"></div>
           <span class="color-label">${displayColor}</span>
         </div>
-        <div class="card-price">เธฟ${price}</div>
+        <div class="card-price">฿${price}</div>
         <button
           class="add-to-cart-btn ${inStock ? "available" : "unavailable"}"
-          onclick="handleAddToCart(event, ${p.ProductID})"
+          onclick="handleAddToCart(event, ${p.productId})"
           ${!inStock ? "disabled" : ""}
         >
           Add to Cart
@@ -499,7 +115,7 @@ function renderProducts(products) {
   if (!grid) return;
 
   if (products.length === 0) {
-    grid.innerHTML = `<p style="color:#888;font-size:14px;grid-column:1/-1;padding:40px 0;text-align:center;">เนเธกเนเธเธเธชเธดเธเธเนเธฒเนเธเธซเธกเธงเธ”เธซเธกเธนเนเธเธตเน</p>`;
+    grid.innerHTML = `<p style="color:#888;font-size:14px;grid-column:1/-1;padding:40px 0;text-align:center;">ไม่พบสินค้าในหมวดหมู่นี้</p>`;
     return;
   }
 
@@ -520,9 +136,9 @@ function renderSearchResults(query, results) {
         <span class="search-result-title">
           Search results for "<strong>${escapeHtml(query)}</strong>"
         </span>
-        <button class="search-clear-btn" onclick="clearSearchResults()">โ• Clear search</button>
+        <button class="search-clear-btn" onclick="clearSearchResults()">✕ Clear search</button>
       </div>
-      <p class="search-no-result">เนเธกเนเธเธเธชเธดเธเธเนเธฒเธ—เธตเนเธ•เธฃเธเธเธฑเธ "<strong>${escapeHtml(query)}</strong>"</p>
+      <p class="search-no-result">ไม่พบสินค้าที่ตรงกับ "<strong>${escapeHtml(query)}</strong>"</p>
     `;
     section.style.display = "block";
     return;
@@ -534,7 +150,7 @@ function renderSearchResults(query, results) {
         Search results for "<strong>${escapeHtml(query)}</strong>"
         <span class="search-result-count">${results.length} item${results.length > 1 ? "s" : ""}</span>
       </span>
-      <button class="search-clear-btn" onclick="clearSearchResults()">โ• Clear search</button>
+      <button class="search-clear-btn" onclick="clearSearchResults()">✕ Clear search</button>
     </div>
     <div class="product-grid" id="search-result-grid">
       ${results.map(buildProductCardHTML).join("")}
@@ -584,7 +200,7 @@ function showToast(msg) {
 
 function getFilteredProducts() {
   if (activeCatId === null) return homeProducts;
-  return homeProducts.filter((p) => Number(p.category) === Number(activeCatId));
+  return homeProducts.filter((p) => Number(p.categoryId) === Number(activeCatId));
 }
 
 // ============================================================
@@ -610,8 +226,8 @@ function searchProductsByName(query) {
   isSearchMode = true;
 
   const matched = homeProducts.filter((p) =>
-    p.ProductName.toLowerCase().includes(q) ||
-    p.category_name.toLowerCase().includes(q)
+    (p.productName ?? "").toLowerCase().includes(q) ||
+    (p.categoryName ?? "").toLowerCase().includes(q)
   );
 
   document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
@@ -621,27 +237,128 @@ function searchProductsByName(query) {
 function scrollToCategoryByName(query) {
   const q = query.trim().toLowerCase();
   const matched = homeCategories.find((c) =>
-    c.category_name.toLowerCase().includes(q)
+    (c.categoryName ?? "").toLowerCase().includes(q)
   );
 
   document.getElementById("product-section")?.scrollIntoView({ behavior: "smooth" });
 
   if (matched) {
-    setTimeout(() => filterByCategory(matched.category_id), 400);
+    setTimeout(() => filterByCategory(matched.categoryId), 400);
   }
 }
 
 // ============================================================
-//  ๐”ฅ goToProduct โ€” เธเธฑเธเธ—เธถเธ product object เนเธเธ full เธฅเธ localStorage
-//     product.js เธเธฐเธฃเธฑเธเนเธเนเธเนเนเธ”เธขเธ•เธฃเธ เนเธกเนเธ•เนเธญเธ hardcode เธญเธฐเนเธฃเน€เธฅเธข
+//  goToProduct — บันทึก product ลง localStorage แล้วไปหน้า detail
 // ============================================================
 function goToProduct(productId) {
-  const product = homeProducts.find((p) => p.ProductID === productId);
+  const product = homeProducts.find((p) => p.productId === productId);
   if (!product) return;
 
-  // เธเธฑเธเธ—เธถเธ full product object (เธกเธต images object + colors array เนเธฅเนเธง)
   localStorage.setItem("selectedProduct", JSON.stringify(product));
   window.location.href = `/frontend/customer/product-detail/product-detail.html?id=${productId}`;
+}
+
+// ============================================================
+//  Login-required Modal
+// ============================================================
+
+function showLoginRequiredModal() {
+  if (!document.getElementById('login-required-modal')) {
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="login-required-modal" style="
+        position:fixed;inset:0;z-index:99999;
+        display:flex;align-items:center;justify-content:center;
+        background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);">
+        <div style="
+          background:#fff;border-radius:16px;padding:36px 32px;
+          max-width:360px;width:90%;text-align:center;
+          box-shadow:0 8px 40px rgba(0,0,0,0.18);">
+          <div style="font-size:40px;margin-bottom:12px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24"><g fill="none"><path stroke="#e87d96" stroke-linecap="round" stroke-width="1.5" d="M17 7c0-3.314-1.988-5-5-5S7 3.686 7 7m5 5v2.5"/><path fill="#e87d96" d="m9.266 20.615l.455-.596zM12 8.931l-.532.528a.75.75 0 0 0 1.064 0zm2.734 11.684l.456.597zm-5.013-.596c-1.37-1.045-2.852-2.055-4.029-3.338c-1.15-1.254-1.942-2.705-1.942-4.582h-1.5c0 2.361 1.017 4.157 2.337 5.596c1.294 1.411 2.945 2.54 4.224 3.517zM3.75 12.1c0-1.824 1.065-3.364 2.535-4.015c1.429-.632 3.352-.466 5.183 1.375l1.064-1.057c-2.22-2.232-4.795-2.6-6.854-1.69C3.66 7.606 2.25 9.687 2.25 12.1zm5.06 9.113c.461.351.96.73 1.466 1.016c.507.287 1.09.522 1.724.522v-1.5c-.266 0-.583-.1-.985-.328c-.402-.227-.82-.541-1.294-.903zm6.38 0c1.278-.977 2.929-2.106 4.223-3.517c1.32-1.439 2.337-3.235 2.337-5.596h-1.5c0 1.877-.792 3.328-1.942 4.582c-1.177 1.283-2.66 2.293-4.029 3.338zm6.56-9.113c0-2.413-1.41-4.494-3.428-5.386c-2.059-.912-4.635-.543-6.854 1.689l1.064 1.057c1.83-1.841 3.754-2.007 5.183-1.375c1.47.65 2.535 2.19 2.535 4.015zm-7.47 7.92c-.475.362-.893.676-1.295.903c-.402.228-.72.328-.985.328v1.5c.634 0 1.217-.235 1.724-.522s1.005-.665 1.466-1.016z"/></g></svg>
+          </div>
+          <h2 style="margin:0 0 8px;font-size:20px;font-weight:600;color:#222;">
+            Please log in
+          </h2>
+          <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.6;">
+            You need to be logged in to add items to your cart.
+          </p>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button
+              onclick="document.getElementById('login-required-modal').remove()"
+              style="padding:10px 20px;border-radius:8px;border:1.5px solid #ccc;
+                     background:#fff;color:#555;font-size:14px;cursor:pointer;">
+              Cancel
+            </button>
+            <button
+              onclick="window.location.href='/frontend/customer/auth/login/log-in.html'"
+              style="padding:10px 24px;border-radius:8px;border:none;
+                     background:#53A143;color:#fff;font-size:14px;
+                     font-weight:600;cursor:pointer;">
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    `);
+  } else {
+    document.getElementById('login-required-modal').style.display = 'flex';
+  }
+
+  document.getElementById('login-required-modal')
+    ?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) e.currentTarget.remove();
+    }, { once: true });
+}
+
+// ============================================================
+//  Add to Cart
+// ============================================================
+
+async function handleAddToCart(event, productId) {
+  event.stopPropagation();
+
+  let customer = null;
+  try {
+    const raw = localStorage.getItem('customer');
+    if (raw) customer = JSON.parse(raw);
+  } catch { customer = null; }
+
+  if (!customer?.customerID) {
+    showLoginRequiredModal();
+    return;
+  }
+
+  try {
+    const cartRes = await fetch(`${HOME_API_BASE}/api/cart/?customer=${customer.customerID}`);
+    if (!cartRes.ok) throw new Error('Could not fetch cart: ' + cartRes.status);
+    const cartData = await cartRes.json();
+    const cartId = cartData.cart_id;
+
+    const itemRes = await fetch(`${HOME_API_BASE}/api/cart/items/`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cart:     cartId,
+        product:  productId,
+        quantity: 1,
+      }),
+    });
+
+    if (!itemRes.ok) throw new Error('Add to cart failed: ' + itemRes.status);
+
+    showToast('✓ Added to cart!');
+
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+      const current = parseInt(badge.textContent) || 0;
+      const next = current + 1;
+      badge.textContent   = next > 99 ? '99+' : next;
+      badge.style.display = 'flex';
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('❌ Could not add to cart. Please try again.');
+  }
 }
 
 // ============================================================
@@ -681,4 +398,3 @@ async function initHome() {
 }
 
 document.addEventListener("DOMContentLoaded", initHome);
-
