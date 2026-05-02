@@ -128,10 +128,11 @@ function formatPrice(amount) {
 //  Renderers
 // ============================================================
 
-// function getItemImage(item) {
-//   // เมื่อ API ส่ง image url มาให้ใช้ item.product_image แทน
-//   return `https://placehold.co/56x56/f0ece4/888070?text=${encodeURIComponent(item.product_name[0])}`;
-// }
+function resolveImageUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${REVIEW_API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+}
 
 function renderItems(items) {
   const list = document.getElementById("review-items-list");
@@ -147,7 +148,7 @@ function renderItems(items) {
       <div class="review-item" data-item-id="${item.item_id}">
         <img
           class="review-item-img"
-          src="${item.image || 'https://placehold.co/56x56/e8e4dc/888070?text=IMG'}"
+          src="${resolveImageUrl(item.image) || 'https://placehold.co/56x56/e8e4dc/888070?text=IMG'}"
           alt="${item.product_name}"
         />
         <div class="review-item-name">${item.product_name}</div>

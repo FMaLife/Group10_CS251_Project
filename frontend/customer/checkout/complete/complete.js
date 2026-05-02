@@ -59,9 +59,15 @@ function formatPrice(n) {
   return parseFloat(n).toLocaleString("th-TH", { minimumFractionDigits: 0 }) + " THB";
 }
 
-// ใช้ image จาก API ถ้ามี มิฉะนั้นใช้ placeholder
+function resolveImageUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${COMPLETE_API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 function getItemImage(item) {
-  if (item.image) return item.image;
+  const url = resolveImageUrl(item.image);
+  if (url) return url;
   return `https://placehold.co/52x52/f0ece4/888070?text=${encodeURIComponent(item.product_name[0])}`;
 }
 

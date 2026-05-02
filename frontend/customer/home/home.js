@@ -190,13 +190,17 @@ function escapeHtml(str) {
 // ============================================================
 
 let toastTimer;
-function showToast(msg) {
+function showToast(msg, type = 'success') {
   const toast = document.getElementById("toast");
   if (!toast) return;
   toast.textContent = msg;
+  toast.classList.remove("show", "toast-error");
+  if (type === 'error') toast.classList.add("toast-error");
   toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 2500);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show", "toast-error");
+  }, 2500);
 }
 
 // ============================================================
@@ -349,11 +353,19 @@ async function handleAddToCart(event, productId) {
       }),
     });
 
-    if (!itemRes.ok) throw new Error('Add to cart failed: ' + itemRes.status);
+    if (!itemRes.ok) {
+      const errData = await itemRes.json().catch(() => ({}));
+      if (itemRes.status === 400 && errData.error?.toLowerCase().includes('stock')) {
+        showToast('สินค้าไม่เหลือในคลัง', 'error');
+        return;
+      }
+      showToast('❌ Could not add to cart. Please try again.');
+      return;
+    }
 
     showToast('✓ Added to cart!');
 
-    const badge = document.getElementById('cart-badge');
+    const badge = document.getElementById('cart-qty-badge');
     if (badge) {
       const current = parseInt(badge.textContent) || 0;
       const next = current + 1;

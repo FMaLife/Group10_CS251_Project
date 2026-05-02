@@ -97,8 +97,15 @@ function formatPrice(n) {
   return parseFloat(n).toLocaleString("th-TH", { minimumFractionDigits: 0 }) + " THB";
 }
 
+function resolveImageUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${ORDERS_API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 function getItemImage(item) {
-  if (item.image) return item.image;
+  const url = resolveImageUrl(item.image);
+  if (url) return url;
   return `https://placehold.co/80x100/f0ece4/888070?text=${encodeURIComponent(item.product_name[0])}`;
 }
 

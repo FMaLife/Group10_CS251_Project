@@ -351,6 +351,33 @@ img { display: block; max-width: 100%; }
 }
 .pd-add-btn:hover { background: var(--green-dark); transform: translateY(-2px); }
 .pd-add-btn:active { transform: translateY(0); }
+
+.pd-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #53A143;
+  color: #fff;
+  padding: .75rem 1.8rem;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  opacity: 0;
+  transition: opacity .3s, transform .3s;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+}
+.pd-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.pd-toast.pd-toast-error {
+  background: #EB2606;
+}
+
 .pd-add-divider {
   opacity: .45;
   font-weight: 300;

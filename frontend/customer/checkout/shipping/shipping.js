@@ -385,9 +385,10 @@ async function handlePlaceOrder() {
     try {
       orderResult = await apiCreateOrder(CART_ID, addressId);
     } catch (orderErr) {
+      const serverMsg = orderErr.data?.error;
       const msg =
         orderErr.status === 404 ? "Cart or address not found. Please go back and try again." :
-        orderErr.status === 400 ? "There was a problem with your order. Please go back and try again." :
+        orderErr.status === 400 ? (serverMsg || "There was a problem with your order. Please go back and try again.") :
         "Something went wrong placing your order. Please try again.";
       showNotification(msg);
       setPlaceOrderBtnState("error");

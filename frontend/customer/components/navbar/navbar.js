@@ -122,8 +122,8 @@ function renderCategories(categories) {
   list.innerHTML = categories
     .map((cat) => `
       <li>
-        <a class="dropdown-item" data-cat-id="${cat.category_id}" data-cat-name="${cat.category_name}" href="#">
-          ${cat.category_name}
+        <a class="dropdown-item" data-cat-id="${cat.categoryId}" data-cat-name="${cat.categoryName}" href="#">
+          ${cat.categoryName}
         </a>
       </li>`)
     .join("");
@@ -141,10 +141,9 @@ function renderCategories(categories) {
 }
 
 function updateCartBadge(count) {
-  const badge = document.getElementById("cart-badge");
+  const badge = document.getElementById("cart-qty-badge");
   if (!badge) return;
-  badge.textContent   = count > 99 ? "99+" : count;
-  badge.style.display = count > 0 ? "flex" : "none";
+  badge.textContent = count > 99 ? "99+" : String(count);
 }
 
 // ============================================================
@@ -324,4 +323,4 @@ async function initNavbar() {
     ?.addEventListener("click", handleLogout);
 }
 
-initNavbar();
+// initNavbar() is called by each page's inline script after navbar HTML is injected

@@ -1,3 +1,6 @@
+import logging
+
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import filters, status, viewsets
@@ -8,6 +11,8 @@ from catalog.models import Product
 from customers.models import Customer, CustomerAddress
 
 from .models import OrderDetail, Payment, SaleOrder
+
+logger = logging.getLogger(__name__)
 from .serializers import OrderDetailSerializer, PaymentSerializer, SaleOrderSerializer
 
 
@@ -114,10 +119,15 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
         except Product.DoesNotExist:
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        except DjangoValidationError as e:
+            msgs = e.messages if hasattr(e, "messages") else [str(e)]
+            return Response({"error": " ".join(msgs)}, status=status.HTTP_400_BAD_REQUEST)
+
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            logger.exception("Unexpected error in SaleOrderViewSet.create")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def partial_update(self, request, *args, **kwargs):

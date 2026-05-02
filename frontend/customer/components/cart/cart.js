@@ -5,6 +5,12 @@
 // URL ของ backend API
 const CART_API_BASE = "http://127.0.0.1:8000";
 
+function resolveCartImageUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${CART_API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 // ============================================================
 //  State
 // ============================================================
@@ -90,6 +96,7 @@ async function fetchCartItems() {
     image: item.image,
     price: parseFloat(item.product_price),
     qty: item.quantity,
+    stock: item.stock_quantity ?? 9999,
   }));
 }
 
@@ -192,29 +199,19 @@ function renderGuestCart() {
 
 // render card ของสินค้าแต่ละชิ้น
 function renderCartItem(item) {
+  const atMax = item.qty >= item.stock;
   return `
     <div class="cart-item" data-id="${item.id}">
-      <img class="cart-item-img" src="${item.image || 'https://placehold.co/80x80/e8e4dc/888070?text=IMG'}" alt="${item.name}"/>
+      <img class="cart-item-img" src="${resolveCartImageUrl(item.image) || 'https://placehold.co/80x80/e8e4dc/888070?text=IMG'}" alt="${item.name}"/>
       <div class="cart-item-info">
-        <div class="cart-item-name">
-          ${item.name}
-        </div>
+        <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-controls">
-          <!-- ปุ่มลดจำนวน -->
           <button class="qty-btn" onclick="handleDecreaseQty(${item.id})">−</button>
-          <!-- จำนวนสินค้า -->
-          <span class="cart-item-qty">
-            ${item.qty}
-          </span>
-          <!-- ปุ่มเพิ่มจำนวน -->
-          <button class="qty-btn" onclick="handleIncreaseQty(${item.id})">+</button>
+          <span class="cart-item-qty">${item.qty}</span>
+          <button class="qty-btn" onclick="handleIncreaseQty(${item.id})" ${atMax ? 'disabled' : ''}>+</button>
         </div>
-        <!-- ราคารวม -->
-        <div class="cart-item-price">
-          ${formatPrice(item.price * item.qty)}
-        </div>
+        <div class="cart-item-price">${formatPrice(item.price * item.qty)}</div>
       </div>
-      <!-- ปุ่มลบสินค้า -->
       <button class="cart-item-remove" onclick="handleRemoveItem(${item.id})" aria-label="Remove item">×</button>
     </div>
   `;
@@ -270,10 +267,9 @@ function updateCartHeader(items) {
 
 // อัปเดต badge จำนวนสินค้า ที่ navbar icon
 function updateNavbarBadge() {
-  const badge = document.getElementById("cart-badge");
+  const badge = document.getElementById("cart-qty-badge");
   if (!badge) return;
-  badge.textContent = cartItems.length;
-  badge.style.display = "flex";
+  badge.textContent = String(cartItems.length);
 }
 
 // ============================================================
@@ -332,19 +328,12 @@ async function loadCartContent() {
 // เพิ่มจำนวนสินค้า
 async function handleIncreaseQty(itemId) {
   try {
-    const item = cartItems.find(
-      (i) => i.id === itemId
-    );
+    const item = cartItems.find((i) => i.id === itemId);
     if (!item) return;
+    if (item.qty >= item.stock) return;
     const newQty = item.qty + 1;
-    // เรียก API update
-    await updateCartItemQuantity(
-      itemId,
-      newQty
-    );
-    // update local state
+    await updateCartItemQuantity(itemId, newQty);
     item.qty = newQty;
-    // render ใหม่
     renderCartContent(cartItems);
   } catch (err) {
     console.error("Increase qty failed:", err);
@@ -463,6 +452,7 @@ function initCart() {
   // กด backdrop → ปิด cart
   document.getElementById("cart-backdrop")
     ?.addEventListener("click", closeCart);
+
 }
 
 // สร้าง HTML ของ cart overlay

@@ -67,10 +67,10 @@ function renderFooterCategories(categories) {
       (cat) => `
         <button
           class="footer-cat-link"
-          data-cat-id="${cat.category_id}"
-          data-cat-name="${cat.category_name}"
+          data-cat-id="${cat.categoryId}"
+          data-cat-name="${cat.categoryName}"
         >
-          ${cat.category_name}
+          ${cat.categoryName}
         </button>`
     )
     .join("");

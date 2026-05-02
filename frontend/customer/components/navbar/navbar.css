@@ -236,22 +236,29 @@
 .navbar-cart-btn:hover { opacity: 0.85; }
 .navbar-cart-btn svg { width: 22px; height: 22px; }
 
-.navbar-cart-count {
+.cart-btn-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.cart-qty-badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  min-width: 22px;
-  height: 22px;
-  background: var(--pink, #F297A0);
+  top: 2px;
+  right: 2px;
+  transform: translate(50%, -50%);
+  background: #F297A0;
   color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 5px;
+  padding: 0 3px;
+  border: 2px solid #fff;
   pointer-events: none;
+  z-index: 9999;
 }
 
 /* ============================================================

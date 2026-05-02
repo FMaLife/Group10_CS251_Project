@@ -244,6 +244,10 @@ img {
   transform: translateX(-50%) translateY(0);
 }
 
+.toast.toast-error {
+  background: #EB2606;
+}
+
 /* ======= ANIMATIONS ======= */
 @keyframes fadeUp {
   from {

@@ -108,6 +108,28 @@ class CartItemViewSet(viewsets.ModelViewSet):
         product = write_serializer.validated_data["product"]
         quantity = write_serializer.validated_data.get("quantity", 1)
 
+        # ตรวจสอบ stock ก่อนเพิ่ม
+        from catalog.models import Product as CatalogProduct
+        try:
+            prod_obj = CatalogProduct.objects.get(pk=product)
+            stock = prod_obj.StockQuantity
+        except CatalogProduct.DoesNotExist:
+            stock = 0
+
+        existing_qty = 0
+        try:
+            existing_item = CartItem.objects.get(cart=cart, product=product)
+            existing_qty = existing_item.quantity
+        except CartItem.DoesNotExist:
+            pass
+
+        new_qty = existing_qty + int(quantity)
+        if new_qty > stock:
+            return Response(
+                {"error": f"Not enough stock. Available: {stock - existing_qty}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # ถ้ามีอยู่แล้ว เพิ่มจำนวนแทนการสร้างซ้ำ (ตามข้อกำหนด unique cart+product)
         item, created = CartItem.objects.get_or_create(
             cart=cart,
@@ -125,6 +147,22 @@ class CartItemViewSet(viewsets.ModelViewSet):
             CartItemSerializer(item).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        new_qty = request.data.get("quantity")
+        if new_qty is not None:
+            from catalog.models import Product as CatalogProduct
+            try:
+                stock = CatalogProduct.objects.get(pk=instance.product).StockQuantity
+            except CatalogProduct.DoesNotExist:
+                stock = 0
+            if int(new_qty) > stock:
+                return Response(
+                    {"error": f"Not enough stock. Available: {stock}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
         instance = serializer.save()

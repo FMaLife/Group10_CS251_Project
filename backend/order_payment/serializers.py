@@ -47,7 +47,11 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         if primary:
             return primary.Image_URL
         first = obj.product.images.first()
-        return first.Image_URL if first else None
+        if first:
+            return first.Image_URL
+        if obj.product.image:
+            return obj.product.image.url
+        return None
 
 
 class PaymentSerializer(serializers.ModelSerializer):

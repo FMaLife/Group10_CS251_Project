@@ -45,6 +45,24 @@ body {
   padding: 48px 40px 80px;
 }
 
+/* ---- Back button ---- */
+.profile-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--neutral-300);
+  font-size: 14px;
+  font-family: var(--font-body);
+  padding: 6px 0;
+  margin-bottom: 12px;
+  transition: color .15s;
+}
+.profile-back-btn:hover { color: var(--neutral-900); }
+.profile-back-btn svg { width: 16px; height: 16px; }
+
 /* ---- Title ---- */
 .profile-title {
   font-size: 36px;

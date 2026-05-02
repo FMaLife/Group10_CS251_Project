@@ -28,9 +28,10 @@ def _get_product(product_id):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product_name  = serializers.SerializerMethodField()
-    product_price = serializers.SerializerMethodField()
-    image         = serializers.SerializerMethodField()
+    product_name    = serializers.SerializerMethodField()
+    product_price   = serializers.SerializerMethodField()
+    image           = serializers.SerializerMethodField()
+    stock_quantity  = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
@@ -42,6 +43,7 @@ class CartItemSerializer(serializers.ModelSerializer):
             "product_price",
             "image",
             "quantity",
+            "stock_quantity",
             "added_date",
             "cartitem_total",
         ]
@@ -56,12 +58,24 @@ class CartItemSerializer(serializers.ModelSerializer):
         return float(product.Price) if product else 0.0
 
     def get_image(self, obj: CartItem):
-        from catalog.models import ProductImage
+        from catalog.models import ProductImage, Product
         primary = ProductImage.objects.filter(ProductID=obj.product, Is_Primary=1).first()
         if primary:
             return primary.Image_URL
         any_img = ProductImage.objects.filter(ProductID=obj.product).first()
-        return any_img.Image_URL if any_img else None
+        if any_img:
+            return any_img.Image_URL
+        try:
+            product = Product.objects.get(pk=obj.product)
+            if product.image:
+                return product.image.url
+        except Product.DoesNotExist:
+            pass
+        return None
+
+    def get_stock_quantity(self, obj: CartItem):
+        product = _get_product(obj.product)
+        return product.StockQuantity if product else 0
 
 
 class CartItemWriteSerializer(serializers.ModelSerializer):

@@ -146,7 +146,7 @@ function renderProduct(rawProduct) {
   const p = mapToDetailFormat(rawProduct);
   pdState.product       = p;
   pdState.selectedColor = p.default_color || p.colors?.[0]?.name || null;
-  pdState.qty           = 1;
+  pdState.qty           = p.stockQuantity > 0 ? 1 : 0;
   pdState.activeThumb   = 0;
 
   // Breadcrumb
@@ -402,44 +402,82 @@ function setupQty() {
 }
 
 // ============================================================
+//  Toast
+// ============================================================
+let pdToastTimer;
+function pdShowToast(msg, type = 'success') {
+  const toast = document.getElementById("pd-toast");
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.remove("show", "pd-toast-error");
+  if (type === 'error') toast.classList.add("pd-toast-error");
+  toast.classList.add("show");
+  clearTimeout(pdToastTimer);
+  pdToastTimer = setTimeout(() => {
+    toast.classList.remove("show", "pd-toast-error");
+  }, 2500);
+}
+
+// ============================================================
 //  Add to Cart
 // ============================================================
 function setupAddToCart() {
-  document.getElementById("pd-add-btn")?.addEventListener("click", () => {
+  document.getElementById("pd-add-btn")?.addEventListener("click", async () => {
     const p = pdState.product;
     if (!p || !p.stock) return;
 
-    const customer = localStorage.getItem("customer");
-    if (!customer) {
+    let customer = null;
+    try { customer = JSON.parse(localStorage.getItem("customer")); } catch {}
+    if (!customer?.customerID) {
       window.location.href = "/frontend/customer/auth/login/log-in.html";
       return;
     }
 
-    const images     = getColorImages(p, pdState.selectedColor);
-    const firstImage = images[0] || "";
+    const btn   = document.getElementById("pd-add-btn");
+    const label = btn?.querySelector("span");
+    if (btn) btn.disabled = true;
 
-    document.dispatchEvent(new CustomEvent("cart:addItem", {
-      detail: {
-        product_id:   p.product_id,
-        product_name: p.product_name,
-        color:        pdState.selectedColor,
-        qty:          pdState.qty,
-        price:        p.price,
-        currency:     p.currency,
-        image:        firstImage,
-      },
-    }));
+    try {
+      // ดึง cart id
+      const cartRes = await fetch(`${PD_API_BASE}/api/cart/?customer=${customer.customerID}`);
+      if (!cartRes.ok) throw new Error("cart fetch failed");
+      const cartData = await cartRes.json();
 
-    // Visual feedback
-    const btn     = document.getElementById("pd-add-btn");
-    const label   = btn?.querySelector("span");
-    if (btn && label) {
-      btn.style.background  = "#458B36";
-      label.textContent     = "Added";
-      setTimeout(() => {
-        btn.style.background = "";
-        label.textContent    = "Add to Cart";
-      }, 1800);
+      const itemRes = await fetch(`${PD_API_BASE}/api/cart/items/`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart: cartData.cart_id, product: p.product_id, quantity: pdState.qty }),
+      });
+
+      if (!itemRes.ok) {
+        const errData = await itemRes.json().catch(() => ({}));
+        if (itemRes.status === 400 && errData.error?.toLowerCase().includes("stock")) {
+          pdShowToast("สินค้าไม่เหลือในคลัง", "error");
+        } else {
+          pdShowToast("เกิดข้อผิดพลาด กรุณาลองใหม่", "error");
+        }
+        return;
+      }
+
+      // อัปเดต badge
+      const badge = document.getElementById("cart-qty-badge");
+      if (badge) {
+        const current = parseInt(badge.textContent) || 0;
+        const next = current + pdState.qty;
+        badge.textContent = next > 99 ? "99+" : String(next);
+      }
+
+      pdShowToast("✓ Added to cart!");
+      if (label) {
+        label.textContent = "Added";
+        setTimeout(() => { label.textContent = "Add to Cart"; }, 1800);
+      }
+
+    } catch (err) {
+      console.error(err);
+      pdShowToast("เกิดข้อผิดพลาด กรุณาลองใหม่", "error");
+    } finally {
+      if (btn) btn.disabled = false;
     }
   });
 }
@@ -462,28 +500,36 @@ document.addEventListener("keydown", (e) => {
 // ============================================================
 async function initProductDetail() {
   try {
-    const stored = localStorage.getItem("selectedProduct");
+    const id = getProductIdFromUrl();
 
+    // render จาก localStorage ก่อน (เร็ว) แล้ว fetch สดจาก API เพื่ออัปเดต stock
+    const stored = localStorage.getItem("selectedProduct");
+    let setupDone = false;
     if (stored) {
-      const rawProduct = JSON.parse(stored);
-      renderProduct(rawProduct);   // mapToDetailFormat เธเธฐเธเธฑเธ”เธเธฒเธฃ format เนเธซเน
-      setupQty();
-      setupAddToCart();
-      return;
+      try {
+        const cached = JSON.parse(stored);
+        const cachedId = String(cached.productId ?? cached.ProductID ?? cached.product_id ?? "");
+        if (cachedId === String(id)) {
+          renderProduct(cached);
+          setupQty();
+          setupAddToCart();
+          setupDone = true;
+        }
+      } catch {}
     }
 
-    // Fallback: เน€เธเนเธฒเธซเธเนเธฒเธเธตเนเนเธ”เธขเธ•เธฃเธ เธ”เธถเธเธเธฒเธ URL ?id=
-    const id      = getProductIdFromUrl();
-    const product = await pdFetchProduct(id);
-    renderProduct(product);
-    setupQty();
-    setupAddToCart();
+    // Fetch สดจาก API เสมอ เพื่อให้ stock / ราคา เป็นปัจจุบัน
+    const fresh = await pdFetchProduct(id);
+    renderProduct(fresh);
+    if (!setupDone) {
+      setupQty();
+      setupAddToCart();
+    }
 
   } catch (err) {
     console.error("Product detail init failed:", err);
     setEl("pd-title", "Product not found");
   }
 }
-
 document.addEventListener("DOMContentLoaded", initProductDetail);
 
