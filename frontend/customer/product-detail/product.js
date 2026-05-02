@@ -69,6 +69,17 @@ let pdState = {
 // ============================================================
 //  Helpers
 // ============================================================
+const PD_COLOR_MAP = {
+  red: "#e05252", orange: "#e07832", yellow: "#e0c832", green: "#4a8c3a",
+  blue: "#3a6aac", purple: "#7a4aac", pink: "#e04a7a", brown: "#8a5a30",
+  black: "#222222", white: "#f5f5f5", gray: "#909090", grey: "#909090",
+  darkbeige: "#AC967E", tan: "#c8a870", beige: "#c8b89a", cream: "#f5f0e8",
+};
+
+function colorNameToHex(name) {
+  return PD_COLOR_MAP[name?.toLowerCase()] ?? "#cccccc";
+}
+
 function fmt(price, currency = "THB") {
   return `${Number(price).toLocaleString("th-TH", {
     minimumFractionDigits: 2,
@@ -117,7 +128,7 @@ function mapToDetailFormat(p) {
     stock,
     default_color: colorName,
     dimensions:    p.dimensions || null,
-    colors:        p.colors?.length ? p.colors : [{ name: colorName, hex: "#cccccc" }],
+    colors:        p.colors?.length ? p.colors : [{ name: colorName, hex: colorNameToHex(colorName) }],
     images:        imagesMap,
   };
 }
