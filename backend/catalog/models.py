@@ -71,13 +71,14 @@ class Product(models.Model):
         blank=True,
         related_name='products'
     )
-    supplier = models.ForeignKey('stock.Supplier',
+    supplier = models.ForeignKey(
+        'stock.Supplier',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='products')
-
-    is_active = models.BooleanField(default=True, db_column='is_active')
+        related_name='products'
+    )
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'Product'
