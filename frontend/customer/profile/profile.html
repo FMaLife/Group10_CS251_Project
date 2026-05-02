@@ -82,8 +82,23 @@
         </div>
 
         <div class="form-row">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label" for="current-password">CURRENT PASSWORD <span class="required">*</span></label>
+            <div class="input-password-wrap">
+              <input class="form-input" id="current-password" type="password" autocomplete="off" placeholder="" readonly onfocus="this.removeAttribute('readonly')" />
+              <button type="button" class="toggle-pw" data-target="current-password" aria-label="Toggle current password visibility">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <span class="form-error" id="current-password-error"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
-            <label class="form-label" for="password">CHANGE PASSWORD <span class="required">*</span></label>
+            <label class="form-label" for="password">NEW PASSWORD</label>
             <div class="input-password-wrap">
               <input class="form-input" id="password" type="password" autocomplete="new-password" placeholder="" />
               <button type="button" class="toggle-pw" data-target="password" aria-label="Toggle password visibility">
@@ -95,7 +110,7 @@
             <span class="form-error" id="password-error"></span>
           </div>
           <div class="form-group">
-            <label class="form-label" for="confirm-password">CONFIRM PASSWORD <span class="required">*</span></label>
+            <label class="form-label" for="confirm-password">CONFIRM NEW PASSWORD</label>
             <div class="input-password-wrap">
               <input class="form-input" id="confirm-password" type="password" autocomplete="new-password" placeholder="" />
               <button type="button" class="toggle-pw" data-target="confirm-password" aria-label="Toggle confirm password visibility">

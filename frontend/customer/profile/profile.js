@@ -54,6 +54,18 @@ async function updateProfile(payload) {
   return res.json();
 }
 
+async function changePassword(oldPassword, newPassword) {
+  const res = await fetch(`${PROFILE_API_BASE}/api/customers/change-password`, {
+    method:      "PUT",
+    credentials: "include",
+    headers:     { "Content-Type": "application/json" },
+    body:        JSON.stringify({ oldPassword, newPassword }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to change password");
+  return data;
+}
+
 // ============================================================
 //  DOM helpers
 // ============================================================
@@ -68,7 +80,7 @@ function setError(fieldId, msg) {
 }
 
 function clearErrors() {
-  ["first-name", "last-name", "phone", "email", "password", "confirm-password"]
+  ["first-name", "last-name", "phone", "email", "current-password", "password", "confirm-password"]
     .forEach((id) => setError(id, ""));
 }
 
@@ -143,6 +155,7 @@ function validateForm() {
   const lastName  = getEl("last-name")?.value.trim();
   const phone     = getEl("phone")?.value.trim();
   const email     = getEl("email")?.value.trim();
+  const currentPw = getEl("current-password")?.value;
   const password  = getEl("password")?.value;
   const confirm   = getEl("confirm-password")?.value;
 
@@ -168,8 +181,15 @@ function validateForm() {
     setError("email", "Invalid email format");
     valid = false;
   }
-  if (password) {
-    if (password.length < 8) {
+  if (password || currentPw) {
+    if (!currentPw) {
+      setError("current-password", "Please enter your current password");
+      valid = false;
+    }
+    if (!password) {
+      setError("password", "Please enter a new password");
+      valid = false;
+    } else if (password.length < 8) {
       setError("password", "Password must be at least 8 characters");
       valid = false;
     } else if (password !== confirm) {
@@ -199,18 +219,23 @@ async function handleSubmit(e) {
     email:       getEl("email")?.value.trim(),
   };
 
-  const pw = getEl("password")?.value;
-  if (pw) payload.password = pw;
+  const currentPw = getEl("current-password")?.value;
+  const newPw     = getEl("password")?.value;
 
   try {
     await updateProfile(payload);
+
+    if (currentPw && newPw) {
+      await changePassword(currentPw, newPw);
+    }
+
     showToast("Profile updated successfully ✓", "success");
 
     // reset password fields
-    const pwInput = getEl("password");
-    const cpInput = getEl("confirm-password");
-    if (pwInput) pwInput.value = "";
-    if (cpInput) cpInput.value = "";
+    ["current-password", "password", "confirm-password"].forEach((id) => {
+      const el = getEl(id);
+      if (el) el.value = "";
+    });
 
     // อัปเดต avatar initial
     const initial = getEl("avatar-initial");
@@ -218,7 +243,16 @@ async function handleSubmit(e) {
 
   } catch (err) {
     console.error(err);
-    showToast("Failed to update profile. Please try again.", "error");
+    const msg = err.message.includes("password") || err.message.includes("Password")
+      ? err.message
+      : "Failed to update profile. Please try again.";
+    if (msg.toLowerCase().includes("current") || msg.toLowerCase().includes("incorrect")) {
+      setError("current-password", msg);
+    } else if (msg.toLowerCase().includes("password")) {
+      setError("password", msg);
+    } else {
+      showToast(msg, "error");
+    }
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = "Submit"; }
   }
@@ -262,6 +296,9 @@ async function initProfile() {
     });
 
     initAvatar(null, profile.firstName);
+
+    const cpField = getEl("current-password");
+    if (cpField) cpField.value = "";
 
   } catch (err) {
     console.error("Profile load failed:", err);
