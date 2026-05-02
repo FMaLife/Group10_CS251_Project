@@ -338,6 +338,15 @@ async function handlePlaceOrder() {
   setPlaceOrderBtnState("loading");
 
   const f = getAddressFields();
+  console.log("Place order — address payload:", JSON.stringify({...f, customer_id: CUSTOMER_ID}));
+
+  // client-side zip code format check
+  if (!/^\d{5}$/.test(f.zipCode)) {
+    document.getElementById("field-postcode")?.classList.add("error");
+    showNotification("ZIP code must be exactly 5 digits (e.g. 10110).");
+    setPlaceOrderBtnState("error");
+    return;
+  }
 
   try {
     // ── Place Order Step 1: บันทึก / ใช้ address ──────────────────
