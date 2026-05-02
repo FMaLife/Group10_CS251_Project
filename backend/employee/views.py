@@ -10,6 +10,7 @@ from accounts.utils.permissions import employee_required
 
 from catalog.models import Product, Category
 from stock.models import Supplier, Warehouse, WarehouseLocation, RestockOrder , RestockDetail
+from cart_delivery.models import Delivery
 from order_payment.models import SaleOrder, Payment
 from employees.models import Employee
 
@@ -234,7 +235,9 @@ def edit_item(request, model, id):
     if request.method == "POST":
         form = form_class(request.POST, request.FILES, instance=obj)
         if form.is_valid():
-            form.save()
+            saved = form.save()
+            if model == "sales_order" and getattr(saved, "order_status", None) in ("In transit", "In_transit"):
+                Delivery.objects.filter(order=saved.order_id).update(delivery_date=date.today())
             return redirect(model)
     else:
         form = form_class(instance=obj)

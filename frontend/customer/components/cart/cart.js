@@ -68,7 +68,8 @@ async function fetchCartItems() {
 
   // เรียก API cart
   const res = await fetch(
-    `${CART_API_BASE}/api/cart/?customer=${customer.customerID}`
+    `${CART_API_BASE}/api/cart/?customer=${customer.customerID}`,
+    { credentials: "include" }
   );
 
   // API error
@@ -96,6 +97,7 @@ async function fetchCartItems() {
 async function updateCartItemQuantity(itemId, quantity) {
   const res = await fetch(`${CART_API_BASE}/api/cart/items/${itemId}/`,{
       method: "PATCH",
+      credentials: "include",
       headers: {"Content-Type": "application/json",},
       body: JSON.stringify({quantity,}),
     }
@@ -113,6 +115,7 @@ async function updateCartItemQuantity(itemId, quantity) {
 async function removeCartItem(itemId) {
   const res = await fetch(`${CART_API_BASE}/api/cart/items/${itemId}/`,{
       method: "DELETE",
+      credentials: "include",
     }
   );
 
@@ -270,10 +273,7 @@ function updateNavbarBadge() {
   const badge = document.getElementById("cart-badge");
   if (!badge) return;
   badge.textContent = cartItems.length;
-  badge.style.display =
-    cartItems.length > 0
-      ? "flex"
-      : "none";
+  badge.style.display = "flex";
 }
 
 // ============================================================
@@ -384,7 +384,7 @@ async function addCartItem(productId, qty) {
 
   // ต้องมี cartId ก่อน — ถ้ายังไม่มีให้ fetch
   if (!cartId) {
-    const res = await fetch(`${CART_API_BASE}/api/cart/?customer=${customer.customerID}`);
+    const res = await fetch(`${CART_API_BASE}/api/cart/?customer=${customer.customerID}`, { credentials: "include" });
     if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
     const data = await res.json();
     cartId = data.cart_id;
@@ -392,6 +392,7 @@ async function addCartItem(productId, qty) {
 
   const res = await fetch(`${CART_API_BASE}/api/cart/items/`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ cart: cartId, product: productId, quantity: qty }),
   });

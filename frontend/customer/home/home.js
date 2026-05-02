@@ -65,14 +65,19 @@ function colorToCSS(colorName) {
 // ============================================================
 //  getThumbnail — ดึงรูป thumbnail จาก product สำหรับ card
 // ============================================================
-function getThumbnail(product) {
-  // API returns primaryImage: { imageId, productId, imageUrl, isPrimary }
-  if (product.primaryImage?.imageUrl) return product.primaryImage.imageUrl;
+function resolveImageUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${HOME_API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+}
 
-  // Fallback: images array (legacy / mock format)
+function getThumbnail(product) {
+  if (product.primaryImage?.imageUrl) return resolveImageUrl(product.primaryImage.imageUrl);
+
   if (Array.isArray(product.images) && product.images.length > 0) {
     const first = product.images[0];
-    return typeof first === "string" ? first : (first?.imageUrl ?? first?.image_url ?? "");
+    const raw = typeof first === "string" ? first : (first?.imageUrl ?? first?.image_url ?? "");
+    return resolveImageUrl(raw);
   }
 
   return `https://placehold.co/400x400/e8e4dc/888070?text=${encodeURIComponent(product.productName ?? "")}`;

@@ -73,7 +73,7 @@ async function fetchShippingCart() {
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_CART), 100));
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
+  const res = await fetch(`${SHIPPING_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`, { credentials: "include" });
   if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
   return res.json();
 }
@@ -84,7 +84,7 @@ async function fetchSavedAddresses() {
   if (SHIPPING_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(SHIPPING_MOCK_ADDRESSES), 80));
   }
-  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses`);
+  const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses`, { credentials: "include" });
   if (!res.ok) throw new Error(`Address fetch failed: ${res.status}`);
   return res.json(); // { addresses: [...] }
 }
@@ -102,6 +102,7 @@ async function apiSaveAddress(addressPayload) {
   }
   const res = await fetch(`${SHIPPING_API_BASE}/api/customers/addresses/add/`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...addressPayload, customer_id: CUSTOMER_ID }),
   });
@@ -130,6 +131,7 @@ async function apiCreateOrder(cartId, addressId) {
   }
   const res = await fetch(`${SHIPPING_API_BASE}/api/orders/saleorders/`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ cart_id: cartId, address_id: addressId }),
   });
@@ -154,6 +156,7 @@ async function apiMarkPaid(orderId) {
   }
   const res = await fetch(`${SHIPPING_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payment_status: "paid" }),
   });

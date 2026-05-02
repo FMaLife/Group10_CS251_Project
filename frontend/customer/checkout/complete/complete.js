@@ -41,7 +41,7 @@ async function fetchCompleteOrder(orderId) {
   if (COMPLETE_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(COMPLETE_MOCK_ORDER), 120));
   }
-  const res = await fetch(`${COMPLETE_API_BASE}/api/orders/saleorders/${orderId}/`);
+  const res = await fetch(`${COMPLETE_API_BASE}/api/orders/saleorders/${orderId}/`, { credentials: "include" });
   if (res.status === 404) {
     const err = new Error("Order not found");
     err.status = 404;
@@ -75,7 +75,7 @@ function renderCompleteStatus(paymentStatus) {
   const el = document.getElementById("complete-status");
   if (!el) return;
 
-  const isPaid = paymentStatus?.toLowerCase() === "paid";
+  const isPaid = ["paid", "complete", "completed"].includes(paymentStatus?.toLowerCase());
 
   if (isPaid) {
     el.className = "complete-status paid";

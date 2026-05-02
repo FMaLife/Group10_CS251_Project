@@ -1,6 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 
 from accounts.utils.auth import hash_password, verify_password
@@ -19,6 +20,7 @@ def _parse(request):
 
 # Customer register / login / logout
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def customer_register(request):
     body, err = _parse(request)
@@ -72,6 +74,7 @@ def customer_register(request):
     }, status=201)
 
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def customer_login(request):
     body, err = _parse(request)
@@ -118,6 +121,7 @@ def customer_logout(request):
 
 # Employee login / logout
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def employee_login(request):
     body, err = _parse(request)

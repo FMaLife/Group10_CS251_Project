@@ -43,15 +43,15 @@ const ORDERS_MOCK = [
 //  API layer
 // ============================================================
 
-// customer_id — ในระบบจริงดึงจาก session/localStorage
-const ORDERS_CUSTOMER_ID = 1;
+const _ordersCustomerRaw = localStorage.getItem("customer");
+const ORDERS_CUSTOMER_ID = _ordersCustomerRaw ? (JSON.parse(_ordersCustomerRaw).customerID || 1) : 1;
 
 async function fetchOrders() {
   if (ORDERS_USE_MOCK) {
     return new Promise((resolve) => setTimeout(() => resolve(ORDERS_MOCK), 120));
   }
   // GET /api/orders/saleorders/?customer_id=<id>
-  const res = await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/?customer_id=${ORDERS_CUSTOMER_ID}`);
+  const res = await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/?customer_id=${ORDERS_CUSTOMER_ID}`, { credentials: "include" });
   return res.json();
 }
 
@@ -61,6 +61,7 @@ async function apiCancelOrder(orderId) {
   }
   await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ order_status: "Cancelled" }),
   });
@@ -75,6 +76,7 @@ async function apiMarkPaid(orderId) {
   // → 500 Server error
   const res = await fetch(`${ORDERS_API_BASE}/api/orders/saleorders/${orderId}/`, {
     method: "PATCH",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payment_status: "paid" }),
   });
@@ -105,6 +107,7 @@ const STATUS_MAP = {
   Pending:      { label: "Waiting for payment", cls: "pending"    },
   Received:     { label: "Received order",      cls: "in-process" },
   "In transit": { label: "In transit",          cls: "in-process" },
+  "In_transit": { label: "In transit",          cls: "in-process" },
   Cancelled:    { label: "Cancelled",           cls: "cancel"     },
 };
 

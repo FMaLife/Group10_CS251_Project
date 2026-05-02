@@ -76,7 +76,7 @@ async function fetchCart() {
       setTimeout(() => resolve(REVIEW_MOCK_CART), 120)  // [FIX 1] ใช้ REVIEW_MOCK_CART แล้วสอดคล้องกัน
     );
   }
-  const res = await fetch(`${REVIEW_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`);
+  const res = await fetch(`${REVIEW_API_BASE}/api/cart/?customer=${CUSTOMER_ID}`, { credentials: "include" });
   if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
   return res.json();
 }
@@ -88,6 +88,7 @@ async function apiUpdateQty(itemId, newQty) {
   }
   await fetch(`${REVIEW_API_BASE}/api/cart/items/${itemId}/`, {
     method: "PATCH",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ quantity: newQty }),
   });
@@ -100,6 +101,7 @@ async function apiRemoveItem(itemId) {
   }
   await fetch(`${REVIEW_API_BASE}/api/cart/items/${itemId}/`, {
     method: "DELETE",
+    credentials: "include",
   });
 }
 

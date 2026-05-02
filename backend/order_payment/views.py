@@ -140,7 +140,6 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
         if order_status_input:
             status_map = {
                 "pending": SaleOrder.OrderStatusChoices.PENDING,
-                "received": SaleOrder.OrderStatusChoices.RECEIVED,
                 "in_transit": SaleOrder.OrderStatusChoices.IN_TRANSIT,
                 "in transit": SaleOrder.OrderStatusChoices.IN_TRANSIT,
                 "cancelled": SaleOrder.OrderStatusChoices.CANCELLED,
@@ -162,7 +161,9 @@ class SaleOrderViewSet(viewsets.ModelViewSet):
 
             if (
                 new_status == SaleOrder.OrderStatusChoices.CANCELLED
-                and instance.order_status != SaleOrder.OrderStatusChoices.PENDING
+                and instance.order_status not in (
+                    SaleOrder.OrderStatusChoices.PENDING,
+                )
             ):
                 return Response(
                     {"error": "Can only cancel orders with status Pending"},

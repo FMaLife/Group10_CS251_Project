@@ -113,14 +113,37 @@ class SalesOrderForm(forms.ModelForm):
     class Meta:
         model = SaleOrder
         fields = ["order_status"]
-        
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        current = self.instance.order_status if self.instance.pk else None
+
+        if current == "Pending":
+            allowed = {"Cancelled"}
+        elif current == "Received":
+            allowed = {"In transit"}
+        else:
+            allowed = set()
+
         self.fields['order_status'].choices = [('', 'Select Status')] + [
             (key, label)
             for key, label in self.fields['order_status'].choices
-            if key
+            if label in allowed
         ]
+
+    def clean_order_status(self):
+        new_status = self.cleaned_data.get("order_status")
+        current_status = self.instance.order_status if self.instance.pk else None
+
+        # ห้าม cancel order ที่ไม่ใช่ Pending
+        if new_status == "Cancelled" and current_status != "Pending":
+            raise forms.ValidationError("Can only cancel orders with status Pending.")
+
+        # ห้าม in_transit ถ้ายังไม่ Received
+        if new_status == "In transit" and current_status != "Received":
+            raise forms.ValidationError("Can only ship orders with status Received.")
+
+        return new_status
 
 class EmployeeForm(forms.ModelForm):
     class Meta:

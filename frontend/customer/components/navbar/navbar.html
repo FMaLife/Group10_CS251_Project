@@ -59,15 +59,26 @@
 
       <div class="navbar-divider" aria-hidden="true"></div>
 
-      <!-- Cart -->
-      <button id="cart-icon-btn" class="navbar-cart-btn" aria-label="Shopping cart">
-        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <path d="M16 10a4 4 0 0 1-8 0"/>
+      <!-- Cart (new) -->
+      <button id="cart-icon-btn" style="position:relative;background:none;border:none;cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;" aria-label="Shopping cart">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block;">
+          <path d="M7.5 7.67V6.7C7.5 4.45 9.31 2.24 11.56 2.03C14.24 1.77 16.5 3.88 16.5 6.51V7.89" style="stroke:#46494F;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;fill:none;"/>
+          <path d="M9 22H15C19.02 22 19.74 20.39 19.95 18.43L20.7 12.43C20.97 9.99 20.27 8 16 8H8C3.73 8 3.03 9.99 3.3 12.43L4.05 18.43C4.26 20.39 4.98 22 9 22Z" style="stroke:#46494F;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;fill:none;"/>
+          <path d="M15.5 12H15.51" style="stroke:#46494F;stroke-width:2;stroke-linecap:round;"/>
+          <path d="M8.5 12H8.51" style="stroke:#46494F;stroke-width:2;stroke-linecap:round;"/>
         </svg>
-        <span id="cart-badge" class="cart-badge" aria-live="polite">0</span>
+        <span id="cart-badge" class="navbar-cart-count" aria-live="polite">0</span>
       </button>
+
+      <!-- Orders -->
+      <a href="/frontend/customer/checkout/orders/orders.html" class="navbar-orders-btn" aria-label="My Orders">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" stroke="#46494F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="9" y="3" width="6" height="4" rx="1" stroke="#46494F" stroke-width="1.8" stroke-linejoin="round"/>
+          <line x1="9" y1="12" x2="15" y2="12" stroke="#46494F" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="9" y1="16" x2="13" y2="16" stroke="#46494F" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </a>
 
     </div>
   </div><!-- /.navbar-top -->

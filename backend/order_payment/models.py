@@ -79,7 +79,7 @@ class OrderDetail(models.Model):
 class Payment(models.Model):
     class PaymentStatusChoices(models.TextChoices):
         WAITING = "Waiting", "Waiting"
-        COMPLETED = "Complete", "Complete"
+        COMPLETED = "Completed", "Completed"
         CANCELLED = "Cancelled", "Cancelled"
 
     ref_number = models.CharField(max_length=50, primary_key=True)
