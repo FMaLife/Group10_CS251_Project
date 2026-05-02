@@ -57,7 +57,16 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     def get_primaryImage(self, obj):
         primary = obj.images.filter(Is_Primary=1).first()
-        return ProductImageSerializer(primary).data if primary else None
+        if primary:
+            return ProductImageSerializer(primary).data
+        first = obj.images.first()
+        if first:
+            return ProductImageSerializer(first).data
+        if obj.image:
+            request = self.context.get('request')
+            url = request.build_absolute_uri(obj.image.url) if request else obj.image.url
+            return {'imageId': None, 'productId': obj.pk, 'imageUrl': url, 'isPrimary': 0}
+        return None
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
